@@ -1,0 +1,548 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#E0E0E0">
+
+    <!-- Main scrollable content (everything below the log) -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:id="@+id/labeling_data_root"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="12dp"
+            android:layout_margin="8dp"
+            android:background="@drawable/app_border">
+
+            <!-- ============================================ -->
+            <!-- SECTION 1: SUBJECT INFORMATION -->
+            <!-- ============================================ -->
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="#3F51B5"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Subject Information"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#333333"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="10dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginBottom="10dp">
+
+                <TextView
+                    android:id="@+id/connectionStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Status:"
+                    android:textSize="14sp"
+                    android:textColor="#666666"
+                    android:paddingEnd="8dp"/>
+
+                <EditText
+                    android:id="@+id/enterSubjectNumber"
+                    android:layout_width="150dp"
+                    android:layout_height="40dp"
+                    android:background="@android:drawable/edit_text"
+                    android:hint="Subject ID"
+                    android:inputType="number"
+                    android:textAlignment="center"
+                    android:textColor="@color/black"
+                    android:textColorHint="#959595"
+                    android:textSize="14sp"/>
+            </LinearLayout>
+
+            <!-- ============================================ -->
+            <!-- SECTION 2: SETUP IMUs -->
+            <!-- ============================================ -->
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="#3F51B5"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Setup IMUs"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#333333"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="10dp"/>
+
+            <Button
+                android:id="@+id/listImusButton"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_marginBottom="12dp"
+                android:backgroundTint="#2196F3"
+                android:onClick="listImusButton_onClick"
+                android:text="Search Available IMUs"
+                android:textSize="14sp"/>
+
+            <!-- IMU Selection Layout - Labels at top, Spinners below -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="12dp">
+
+                <!-- IMU 1 Column -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginEnd="4dp">
+
+                    <TextView
+                        android:id="@+id/labelIMU1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="IMU 1"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="#1976D2"
+                        android:gravity="center"
+                        android:layout_marginBottom="4dp"/>
+
+                    <Spinner
+                        android:id="@+id/spinnerIMU1"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:background="@android:drawable/btn_dropdown"
+                        android:spinnerMode="dropdown"/>
+                </LinearLayout>
+
+                <!-- IMU 2 Column -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginStart="4dp">
+
+                    <TextView
+                        android:id="@+id/labelIMU2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="IMU 2"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="#1976D2"
+                        android:gravity="center"
+                        android:layout_marginBottom="4dp"/>
+
+                    <Spinner
+                        android:id="@+id/spinnerIMU2"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:background="@android:drawable/btn_dropdown"
+                        android:spinnerMode="dropdown"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- IMU Status and Index Display - No IMU names inside -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="12dp"
+                android:gravity="center_vertical">
+
+                <!-- IMU1 Status and Index -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginEnd="4dp"
+                    android:padding="8dp"
+                    android:background="#E3F2FD">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="4dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Status: "
+                            android:textSize="11sp"
+                            android:textColor="#666666"/>
+
+                        <TextView
+                            android:id="@+id/imu1Status"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="-"
+                            android:textSize="11sp"
+                            android:textColor="#333333"
+                            android:textStyle="bold"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Index: "
+                            android:textSize="11sp"
+                            android:textColor="#666666"/>
+
+                        <TextView
+                            android:id="@+id/imu1Index"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="-"
+                            android:textSize="11sp"
+                            android:textColor="#333333"
+                            android:textStyle="bold"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- IMU2 Status and Index -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginStart="4dp"
+                    android:padding="8dp"
+                    android:background="#E3F2FD">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="4dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Status: "
+                            android:textSize="11sp"
+                            android:textColor="#666666"/>
+
+                        <TextView
+                            android:id="@+id/imu2Status"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="-"
+                            android:textSize="11sp"
+                            android:textColor="#333333"
+                            android:textStyle="bold"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Index: "
+                            android:textSize="11sp"
+                            android:textColor="#666666"/>
+
+                        <TextView
+                            android:id="@+id/imu2Index"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="-"
+                            android:textSize="11sp"
+                            android:textColor="#333333"
+                            android:textStyle="bold"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/scanButton"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_marginBottom="10dp"
+                android:backgroundTint="#2196F3"
+                android:onClick="scanButton_onClick"
+                android:text="Start Scan"
+                android:textSize="14sp"/>
+
+            <!-- ============================================ -->
+            <!-- SECTION 3: PROCESSING IMUs -->
+            <!-- ============================================ -->
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="#3F51B5"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Processing IMUs"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#333333"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="10dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="10dp">
+
+                <Button
+                    android:id="@+id/syncButton"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="4dp"
+                    android:backgroundTint="#2196F3"
+                    android:onClick="syncButton_onClick"
+                    android:text="Sync"
+                    android:textSize="14sp"/>
+
+                <Button
+                    android:id="@+id/measureButton"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="4dp"
+                    android:backgroundTint="#2196F3"
+                    android:onClick="measureButton_onClick"
+                    android:text="Measure"
+                    android:textSize="14sp"/>
+
+                <Button
+                    android:id="@+id/dataLogButton"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="4dp"
+                    android:backgroundTint="#2196F3"
+                    android:text="Data Log"
+                    android:textSize="14sp"/>
+            </LinearLayout>
+
+            <!-- ============================================ -->
+            <!-- SECTION 4: ONLINE INFORMATION -->
+            <!-- ============================================ -->
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="#3F51B5"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Online Information"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#333333"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="10dp"/>
+
+            <!-- Activity Labels button (full width, on top) -->
+            <Button
+                android:id="@+id/openLabelDialogButton"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_marginBottom="10dp"
+                android:backgroundTint="#2196F3"
+                android:text="Activity Labels"
+                android:textSize="14sp"/>
+
+            <!-- IMU Data and Features buttons (side by side) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="10dp">
+
+                <Button
+                    android:id="@+id/showImuDataButton"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="4dp"
+                    android:backgroundTint="#2196F3"
+                    android:text="IMU Data"
+                    android:textSize="14sp"/>
+
+                <Button
+                    android:id="@+id/showFeaturesButton"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="4dp"
+                    android:backgroundTint="#2196F3"
+                    android:text="Features"
+                    android:textSize="14sp"/>
+            </LinearLayout>
+
+            <!-- ============================================ -->
+            <!-- SECTION 5: SESSION CONTROL -->
+            <!-- ============================================ -->
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="#3F51B5"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Session Control"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#333333"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="10dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="8dp">
+
+                <Button
+                    android:id="@+id/stopButton"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="4dp"
+                    android:backgroundTint="#AB2727"
+                    android:onClick="stopButton_onClick"
+                    android:text="Stop"
+                    android:textSize="14sp"/>
+
+                <Button
+                    android:id="@+id/uploadButton"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="4dp"
+                    android:backgroundTint="#2196F3"
+                    android:onClick="uploadButton_onClick"
+                    android:text="Upload"
+                    android:textSize="14sp"/>
+
+                <Button
+                    android:id="@+id/disconnectButton"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="4dp"
+                    android:backgroundTint="#AB2727"
+                    android:onClick="disconnectButton_onClick"
+                    android:text="Disconnet"
+                    android:textSize="13sp"/>
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- ============================================ -->
+    <!-- FLOATING LOG VIEWER OVERLAY (on top) -->
+    <!-- ============================================ -->
+
+    <LinearLayout
+        android:id="@+id/floatingLogContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:orientation="vertical"
+        android:background="#FFFFFF"
+        android:layout_margin="12dp"
+        android:elevation="8dp"
+        android:visibility="visible">
+
+        <!-- Log Header -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="#052A64"
+            android:padding="8dp"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="System Logs"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF"/>
+
+            <Button
+                android:id="@+id/toggleLogVisibility"
+                android:layout_width="70dp"
+                android:layout_height="35dp"
+                android:text="Show"
+                android:textSize="12sp"
+                android:backgroundTint="#2196F3"
+                android:padding="0dp"/>
+
+        </LinearLayout>
+
+        <!-- Scrollable log content -->
+        <ScrollView
+            android:id="@+id/logScrollView"
+            android:layout_width="match_parent"
+            android:layout_height="180dp"
+            android:fillViewport="true"
+            android:background="@drawable/log_border"
+            android:layout_margin="8dp"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/logContentsDialog"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:textColor="#0D47A1"
+                android:textSize="11sp"
+                android:lineSpacingExtra="2dp"
+                android:text="Waiting for logs..."
+                android:textIsSelectable="true"/>
+        </ScrollView>
+    </LinearLayout>
+
+</FrameLayout>

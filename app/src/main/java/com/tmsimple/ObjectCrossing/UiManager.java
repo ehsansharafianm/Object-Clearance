@@ -1,0 +1,826 @@
+package com.tmsimple.ObjectCrossing;
+import android.content.Context;
+import android.graphics.Color;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
+import android.view.MotionEvent;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
+import android.widget.TextView;
+
+import androidx.cardview.widget.CardView;
+
+import java.util.HashSet;
+import java.util.Locale;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
+import android.widget.AdapterView;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+
+public class UiManager {
+
+    // All UI elements
+    private final View root;
+    private final ImuManager imuManager;
+
+    public Button scanButton, syncButton, measureButton, disconnectButton,
+            stopButton, uploadButton, dataLogButton, listImusButton, openLabelDialogButton,
+            showFeaturesButton, listButton;
+
+    private android.app.Dialog labelDialog, logDialog, featureDialog;
+
+    public Button showImuDataButton;
+    private android.app.Dialog imuDataDialog;
+
+    // Dialog TextViews for IMU data
+    public TextView dialogImu1Status, dialogImu2Status;
+    public TextView dialogImu1Roll, dialogImu2Roll;
+    public TextView dialogImu1Gyro, dialogImu2Gyro;
+    public TextView dialogImu1Accel, dialogImu2Accel;
+    public TextView dialogImu1Index, dialogImu2Index;
+    public TextView dialogImu1Battery, dialogImu2Battery;
+    private View labelDialogView;
+    public Button logToggleButton;
+    public TextView imu1Status, imu2Status, logContents;
+    public TextView imu1Roll, imu2Roll;           // Roll angles
+    public TextView imu1Gyro, imu2Gyro;           // Gyro magnitudes
+    public TextView imu1Accel, imu2Accel;         // Linear accelerations
+    public TextView imu1Index, imu2Index;         // Packet indices
+    public TextView imu1Battery, imu2Battery, logContentsDialog;
+    public EditText enterSubjectNumber;
+    // Feature detection display fields
+    public TextView imu1WindowNumber, imu1TerrainType, imu1BiasValue, imu1MaxHeight, imu1MaxStride;
+    public TextView dialogImu1WindowNumber, dialogImu1TerrainType, dialogImu1BiasValue,
+            dialogImu1MaxHeight, dialogImu1MaxStride;
+
+    public CardView imuListDialog;
+    public Spinner spinnerIMU1, spinnerIMU2;
+    private Map<String, String> macToNameMap; // Maps MAC address to name
+    private Map<String, String> nameToMacMap; // Maps name to MAC address
+    private String selectedIMU1Mac;
+    private String selectedIMU2Mac;
+    private LogManager logManager;
+    private LinearLayout appBorderContainer;
+    private Context context;
+
+    private LinearLayout embeddedLogContainer;
+    private ScrollView embeddedLogScrollView;
+    private TextView embeddedLogContents;
+    private Button toggleLogButton;
+    private boolean isLogExpanded = true;
+
+
+
+    public void setLogManager(LogManager logManager) {
+        this.logManager = logManager;
+    }
+    public UiManager(View rootView, ImuManager imuManager) {
+        this.root = rootView;
+        this.imuManager = imuManager;
+        this.context = rootView.getContext();
+    }
+
+    // Bind all Views from layout
+    public void bindLabelingDataViews(View root) {
+
+        enterSubjectNumber = root.findViewById(R.id.enterSubjectNumber);
+        scanButton = root.findViewById(R.id.scanButton);
+        syncButton = root.findViewById(R.id.syncButton);
+        measureButton = root.findViewById(R.id.measureButton);
+        disconnectButton = root.findViewById(R.id.disconnectButton);
+        stopButton = root.findViewById(R.id.stopButton);
+        listImusButton = root.findViewById(R.id.listImusButton);
+        uploadButton = root.findViewById(R.id.uploadButton);
+        dataLogButton = root.findViewById(R.id.dataLogButton);
+
+        // Status fields
+        imu1Status = root.findViewById(R.id.imu1Status);
+        imu2Status = root.findViewById(R.id.imu2Status);
+
+        // IMU1 data fields
+        imu1Roll = root.findViewById(R.id.imu1Roll);
+        imu1Gyro = root.findViewById(R.id.imu1Gyro);
+        imu1Accel = root.findViewById(R.id.imu1Accel);
+        imu1Index = root.findViewById(R.id.imu1Index);
+        imu1Battery = root.findViewById(R.id.imu1Battery);
+
+        // IMU2 data fields
+        imu2Roll = root.findViewById(R.id.imu2Roll);
+        imu2Gyro = root.findViewById(R.id.imu2Gyro);
+        imu2Accel = root.findViewById(R.id.imu2Accel);
+        imu2Index = root.findViewById(R.id.imu2Index);
+        imu2Battery = root.findViewById(R.id.imu2Battery);
+
+        // Feature detection display fields
+        imu1WindowNumber = root.findViewById(R.id.imu1WindowNumber);
+        imu1TerrainType = root.findViewById(R.id.imu1TerrainType);
+        imu1BiasValue = root.findViewById(R.id.imu1BiasValue);
+        imu1MaxHeight = root.findViewById(R.id.imu1MaxHeight);
+        imu1MaxStride = root.findViewById(R.id.imu1MaxStride);
+
+        // FOR SPINNERS
+        spinnerIMU1 = root.findViewById(R.id.spinnerIMU1);
+        spinnerIMU2 = root.findViewById(R.id.spinnerIMU2);
+
+        openLabelDialogButton = root.findViewById(R.id.openLabelDialogButton);
+        showFeaturesButton = root.findViewById(R.id.showFeaturesButton);
+        showImuDataButton = root.findViewById(R.id.showImuDataButton);
+
+        // Status fields
+        imu1Status = root.findViewById(R.id.imu1Status);
+        imu2Status = root.findViewById(R.id.imu2Status);
+
+        // Index fields
+        imu1Index = root.findViewById(R.id.imu1Index);
+        imu2Index = root.findViewById(R.id.imu2Index);
+
+        appBorderContainer = root.findViewById(R.id.labeling_data_root);
+
+        Button listButton = root.findViewById(R.id.listImusButton);
+
+        // Bind embedded log views
+        embeddedLogScrollView = root.findViewById(R.id.logScrollView);
+        embeddedLogContents = root.findViewById(R.id.logContentsDialog);
+        toggleLogButton = root.findViewById(R.id.toggleLogVisibility);
+
+        // Setup toggle functionality
+        setupEmbeddedLogToggle();
+
+    }
+
+
+    //
+    // ---------- CONFIGURATION METHODS ----------
+    //
+
+    // Configure Button (text, color, enabled)
+    public void setButton(Button button, String text, String colorHex, String textColorHex, Boolean enabled) {
+        if (button == null) return;
+        if (text != null) button.setText(text);
+        if (colorHex != null) button.setBackgroundColor(Color.parseColor(colorHex));
+        if (textColorHex != null) button.setTextColor(Color.parseColor(textColorHex));
+        if (enabled != null) button.setEnabled(enabled);
+    }
+
+    // Configure TextView (text only)
+    public void setTextView(TextView textView, String text, String colorHex, Boolean enabled)  {
+        if (textView == null) return;
+        if (text != null) textView.setText(text);
+        if (colorHex != null) textView.setBackgroundColor(Color.parseColor(colorHex));
+        if (enabled != null) textView.setEnabled(enabled);
+    }
+
+    public void setDataLogButtonHandler(Button button, LogManager logManager, ImuManager imuManager) {
+        button.setOnClickListener(new View.OnClickListener() {
+            int index = 0;
+
+            @Override
+            public void onClick(View v) {
+                index++;
+                if (index % 2 == 1) {
+                    imuManager.setLoggingData(true);
+                    button.setBackgroundColor(Color.parseColor("#008080"));
+                    button.setText("Logging ...");
+                    logManager.log(" ---- Data is Logging -----");
+                } else if (index % 2 == 0 && index > 1) {
+                    imuManager.setLoggingData(false);
+                    button.setBackgroundColor(Color.parseColor("#2196F3"));
+                    button.setText("No Log");
+                    logManager.log("---- Data Logging Stopped -----");
+                }
+            }
+        });
+        vibratePhone(100);
+    }
+
+    private boolean isLogVisible = false;
+
+    public interface OnSubjectNumberEnteredListener {
+        void onSubjectNumberEntered(int subjectNumber);
+    }
+
+    public void setEnterSubjectNumberHandler(EditText editText, OnSubjectNumberEnteredListener listener) {
+        if (editText == null || listener == null) return;
+
+        editText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(Editable string) {
+                if (!TextUtils.isEmpty(string)) {
+                    try {
+                        int number = Integer.parseInt(string.toString());
+                        listener.onSubjectNumberEntered(number);
+                        setButton(scanButton, null, null, null, true);
+                    } catch (NumberFormatException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            }
+        });
+    }
+
+
+
+    // single listener that reads its offset (and colors) out of the view’s tag
+    private final View.OnTouchListener labelTouchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            // each button has a PacketOffsetItem in its tag
+            PacketOffsetItem info = (PacketOffsetItem) v.getTag();
+
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    imuManager.setPacketCounterOffset(info.offset);
+                    v.setBackgroundColor(info.activeColor);
+                    break;
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
+                    imuManager.setPacketCounterOffset(0);
+                    v.setBackgroundColor(info.defaultColor);
+                    break;
+            }
+            return true;
+        }
+    };
+    // Modified bindLabelButtons to work with dialog view
+    private void bindLabelButtonsInDialog(View dialogView) {
+        PacketOffsetItem[] configs = new PacketOffsetItem[] {
+                new PacketOffsetItem(R.id.labelButton1, 1000000,
+                        Color.parseColor("#05fff8"),
+                        Color.parseColor("#903F51B5")),
+                new PacketOffsetItem(R.id.labelButton2, 2000000,
+                        Color.parseColor("#05fff8"),
+                        Color.parseColor("#903F51B5")),
+                new PacketOffsetItem(R.id.labelButton3, 3000000,
+                        Color.parseColor("#05fff8"),
+                        Color.parseColor("#903F51B5")),
+                new PacketOffsetItem(R.id.labelButton4, 4000000,
+                        Color.parseColor("#05fff8"),
+                        Color.parseColor("#903F51B5")),
+                new PacketOffsetItem(R.id.labelButton5, 5000000,
+                        Color.parseColor("#05fff8"),
+                        Color.parseColor("#903F51B5")),
+                new PacketOffsetItem(R.id.labelButton6, 6000000,
+                        Color.parseColor("#05fff8"),
+                        Color.parseColor("#903F51B5")),
+        };
+
+        for (PacketOffsetItem cfg : configs) {
+            Button btn = dialogView.findViewById(cfg.buttonId);
+            if (btn != null) {
+                btn.setTag(cfg);
+                btn.setOnTouchListener(labelTouchListener);
+            }
+        }
+    }
+    private static class PacketOffsetItem {
+        final int buttonId;
+        final int offset;
+        final int activeColor;
+        final int defaultColor;
+
+        PacketOffsetItem(int buttonId, int offset, int activeColor, int defaultColor) {
+            this.buttonId    = buttonId;
+            this.offset      = offset;
+            this.activeColor = activeColor;
+            this.defaultColor= defaultColor;
+        }
+    }
+
+
+    // Optional utility: clear all text fields
+    public void clearAllValues() {
+        imu1Roll.setText("");
+        imu1Gyro.setText("");
+        imu1Accel.setText("");
+        imu1Index.setText("");
+        imu1Battery.setText("");
+
+        imu2Roll.setText("");
+        imu2Gyro.setText("");
+        imu2Accel.setText("");
+        imu2Index.setText("");
+        imu2Battery.setText("");
+    }
+
+    // Method to update feature detection display with dynamic colors
+    // Method to update feature detection display with dynamic colors
+    public void updateFeatureDisplay(int windowNum, String terrainType, double biasValue,
+                                     double maxHeight, double maxStride) {
+        // Calculate color once (used for both main page and dialog)
+        int backgroundColor;
+        switch (terrainType) {
+            case "Level_Walk":
+                backgroundColor = Color.parseColor("#4CAF50"); // Green
+                break;
+            case "Stair_Ascend":
+                backgroundColor = Color.parseColor("#FF5722"); // Red-Orange
+                break;
+            case "Stair_Descend":
+                backgroundColor = Color.parseColor("#F44336"); // Red
+                break;
+            case "Ramp_Ascend":
+                backgroundColor = Color.parseColor("#FF9800"); // Orange
+                break;
+            case "Ramp_Descend":
+                backgroundColor = Color.parseColor("#FFC107"); // Amber
+                break;
+            default:
+                backgroundColor = Color.parseColor("#9E9E9E"); // Gray for unknown
+                break;
+        }
+
+        // UPDATE MAIN PAGE TextViews (if they exist)
+        if (imu1WindowNumber != null) {
+            imu1WindowNumber.setText(String.valueOf(windowNum));
+        }
+        if (imu1TerrainType != null) {
+            imu1TerrainType.setText(terrainType);
+            // Create drawable for main page
+            android.graphics.drawable.GradientDrawable drawable = new android.graphics.drawable.GradientDrawable();
+            drawable.setShape(android.graphics.drawable.GradientDrawable.RECTANGLE);
+            drawable.setColor(backgroundColor);
+            drawable.setCornerRadius(8);
+            imu1TerrainType.setBackground(drawable);
+        }
+        if (imu1BiasValue != null) {
+            imu1BiasValue.setText(String.format(Locale.US, "%.3f", biasValue));
+        }
+        if (imu1MaxHeight != null) {
+            imu1MaxHeight.setText(String.format(Locale.US, "%.3f m", maxHeight));
+        }
+        if (imu1MaxStride != null) {
+            imu1MaxStride.setText(String.format(Locale.US, "%.3f m", maxStride));
+        }
+
+        // UPDATE DIALOG TextViews (if they exist)
+        if (dialogImu1WindowNumber != null) {
+            dialogImu1WindowNumber.setText(String.valueOf(windowNum));
+        }
+        if (dialogImu1TerrainType != null) {
+            dialogImu1TerrainType.setText(terrainType);
+            // Create new drawable for dialog (can't reuse the same drawable)
+            android.graphics.drawable.GradientDrawable dialogDrawable = new android.graphics.drawable.GradientDrawable();
+            dialogDrawable.setShape(android.graphics.drawable.GradientDrawable.RECTANGLE);
+            dialogDrawable.setColor(backgroundColor);
+            dialogDrawable.setCornerRadius(8);
+            dialogImu1TerrainType.setBackground(dialogDrawable);
+        }
+        if (dialogImu1BiasValue != null) {
+            dialogImu1BiasValue.setText(String.format(Locale.US, "%.3f", biasValue));
+        }
+        if (dialogImu1MaxHeight != null) {
+            dialogImu1MaxHeight.setText(String.format(Locale.US, "%.3f m", maxHeight));
+        }
+        if (dialogImu1MaxStride != null) {
+            dialogImu1MaxStride.setText(String.format(Locale.US, "%.3f m", maxStride));
+        }
+    }
+
+
+    // Add a method to show the dialog
+    public void showImuListDialog() {
+        if (imuListDialog != null) {
+            imuListDialog.setVisibility(View.VISIBLE);
+        }
+    }
+
+    // Parse and setup the spinners
+    public void setupImuSpinners(android.content.Context context) {
+        // Load the sensor list from strings.xml
+        String[] sensorArray = context.getResources().getStringArray(R.array.sensor_mac_map);
+
+        // Initialize maps
+        macToNameMap = new HashMap<>();
+        nameToMacMap = new HashMap<>();
+        List<String> namesList = new ArrayList<>();
+
+        // Parse each item: "MAC,Name"
+        for (String item : sensorArray) {
+            String[] parts = item.split(",");
+            if (parts.length == 2) {
+                String mac = parts[0].trim();
+                String name = parts[1].trim();
+                macToNameMap.put(mac, name);
+                nameToMacMap.put(name, mac);
+                namesList.add(name); // Only names will be displayed
+            }
+        }
+
+        // Create adapter with just the names
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                context,
+                android.R.layout.simple_spinner_item,
+                namesList
+        );
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        // Setup IMU1 spinner
+        if (spinnerIMU1 != null) {
+            spinnerIMU1.setAdapter(adapter);
+            spinnerIMU1.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    String selectedName = (String) parent.getItemAtPosition(position);
+                    selectedIMU1Mac = nameToMacMap.get(selectedName);
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+                    selectedIMU1Mac = null;
+                }
+            });
+        }
+
+        // Setup IMU2 spinner
+        if (spinnerIMU2 != null) {
+            spinnerIMU2.setAdapter(adapter);
+            spinnerIMU2.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    String selectedName = (String) parent.getItemAtPosition(position);
+                    selectedIMU2Mac = nameToMacMap.get(selectedName);
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+                    selectedIMU2Mac = null;
+                }
+            });
+        }
+    }
+
+    // Getter methods for selected MAC addresses
+    public String getSelectedIMU1Mac() {
+        return selectedIMU1Mac;
+    }
+
+    public String getSelectedIMU2Mac() {
+        return selectedIMU2Mac;
+    }
+
+    // Getter methods for selected names
+    public String getSelectedIMU1Name() {
+        if (spinnerIMU1 != null && spinnerIMU1.getSelectedItem() != null) {
+            return (String) spinnerIMU1.getSelectedItem();
+        }
+        return null;
+    }
+
+    public String getSelectedIMU2Name() {
+        if (spinnerIMU2 != null && spinnerIMU2.getSelectedItem() != null) {
+            return (String) spinnerIMU2.getSelectedItem();
+        }
+        return null;
+    }
+
+    // Get MAC address from name
+    public String getMacFromName(String name) {
+        return nameToMacMap != null ? nameToMacMap.get(name) : null;
+    }
+
+    // Get name from MAC address
+    public String getNameFromMac(String mac) {
+        return macToNameMap != null ? macToNameMap.get(mac) : null;
+    }
+
+    // Method to update spinners with only discoverable devices
+    public void updateSpinnersWithDiscoveredDevices(Context context, HashSet<String> discoveredMacAddresses) {
+        if (discoveredMacAddresses == null || discoveredMacAddresses.isEmpty()) {
+            // If no devices discovered yet, show all IMUs
+            setupImuSpinners(context);
+            return;
+        }
+
+        // Filter the list to only include discovered devices
+        List<String> discoveredNamesList = new ArrayList<>();
+
+        for (String mac : discoveredMacAddresses) {
+            String name = macToNameMap.get(mac);
+            if (name != null) {
+                discoveredNamesList.add(name);
+            }
+        }
+
+        // If no matching devices found, keep the spinners empty or show a message
+        if (discoveredNamesList.isEmpty()) {
+            logManager.log("No matching IMUs found in discovery.");
+            return;
+        }
+
+        // Create adapter with only discovered devices
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                context,
+                android.R.layout.simple_spinner_item,
+                discoveredNamesList
+        );
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        // Update IMU1 spinner
+        if (spinnerIMU1 != null) {
+            String previousSelection = getSelectedIMU1Name();
+            spinnerIMU1.setAdapter(adapter);
+
+            // Try to restore previous selection if it's still in the list
+            if (previousSelection != null && discoveredNamesList.contains(previousSelection)) {
+                int position = discoveredNamesList.indexOf(previousSelection);
+                spinnerIMU1.setSelection(position);
+            }
+        }
+
+        // Update IMU2 spinner
+        if (spinnerIMU2 != null) {
+            String previousSelection = getSelectedIMU2Name();
+            spinnerIMU2.setAdapter(adapter);
+
+            // Try to restore previous selection if it's still in the list
+            if (previousSelection != null && discoveredNamesList.contains(previousSelection)) {
+                int position = discoveredNamesList.indexOf(previousSelection);
+                spinnerIMU2.setSelection(position);
+            }
+        }
+    }
+
+    // Add method to setup and show the label dialog
+    public void setupLabelDialog(android.content.Context context) {
+        // Create the dialog
+        labelDialog = new android.app.Dialog(context);
+        labelDialog.setContentView(R.layout.dialog_label_buttons);
+
+        // Set size and position
+        if (labelDialog.getWindow() != null) {
+            // OPTION 1: Size configuration
+            // Change width - choose one:
+            int dialogWidth = android.view.ViewGroup.LayoutParams.MATCH_PARENT;  // Full width
+            // int dialogWidth = (int)(context.getResources().getDisplayMetrics().widthPixels * 0.9);  // 90% width
+            // int dialogWidth = 800;  // Fixed 800 pixels
+
+            // Change height - choose one:
+            // int dialogHeight = android.view.ViewGroup.LayoutParams.WRAP_CONTENT;  // Wrap content (recommended)
+            int dialogHeight = (int)(context.getResources().getDisplayMetrics().heightPixels * 0.7);  // 70% height
+            // int dialogHeight = 1000;  // Fixed 1000 pixels
+
+            labelDialog.getWindow().setLayout(dialogWidth, dialogHeight);
+
+            // OPTION 2: Position configuration
+            android.view.WindowManager.LayoutParams params = labelDialog.getWindow().getAttributes();
+
+            // Set gravity - choose one or combine:
+            // params.gravity = android.view.Gravity.CENTER;  // Center (default)
+            params.gravity = android.view.Gravity.BOTTOM;  // Bottom of screen
+            // params.gravity = android.view.Gravity.TOP;  // Top of screen
+            // params.gravity = android.view.Gravity.TOP | android.view.Gravity.RIGHT;  // Top-right corner
+
+            // Set offset (optional):
+            params.y = 0;   // Vertical offset: positive = down, negative = up (in pixels)
+            params.x = 0;   // Horizontal offset: positive = right, negative = left (in pixels)
+            // params.y = -200;  // Example: move 200 pixels UP
+            // params.y = 100;   // Example: move 100 pixels DOWN
+
+            // ADD THIS: Make background semi-transparent
+            params.dimAmount = 0.1f; // 0.0f = no dim, 1.0f = fully dark
+            labelDialog.getWindow().addFlags(android.view.WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+
+            labelDialog.getWindow().setAttributes(params);
+
+            // Background style
+            labelDialog.getWindow().setBackgroundDrawableResource(android.R.drawable.dialog_holo_light_frame);
+            // For transparent background (useful with custom drawable):
+            // labelDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        }
+
+        // Get the dialog view
+        labelDialogView = labelDialog.findViewById(android.R.id.content);
+
+        // Bind label buttons functionality to dialog buttons
+        bindLabelButtonsInDialog(labelDialogView);
+
+        // Setup close button
+        Button closeButton = labelDialog.findViewById(R.id.closeLabelDialog);
+        if (closeButton != null) {
+            closeButton.setOnClickListener(v -> labelDialog.dismiss());
+        }
+
+        // Setup the open button
+        if (openLabelDialogButton != null) {
+            openLabelDialogButton.setOnClickListener(v -> {
+                if (labelDialog != null) {
+                    labelDialog.show();
+                }
+            });
+        }
+    }
+
+    public void bindLabelButtons() {
+        bindLabelButtonsInDialog(root);
+    }
+
+    // Setup the log dialog
+    public void setupLogDialog(android.content.Context context, LogManager logManager) {
+        // Auto-scroll whenever text changes
+        if (embeddedLogContents != null && embeddedLogScrollView != null) {
+            embeddedLogContents.addTextChangedListener(new android.text.TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+                @Override
+                public void afterTextChanged(android.text.Editable s) {
+                    // Scroll to bottom whenever text is added
+                    embeddedLogScrollView.post(() -> embeddedLogScrollView.fullScroll(android.view.View.FOCUS_DOWN));
+                }
+            });
+        }
+
+        // Update LogManager to use the embedded TextView
+        if (logManager != null) {
+            logManager.setLogContents(embeddedLogContents);
+        }
+
+    }
+    public void setupFeatureDialog(android.content.Context context) {
+        // Create the dialog
+        featureDialog = new android.app.Dialog(context, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+        featureDialog.setContentView(R.layout.dialog_feature_results);
+
+        // Set size and position
+        if (featureDialog.getWindow() != null) {
+            // OPTION 1: 80% height, centered (recommended)
+            featureDialog.getWindow().setLayout(
+                    android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                    (int)(context.getResources().getDisplayMetrics().heightPixels * 0.72)
+            );
+
+            // OPTION 2: Full screen
+            // featureDialog.getWindow().setLayout(
+            //         android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+            //         android.view.ViewGroup.LayoutParams.MATCH_PARENT
+            // );
+
+            android.view.WindowManager.LayoutParams params = featureDialog.getWindow().getAttributes();
+            // params.gravity = android.view.Gravity.CENTER;
+            // For bottom sheet style:
+             params.gravity = android.view.Gravity.BOTTOM;
+            featureDialog.getWindow().setAttributes(params);
+        }
+
+        // Bind the TextViews from dialog
+        dialogImu1WindowNumber = featureDialog.findViewById(R.id.imu1WindowNumber);
+        dialogImu1TerrainType = featureDialog.findViewById(R.id.imu1TerrainType);
+        dialogImu1BiasValue = featureDialog.findViewById(R.id.imu1BiasValue);
+        dialogImu1MaxHeight = featureDialog.findViewById(R.id.imu1MaxHeight);
+        dialogImu1MaxStride = featureDialog.findViewById(R.id.imu1MaxStride);
+
+        // Setup close button
+        Button closeButton = featureDialog.findViewById(R.id.closeFeatureDialog);
+        if (closeButton != null) {
+            closeButton.setOnClickListener(v -> featureDialog.dismiss());
+        }
+
+        // Setup the show button
+        if (showFeaturesButton != null) {
+            showFeaturesButton.setOnClickListener(v -> {
+                if (featureDialog != null) {
+                    featureDialog.show();
+                }
+            });
+        }
+    }
+
+
+    public void setupImuDataDialog(android.content.Context context) {
+        // Create the dialog
+        imuDataDialog = new android.app.Dialog(context, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+        imuDataDialog.setContentView(R.layout.dialog_imu_data);
+
+        // Set size and position
+        if (imuDataDialog.getWindow() != null) {
+            imuDataDialog.getWindow().setLayout(
+                    android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                    (int)(context.getResources().getDisplayMetrics().heightPixels * 0.7)
+            );
+
+            android.view.WindowManager.LayoutParams params = imuDataDialog.getWindow().getAttributes();
+            params.gravity = android.view.Gravity.BOTTOM;
+            imuDataDialog.getWindow().setAttributes(params);
+        }
+
+        // Bind the TextViews from dialog
+        dialogImu1Status = imuDataDialog.findViewById(R.id.imu1Status);
+        dialogImu1Roll = imuDataDialog.findViewById(R.id.imu1Roll);
+        dialogImu1Gyro = imuDataDialog.findViewById(R.id.imu1Gyro);
+        dialogImu1Accel = imuDataDialog.findViewById(R.id.imu1Accel);
+        dialogImu1Index = imuDataDialog.findViewById(R.id.imu1Index);
+        dialogImu1Battery = imuDataDialog.findViewById(R.id.imu1Battery);
+
+        dialogImu2Status = imuDataDialog.findViewById(R.id.imu2Status);
+        dialogImu2Roll = imuDataDialog.findViewById(R.id.imu2Roll);
+        dialogImu2Gyro = imuDataDialog.findViewById(R.id.imu2Gyro);
+        dialogImu2Accel = imuDataDialog.findViewById(R.id.imu2Accel);
+        dialogImu2Index = imuDataDialog.findViewById(R.id.imu2Index);
+        dialogImu2Battery = imuDataDialog.findViewById(R.id.imu2Battery);
+
+        // Setup close button
+        Button closeButton = imuDataDialog.findViewById(R.id.closeImuDataDialog);
+        if (closeButton != null) {
+            closeButton.setOnClickListener(v -> imuDataDialog.dismiss());
+        }
+
+        // Setup the show button
+        if (showImuDataButton != null) {
+            showImuDataButton.setOnClickListener(v -> {
+                if (imuDataDialog != null) {
+                    imuDataDialog.show();
+                }
+            });
+        }
+    }
+    // METHOD to change the app border color dynamically
+    public void setAppBorderColor(String borderColorHex) {
+        if (appBorderContainer == null) return;
+
+        try {
+            // Create a new GradientDrawable programmatically
+            android.graphics.drawable.GradientDrawable border = new android.graphics.drawable.GradientDrawable();
+            border.setShape(android.graphics.drawable.GradientDrawable.RECTANGLE);
+            border.setStroke(12, Color.parseColor(borderColorHex)); // 4dp border width (12px)
+            border.setCornerRadius(36); // 12dp corner radius (36px)
+            border.setColor(Color.parseColor("#F5F5F5")); // Background color
+
+            appBorderContainer.setBackground(border);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // OVERLOADED METHOD for more control
+    public void setAppBorder(String borderColor, String backgroundColor, int borderWidthDp) {
+        if (appBorderContainer == null) return;
+
+        try {
+            android.graphics.drawable.GradientDrawable border = new android.graphics.drawable.GradientDrawable();
+            border.setShape(android.graphics.drawable.GradientDrawable.RECTANGLE);
+            border.setStroke(borderWidthDp * 3, Color.parseColor(borderColor)); // Convert dp to pixels
+            border.setCornerRadius(36); // 12dp corner radius
+            border.setColor(Color.parseColor(backgroundColor));
+
+            appBorderContainer.setBackground(border);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void setupEmbeddedLogToggle() {
+        if (toggleLogButton != null && embeddedLogScrollView != null) {
+
+            // Set initial state - ScrollView is hidden
+            embeddedLogScrollView.setVisibility(View.GONE);
+            toggleLogButton.setText("Show");  // Already set to "Show"
+
+            toggleLogButton.setOnClickListener(v -> {
+                if (embeddedLogScrollView.getVisibility() == View.VISIBLE) {
+                    embeddedLogScrollView.setVisibility(View.GONE);
+                    toggleLogButton.setText("Show");
+                } else {
+                    embeddedLogScrollView.setVisibility(View.VISIBLE);
+                    toggleLogButton.setText("Hide");
+
+                    // Auto-scroll to bottom when opened
+                    if (embeddedLogScrollView != null) {
+                        embeddedLogScrollView.post(() ->
+                                embeddedLogScrollView.fullScroll(View.FOCUS_DOWN));
+                    }
+                }
+            });
+        }
+    }
+
+    // Phone vibration method
+    public void vibratePhone(int durationMs) {
+        android.os.Vibrator vibrator = (android.os.Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+        if (vibrator != null && vibrator.hasVibrator()) {
+            vibrator.vibrate(durationMs);
+        }
+    }
+
+
+
+
+
+}

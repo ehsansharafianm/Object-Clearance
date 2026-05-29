@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "439774155167",
+    "project_id": "objectcrossing-cea05",
+    "storage_bucket": "objectcrossing-cea05.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:439774155167:android:e54c712420442acd7eedaa",
+        "android_client_info": {
+          "package_name": "com.tmsimple.ObjectCrossing"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCCzFOsHRpl-OfvgNNY4QkfyzxwAPsKkco"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

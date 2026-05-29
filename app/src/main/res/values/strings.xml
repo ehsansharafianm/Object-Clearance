@@ -1,0 +1,54 @@
+<resources>
+    <string name="app_name">Object Crossing</string>
+
+    <!-- A single array for MAC address to Tag mapping -->
+    <!-- Format: "MAC_ADDRESS,Human-Readable-Tag" -->
+    <string-array name="sensor_mac_map">
+        <item>D4:22:CD:00:9F:A0,V2–01</item>
+        <item>D4:22:CD:00:A2:12,V2–02</item>
+        <item>D4:22:CD:00:A2:0E,V2–03</item>
+        <item>D4:22:CD:00:A0:50,V2–04</item>
+        <item>D4:22:CD:00:9F:C3,V2–05</item>
+        <item>D4:22:CD:00:9F:88,V2–06</item>
+        <item>D4:22:CD:00:63:8A,V2–07</item>
+        <item>D4:22:CD:00:63:71,V2–08</item>
+        <item>D4:22:CD:00:63:83,V2–09</item>
+        <item>D4:22:CD:00:63:7F,V2–10</item>
+        <item>D4:22:CD:00:63:70,V2–11</item>
+        <item>D4:22:CD:00:A1:5B,V2–12</item>
+        <item>D4:22:CD:00:A7:91,V2–13</item>
+        <item>D4:22:CD:00:64:00,V2–14</item>
+        <item>D4:22:CD:00:63:7D,V2–15</item>
+        <item>D4:22:CD:00:63:D6,V2–16</item>
+        <item>D4:22:CD:00:63:8B,V2–17</item>
+        <item>D4:22:CD:00:A1:76,V2–18</item>
+        <item>D4:22:CD:00:63:A4,V2–19</item>
+        <item>D4:22:CD:00:9F:95,V2–20</item>
+        <item>D4:CA:6E:F1:77:9B,V1–01</item>
+        <item>D4:CA:6E:F1:7D:D4,V1–02</item>
+        <item>D4:22:CD:00:05:C5,V1–03</item>
+        <item>D4:22:CD:00:05:BA,V1–04</item>
+        <item>D4:22:CD:00:05:BB,V1–05</item>
+        <item>D4:CA:6E:F1:66:87,V1–06</item>
+        <item>D4:CA:6E:F1:84:BE,V1–07</item>
+        <item>D4:CA:6E:F1:78:4E,V1–08</item>
+        <item>D4:CA:6E:F1:72:76,V1–09</item>
+        <item>D4:CA:6E:F1:72:BF,V1–10</item>
+
+        <!-- Movella DOT sensors (M1-M10) -->
+        <item>D4:22:CD:07:A9:70,M-01</item>
+        <item>D4:22:CD:07:A7:06,M-02</item>
+        <item>D4:22:CD:07:A9:85,M-03</item>
+        <item>D4:22:CD:07:AA:CB,M-04</item>
+        <item>D4:22:CD:07:A7:18,M-05</item>
+        <item>D4:22:CD:07:A6:BD,M-06</item>
+        <item>D4:22:CD:07:A5:EE,M-07</item>
+        <item>D4:22:CD:07:A9:82,M-08</item>
+        <item>D4:22:CD:07:A7:5B,M-09</item>
+        <item>D4:22:CD:07:A8:3A,M-10</item>
+
+        <!-- Add more sensors here. Just add a new <item> line. -->
+        <!-- <item>XX:XX:XX:XX:XX:XX,MyOtherSensor</item> -->
+    </string-array>
+
+</resources>

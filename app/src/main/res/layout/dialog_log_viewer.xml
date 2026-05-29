@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#FFFFFF"
+    android:padding="0dp">
+
+    <!-- Header with title and close button -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="#052A64"
+        android:padding="16dp"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="System Logs"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"/>
+
+        <Button
+            android:id="@+id/closeLogDialog"
+            android:layout_width="80dp"
+            android:layout_height="50dp"
+            android:text="×"
+            android:textSize="24sp"
+            android:backgroundTint="#D5E65C61"
+            android:padding="0dp"/>
+    </LinearLayout>
+
+    <!-- Scrollable log content with border -->
+    <ScrollView
+        android:id="@+id/logScrollView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:background="@drawable/log_border"
+        android:layout_margin="12dp">
+
+        <TextView
+            android:id="@+id/logContentsDialog"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:textColor="#0D47A1"
+            android:textSize="13sp"
+            android:lineSpacingExtra="2dp"
+            android:text="Waiting for logs..."
+            android:textIsSelectable="true"/>
+    </ScrollView>
+
+</LinearLayout>

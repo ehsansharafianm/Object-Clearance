@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="sensor_mac_map">
+        <!-- Format: "MAC_ADDRESS,Human-Readable-Tag" -->
+        <item>D4:22:CD:00:63:D6,V2-16</item>
+
+        <!-- Add more sensors here as needed -->
+    </string-array>
+</resources>
