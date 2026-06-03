@@ -40,7 +40,7 @@ public class ImuManager implements
     private ArrayList<DotDevice> deviceList;
     private ZuptDetector zuptDetector;
 
-    private Segment IMU1, IMU2;
+    private Segment IMU1, IMU2, IMU3, IMU4;
     private boolean isLoggingData = false;
     private int packetCounterOffset = 0;
 
@@ -212,9 +212,11 @@ public class ImuManager implements
 
 
     /*===========================================================================*/
-    public void setSegments(Segment IMU1, Segment IMU2) {
+    public void setSegments(Segment IMU1, Segment IMU2, Segment IMU3, Segment IMU4) {
         this.IMU1 = IMU1;
         this.IMU2 = IMU2;
+        this.IMU3 = IMU3;
+        this.IMU4 = IMU4;
     }
     public int getMeasurementMode() {
         return measurementMode;
@@ -230,7 +232,7 @@ public class ImuManager implements
     @Override
     public void onDotScanned(android.bluetooth.BluetoothDevice bluetoothDevice, int rssi) {
 
-        if (IMU1 == null || IMU2 == null) {
+        if (IMU1 == null || IMU2 == null || IMU3 == null || IMU4 == null) {
             logManager.log("Error: Segments not initialized before scanning!");
             return;
         }
@@ -276,10 +278,30 @@ public class ImuManager implements
             listener.onImuScanned(IMU2.Name);
             logManager.log(IMU2.Name + " is scanned and logger is created");
         }
+        else if (address.equals(IMU3.MAC) && !IMU3.isScanned) {
+            IMU3.isScanned = true;
+            IMU3.xsDevice = new DotDevice(context, bluetoothDevice, this);
+            IMU3.xsDevice.connect();
+            deviceList.add(IMU3.xsDevice);
+            IMU3.isConnected = true;
 
-        if (IMU1.isScanned && IMU2.isScanned) {
+            listener.onImuScanned(IMU3.Name);
+            logManager.log(IMU3.Name + " is scanned and logger is created");
+        }
+        else if (address.equals(IMU4.MAC) && !IMU4.isScanned) {
+            IMU4.isScanned = true;
+            IMU4.xsDevice = new DotDevice(context, bluetoothDevice, this);
+            IMU4.xsDevice.connect();
+            deviceList.add(IMU4.xsDevice);
+            IMU4.isConnected = true;
+
+            listener.onImuScanned(IMU4.Name);
+            logManager.log(IMU4.Name + " is scanned and logger is created");
+        }
+
+        if (IMU1.isScanned && IMU2.isScanned && IMU3.isScanned && IMU4.isScanned) {
             mScanner.stopScan();
-            logManager.log("Both Devices are Scanned");
+            logManager.log("All Devices are Scanned");
         }
     }
     @Override
@@ -296,6 +318,18 @@ public class ImuManager implements
             listener.onImuReady(IMU2.Name);
             logManager.log("IMU2 IMU sample rate is : " + String.valueOf(IMU2.xsDevice.getCurrentOutputRate()));
         }
+        else if (address.equals(IMU3.MAC)) {
+            IMU3.isReady = true;
+            IMU3.xsDevice.setOutputRate(60);
+            listener.onImuReady(IMU3.Name);
+            logManager.log("IMU3 IMU sample rate is : " + String.valueOf(IMU3.xsDevice.getCurrentOutputRate()));
+        }
+        else if (address.equals(IMU4.MAC)) {
+            IMU4.isReady = true;
+            IMU4.xsDevice.setOutputRate(60);
+            listener.onImuReady(IMU4.Name);
+            logManager.log("IMU4 IMU sample rate is : " + String.valueOf(IMU4.xsDevice.getCurrentOutputRate()));
+        }
     }
 
     public void startSync() {
@@ -305,8 +339,8 @@ public class ImuManager implements
         logManager.log("Start Sync clicked");
         logManager.log("Device List size: " + deviceList.size());
 
-        if (!IMU1.isReady || !IMU2.isReady) {
-            logManager.log("Error: Devices not ready for syncing. IMU1 ready: " + IMU1.isReady + ", IMU2 ready: " + IMU2.isReady);
+        if (!IMU1.isReady || !IMU2.isReady || !IMU3.isReady || !IMU4.isReady) {
+            logManager.log("Error: Devices not ready for syncing. IMU1: " + IMU1.isReady + ", IMU2: " + IMU2.isReady + ", IMU3: " + IMU3.isReady + ", IMU4: " + IMU4.isReady);
             return;
         }
 
@@ -321,6 +355,8 @@ public class ImuManager implements
         measurementMode = SelectionMesurementMode;
         IMU1.xsDevice.setMeasurementMode(measurementMode);
         IMU2.xsDevice.setMeasurementMode(measurementMode);
+        IMU3.xsDevice.setMeasurementMode(measurementMode);
+        IMU4.xsDevice.setMeasurementMode(measurementMode);
 
         // Optional: store if you need
         // this.measurementMode = measurementMode;
@@ -328,8 +364,9 @@ public class ImuManager implements
         // 2ï¸âƒ£ Log detailed mode info
         logManager.log("Measurement Mode set: "
                 + IMU1.xsDevice.getMeasurementMode()
-                + " / "
-                + IMU2.xsDevice.getMeasurementMode());
+                + " / " + IMU2.xsDevice.getMeasurementMode()
+                + " / " + IMU3.xsDevice.getMeasurementMode()
+                + " / " + IMU4.xsDevice.getMeasurementMode());
 
         // 3ï¸âƒ£ Log syncing result
         logManager.log("---------- Syncing is done! ----------");
@@ -339,20 +376,28 @@ public class ImuManager implements
     }
     public void startMeasurement() {
 
-        if (IMU1.xsDevice.startMeasuring()) {logManager.log("Left IMU1 IMU is measuring");}
-        if (IMU2.xsDevice.startMeasuring()) {logManager.log("Left IMU2 IMU is measuring");}
+        if (IMU1.xsDevice.startMeasuring()) {logManager.log("IMU1 is measuring");}
+        if (IMU2.xsDevice.startMeasuring()) {logManager.log("IMU2 is measuring");}
+        if (IMU3.xsDevice.startMeasuring()) {logManager.log("IMU3 is measuring");}
+        if (IMU4.xsDevice.startMeasuring()) {logManager.log("IMU4 is measuring");}
     }
     public void stopMeasurement() {
         IMU1.xsDevice.stopMeasuring();
         IMU1.normalDataLogger.stop();
         IMU2.xsDevice.stopMeasuring();
         IMU2.normalDataLogger.stop();
+        IMU3.xsDevice.stopMeasuring();
+        IMU3.normalDataLogger.stop();
+        IMU4.xsDevice.stopMeasuring();
+        IMU4.normalDataLogger.stop();
 
         logConfusionMatrix();
     }
     public void disconnectAll() {
         IMU1.xsDevice.disconnect();
         IMU2.xsDevice.disconnect();
+        IMU3.xsDevice.disconnect();
+        IMU4.xsDevice.disconnect();
     }
     // Callbacks will go here in the next step
 
@@ -371,6 +416,14 @@ public class ImuManager implements
             IMU2.isConnected = isConnected;
             logManager.log("IMU2 IMU is " + (isConnected ? "connected!" : "disconnected!"));
             listener.onImuConnectionChanged(IMU2.Name, isConnected);
+        } else if (address.equals(IMU3.MAC)) {
+            IMU3.isConnected = isConnected;
+            logManager.log("IMU3 IMU is " + (isConnected ? "connected!" : "disconnected!"));
+            listener.onImuConnectionChanged(IMU3.Name, isConnected);
+        } else if (address.equals(IMU4.MAC)) {
+            IMU4.isConnected = isConnected;
+            logManager.log("IMU4 IMU is " + (isConnected ? "connected!" : "disconnected!"));
+            listener.onImuConnectionChanged(IMU4.Name, isConnected);
         }
     }
 
@@ -401,6 +454,17 @@ public class ImuManager implements
 
             double[] calibrated = applyCalibratedData(IMU2, eulerAngles, gyroData, accelData);
             eulerAngles[0] = calibrated[0];
+        } else if (address.equals(IMU3.MAC)) {
+            dotData.setPacketCounter(dotData.getPacketCounter() + packetCounterOffset);
+            calculateInitialValues(IMU3, dotData, eulerAngles, gyroData, accelData);
+            double[] calibrated = applyCalibratedData(IMU3, eulerAngles, gyroData, accelData);
+            eulerAngles[0] = calibrated[0];
+        }
+        else if (address.equals(IMU4.MAC)) {
+            dotData.setPacketCounter(dotData.getPacketCounter() + packetCounterOffset);
+            calculateInitialValues(IMU4, dotData, eulerAngles, gyroData, accelData);
+            double[] calibrated = applyCalibratedData(IMU4, eulerAngles, gyroData, accelData);
+            eulerAngles[0] = calibrated[0];
         }
 
         if (listener != null) {
@@ -428,6 +492,16 @@ public class ImuManager implements
                 // Store data in the segment object
                 // IMU2.storeData(eulerAngles, quats, accelData, dotData.getPacketCounter());
 
+            }
+            else if (address.equals(IMU3.MAC)) {
+                IMU3.normalDataLogger.update(dotData);
+                IMU3.sampleCounter++;
+                IMU3.dataOutput[3] = decimalFormat.format(dotData.getPacketCounter());
+            }
+            else if (address.equals(IMU4.MAC)) {
+                IMU4.normalDataLogger.update(dotData);
+                IMU4.sampleCounter++;
+                IMU4.dataOutput[3] = decimalFormat.format(dotData.getPacketCounter());
             }
         }
 

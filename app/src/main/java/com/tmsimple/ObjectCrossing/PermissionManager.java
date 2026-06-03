@@ -45,19 +45,21 @@ public class PermissionManager {
     public void requestAllPermissions() {
         List<String> permissionsToRequest = new ArrayList<>();
 
+        // Always request location (required for BLE scanning on all Android versions)
+        if (ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_DENIED) {
+            permissionsToRequest.add(Manifest.permission.ACCESS_FINE_LOCATION);
+        }
+        if (ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_DENIED) {
+            permissionsToRequest.add(Manifest.permission.ACCESS_COARSE_LOCATION);
+        }
+
+        // Also request Bluetooth permissions on Android 12+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             if (ContextCompat.checkSelfPermission(activity, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_DENIED) {
                 permissionsToRequest.add(Manifest.permission.BLUETOOTH_CONNECT);
             }
             if (ContextCompat.checkSelfPermission(activity, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_DENIED) {
                 permissionsToRequest.add(Manifest.permission.BLUETOOTH_SCAN);
-            }
-        } else {
-            if (ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_DENIED) {
-                permissionsToRequest.add(Manifest.permission.ACCESS_FINE_LOCATION);
-            }
-            if (ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_DENIED) {
-                permissionsToRequest.add(Manifest.permission.ACCESS_COARSE_LOCATION);
             }
         }
 
@@ -76,9 +78,8 @@ public class PermissionManager {
                 logManager.log("All permissions granted ✅");
             } else {
                 logManager.log("Some permissions denied ❌");
+                showPermissionDeniedDialog();
             }
-        } else {
-            logManager.log("Permission result for requestCode " + requestCode);
         }
     }
 
@@ -88,4 +89,24 @@ public class PermissionManager {
         }
         return true;
     }
+
+    private void showPermissionDeniedDialog() {
+        new androidx.appcompat.app.AlertDialog.Builder(activity)
+                .setTitle("Permissions Required")
+                .setMessage("Bluetooth and Location permissions are required to connect to IMU sensors.\n\nPlease grant these permissions in Settings to use the app.")
+                .setPositiveButton("Open Settings", (dialog, which) -> {
+                    android.content.Intent intent = new android.content.Intent(
+                            android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                            android.net.Uri.fromParts("package", activity.getPackageName(), null)
+                    );
+                    intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK);
+                    activity.startActivity(intent);
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> {
+                    logManager.log("User cancelled permission request.");
+                })
+                .setCancelable(false)
+                .show();
+    }
+
 }

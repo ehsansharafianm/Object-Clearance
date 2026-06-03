@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="com.tmsimple.ToeClearance" />
-                  <option name="mobileSdkAppId" value="1:749767861766:android:58f70e6d086cbc5311c587" />
-                  <option name="projectId" value="toeclarance" />
-                  <option name="projectNumber" value="749767861766" />
+                  <option name="appId" value="com.tmsimple.ObjectCrossing" />
+                  <option name="mobileSdkAppId" value="1:439774155167:android:e54c712420442acd7eedaa" />
+                  <option name="projectId" value="objectcrossing-cea05" />
+                  <option name="projectNumber" value="439774155167" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

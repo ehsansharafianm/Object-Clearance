@@ -24,9 +24,11 @@ import java.util.Locale;
 public class MainActivity extends AppCompatActivity implements ImuManagerListener {
 
 
-    private Segment IMU1, IMU2;
+    private Segment IMU1, IMU2, IMU3, IMU4;
     public String IMU1MAC = "D4:22:CD:00:63:D6"; //V2-16
     public String IMU2MAC = "D4:22:CD:00:63:8B"; //V2-17
+    public String IMU3MAC = "D4:22:CD:00:A1:76"; //V2-18
+    public String IMU4MAC = "D4:22:CD:00:63:A4"; //V2-19
 
 
     public File logFile;
@@ -130,63 +132,71 @@ public class MainActivity extends AppCompatActivity implements ImuManagerListene
 
     public void scanButton_onClick(View view) {
 
-
-        uiManager.setButton(uiManager.listImusButton,"IMUs are selected", "#008080", null, false);
+        uiManager.setButton(uiManager.listImusButton, "IMUs are selected", "#008080", null, false);
 
         // Get selected MAC addresses
         IMU1MAC = uiManager.getSelectedIMU1Mac();
         IMU2MAC = uiManager.getSelectedIMU2Mac();
+        IMU3MAC = uiManager.getSelectedIMU3Mac();
+        IMU4MAC = uiManager.getSelectedIMU4Mac();
 
         // Get selected names
         String imu1Name = uiManager.getSelectedIMU1Name();
         String imu2Name = uiManager.getSelectedIMU2Name();
+        String imu3Name = uiManager.getSelectedIMU3Name();
+        String imu4Name = uiManager.getSelectedIMU4Name();
 
-        logManager.log("IMU1: Name = " + imu1Name + ",MAC: " + IMU1MAC);
-        logManager.log("IMU2: Name = " + imu2Name + ",MAC: " + IMU2MAC);
+        logManager.log("IMU1: Name = " + imu1Name + ", MAC: " + IMU1MAC);
+        logManager.log("IMU2: Name = " + imu2Name + ", MAC: " + IMU2MAC);
+        logManager.log("IMU3: Name = " + imu3Name + ", MAC: " + IMU3MAC);
+        logManager.log("IMU4: Name = " + imu4Name + ", MAC: " + IMU4MAC);
 
-
-
-        // Check if the same IMU is selected for both
-        if (IMU1MAC.equals(IMU2MAC)) {
-            // Show error popup
-            new androidx.appcompat.app.AlertDialog.Builder(this)
-                    .setTitle("Selection Error")
-                    .setMessage("Please choose different IMUs for IMU1 and IMU2!")
-                    .setPositiveButton("OK", null)
-                    .show();
-
-            // Vibrate phone
-            uiManager.vibratePhone(500);  // Vibrate for 500ms
-
-            logManager.log("Error: IMU1 and IMU2 cannot be the same!");
-            return;
+        // Check that all 4 IMUs are different
+        String[] macs = {IMU1MAC, IMU2MAC, IMU3MAC, IMU4MAC};
+        String[] names = {"IMU1", "IMU2", "IMU3", "IMU4"};
+        for (int i = 0; i < macs.length; i++) {
+            for (int j = i + 1; j < macs.length; j++) {
+                if (macs[i] != null && macs[i].equals(macs[j])) {
+                    new androidx.appcompat.app.AlertDialog.Builder(this)
+                            .setTitle("Selection Error")
+                            .setMessage("Please choose different IMUs! " + names[i] + " and " + names[j] + " are the same.")
+                            .setPositiveButton("OK", null)
+                            .show();
+                    uiManager.vibratePhone(500);
+                    logManager.log("Error: " + names[i] + " and " + names[j] + " cannot be the same!");
+                    return;
+                }
+            }
         }
 
         // Configure IMU segments
         IMU1 = new Segment("IMU1 IMU", IMU1MAC);
         IMU2 = new Segment("IMU2 IMU", IMU2MAC);
-        imuManager.setSegments(IMU1, IMU2);
+        IMU3 = new Segment("IMU3 IMU", IMU3MAC);
+        IMU4 = new Segment("IMU4 IMU", IMU4MAC);
+        imuManager.setSegments(IMU1, IMU2, IMU3, IMU4);
 
         if (imuManager.startScan()) {
             isScanning = true;
             logManager.log("Scan started!");
-
             uiManager.setButton(uiManager.scanButton, "Scanning ...", "#AB2727", null, null);
         } else {
             logManager.log("Failed to start scan.");
         }
-
     }
+
     // Added newly for discovery
 
 
     public void listImusButton_onClick(View view) {
         // Initialize segments to prevent null pointer exception
 
-        if (IMU1 == null || IMU2 == null) {
+        if (IMU1 == null || IMU2 == null || IMU3 == null || IMU4 == null) {
             IMU1 = new Segment("IMU1 IMU", IMU1MAC);
             IMU2 = new Segment("IMU2 IMU", IMU2MAC);
-            imuManager.setSegments(IMU1, IMU2);
+            IMU3 = new Segment("IMU3 IMU", IMU3MAC);
+            IMU4 = new Segment("IMU4 IMU", IMU4MAC);
+            imuManager.setSegments(IMU1, IMU2, IMU3, IMU4);
         }
 
         // Disable scan button during IMU discovery
@@ -194,7 +204,7 @@ public class MainActivity extends AppCompatActivity implements ImuManagerListene
 
         // Start discovery scan
         if (imuManager.startDiscoveryScan()) {
-            logManager.log("Discovery scan started - searching for 10 seconds...");
+            logManager.log("Discovery scan started - searching for 5 seconds...");
 
             // Update button to show scanning status
             runOnUiThread(() -> {
@@ -242,6 +252,16 @@ public class MainActivity extends AppCompatActivity implements ImuManagerListene
                 if (uiManager.dialogImu2Status != null) {
                     uiManager.dialogImu2Status.setText(statusText);
                 }
+            } else if (deviceName.equals("IMU3 IMU")) {
+            uiManager.setTextView(uiManager.imu3Status, statusText, null, null);
+            if (uiManager.dialogImu3Status != null) {
+                uiManager.dialogImu3Status.setText(statusText);
+            }
+            } else if (deviceName.equals("IMU4 IMU")) {
+                uiManager.setTextView(uiManager.imu4Status, statusText, null, null);
+                if (uiManager.dialogImu4Status != null) {
+                    uiManager.dialogImu4Status.setText(statusText);
+                }
             }
 
             if (!connected && !isSyncing) {
@@ -274,6 +294,16 @@ public class MainActivity extends AppCompatActivity implements ImuManagerListene
                 if (uiManager.dialogImu2Status != null) {
                     uiManager.dialogImu2Status.setText("Scanned");
                 }
+            } else if (deviceName.equals("IMU3 IMU")) {
+                uiManager.setTextView(uiManager.imu3Status, "Scanned", null, null);
+                if (uiManager.dialogImu3Status != null) {
+                    uiManager.dialogImu3Status.setText("Scanned");
+                }
+            } else if (deviceName.equals("IMU4 IMU")) {
+                uiManager.setTextView(uiManager.imu4Status, "Scanned", null, null);
+                if (uiManager.dialogImu4Status != null) {
+                    uiManager.dialogImu4Status.setText("Scanned");
+                }
             }
             if (isScanning) {
                 uiManager.setButton(uiManager.scanButton, "Scanning...", "#AB2727", null, null);
@@ -295,12 +325,21 @@ public class MainActivity extends AppCompatActivity implements ImuManagerListene
                 }
             } else if (deviceName.equals("IMU2 IMU")) {
                 uiManager.setTextView(uiManager.imu2Status, "Ready", null, null);
-                // ADD THIS:
                 if (uiManager.dialogImu2Status != null) {
                     uiManager.dialogImu2Status.setText("Ready");
                 }
+            } else if (deviceName.equals("IMU3 IMU")) {
+                uiManager.setTextView(uiManager.imu3Status, "Ready", null, null);
+                if (uiManager.dialogImu3Status != null) {
+                    uiManager.dialogImu3Status.setText("Ready");
+                }
+            } else if (deviceName.equals("IMU4 IMU")) {
+                uiManager.setTextView(uiManager.imu4Status, "Ready", null, null);
+                if (uiManager.dialogImu4Status != null) {
+                    uiManager.dialogImu4Status.setText("Ready");
+                }
             }
-            if (IMU1.isReady && IMU2.isReady) {
+            if (IMU1.isReady && IMU2.isReady && IMU3.isReady && IMU4.isReady) {
                 uiManager.setButton(uiManager.syncButton, null, null, null, true);
                 uiManager.setButton(uiManager.scanButton, "Scanned", "#008080", null, true);
             }
@@ -319,6 +358,8 @@ public class MainActivity extends AppCompatActivity implements ImuManagerListene
                 uiManager.setButton(uiManager.syncButton, "Syncing...", "#AB2727", null, null);
                 uiManager.setTextView(uiManager.imu1Status, "Syncing", null, null);
                 uiManager.setTextView(uiManager.imu2Status, "Syncing", null, null);
+                uiManager.setTextView(uiManager.imu3Status, "Syncing", null, null);
+                uiManager.setTextView(uiManager.imu4Status, "Syncing", null, null);
 
                 // ADD THIS:
                 if (uiManager.dialogImu1Status != null) {
@@ -326,6 +367,12 @@ public class MainActivity extends AppCompatActivity implements ImuManagerListene
                 }
                 if (uiManager.dialogImu2Status != null) {
                     uiManager.dialogImu2Status.setText("Syncing");
+                }
+                if (uiManager.dialogImu3Status != null) {
+                    uiManager.dialogImu3Status.setText("Syncing");
+                }
+                if (uiManager.dialogImu4Status != null) {
+                    uiManager.dialogImu4Status.setText("Syncing");
                 }
                 // UPDATE APP BORDER COLOR
                 updateAppBorderColor();
@@ -349,11 +396,21 @@ public class MainActivity extends AppCompatActivity implements ImuManagerListene
             // ADD THIS:
             uiManager.setTextView(uiManager.imu1Status, "Synced", null, null);
             uiManager.setTextView(uiManager.imu2Status, "Synced", null, null);
+            uiManager.setTextView(uiManager.imu3Status, "Synced", null, null);
+            uiManager.setTextView(uiManager.imu4Status, "Synced", null, null);
+
             if (uiManager.dialogImu1Status != null) {
                 uiManager.dialogImu1Status.setText("Synced");
             }
             if (uiManager.dialogImu2Status != null) {
                 uiManager.dialogImu2Status.setText("Synced");
+            }
+
+            if (uiManager.dialogImu3Status != null) {
+                uiManager.dialogImu3Status.setText("Synced");
+            }
+            if (uiManager.dialogImu4Status != null) {
+                uiManager.dialogImu4Status.setText("Synced");
             }
 
             logManager.log("(Main): --- Syncing is done! ---- ");
@@ -388,6 +445,10 @@ public class MainActivity extends AppCompatActivity implements ImuManagerListene
             IMU1.normalDataLogger = logManager.createDataLog("IMU1", IMU1.xsDevice, subjectTitle, subjectNumber, imuManager);
         if (IMU2.xsDevice != null)
             IMU2.normalDataLogger = logManager.createDataLog("IMU2", IMU2.xsDevice, subjectTitle, subjectNumber, imuManager);
+        if (IMU3.xsDevice != null)
+            IMU3.normalDataLogger = logManager.createDataLog("IMU3", IMU3.xsDevice, subjectTitle, subjectNumber, imuManager);
+        if (IMU4.xsDevice != null)
+            IMU4.normalDataLogger = logManager.createDataLog("IMU4", IMU4.xsDevice, subjectTitle, subjectNumber, imuManager);
 
         logManager.initializeFeatureLogs(subjectTitle, subjectNumber);
 
@@ -433,6 +494,28 @@ public class MainActivity extends AppCompatActivity implements ImuManagerListene
                 if (uiManager.dialogImu2Battery != null) {
                     uiManager.dialogImu2Battery.setText(IMU2.xsDevice.getBatteryPercentage() + "%");
                 }
+            } else if (deviceAddress.equals(IMU3.MAC)) {
+                uiManager.setTextView(uiManager.imu3Index, String.valueOf(IMU3.dataOutput[3]), null, null);
+                if (uiManager.dialogImu3Roll != null) {
+                    uiManager.dialogImu3Roll.setText(String.format(Locale.US, "%.1f deg", eulerAngles[0]));
+                }
+                if (uiManager.dialogImu3Index != null) {
+                    uiManager.dialogImu3Index.setText(String.valueOf(IMU3.dataOutput[3]));
+                }
+                if (uiManager.dialogImu3Battery != null) {
+                    uiManager.dialogImu3Battery.setText(IMU3.xsDevice.getBatteryPercentage() + "%");
+                }
+            } else if (deviceAddress.equals(IMU4.MAC)) {
+                uiManager.setTextView(uiManager.imu4Index, String.valueOf(IMU4.dataOutput[3]), null, null);
+                if (uiManager.dialogImu4Roll != null) {
+                    uiManager.dialogImu4Roll.setText(String.format(Locale.US, "%.1f deg", eulerAngles[0]));
+                }
+                if (uiManager.dialogImu4Index != null) {
+                    uiManager.dialogImu4Index.setText(String.valueOf(IMU4.dataOutput[3]));
+                }
+                if (uiManager.dialogImu4Battery != null) {
+                    uiManager.dialogImu4Battery.setText(IMU4.xsDevice.getBatteryPercentage() + "%");
+                }
             }
         });
     }
@@ -464,6 +547,24 @@ public class MainActivity extends AppCompatActivity implements ImuManagerListene
                 }
                 if (uiManager.dialogImu2Accel != null) {
                     uiManager.dialogImu2Accel.setText(String.format(Locale.US,"%.2f", linearAccelMag));
+                }
+            } else if (deviceAddress.equals("IMU3")) {
+                uiManager.setTextView(uiManager.imu3Gyro, String.format(Locale.US, "%.2f", gyroMag), null, null);
+                uiManager.setTextView(uiManager.imu3Accel, String.format(Locale.US, "%.2f", linearAccelMag), null, null);
+                if (uiManager.dialogImu3Gyro != null) {
+                    uiManager.dialogImu3Gyro.setText(String.format(Locale.US, "%.2f", gyroMag));
+                }
+                if (uiManager.dialogImu3Accel != null) {
+                    uiManager.dialogImu3Accel.setText(String.format(Locale.US, "%.2f", linearAccelMag));
+                }
+            } else if (deviceAddress.equals("IMU4")) {
+                uiManager.setTextView(uiManager.imu4Gyro, String.format(Locale.US, "%.2f", gyroMag), null, null);
+                uiManager.setTextView(uiManager.imu4Accel, String.format(Locale.US, "%.2f", linearAccelMag), null, null);
+                if (uiManager.dialogImu4Gyro != null) {
+                    uiManager.dialogImu4Gyro.setText(String.format(Locale.US, "%.2f", gyroMag));
+                }
+                if (uiManager.dialogImu4Accel != null) {
+                    uiManager.dialogImu4Accel.setText(String.format(Locale.US, "%.2f", linearAccelMag));
                 }
             }
         });
@@ -590,27 +691,29 @@ public class MainActivity extends AppCompatActivity implements ImuManagerListene
     private void updateAppBorderColor() {
         String imu1StatusText = uiManager.imu1Status.getText().toString();
         String imu2StatusText = uiManager.imu2Status.getText().toString();
+        String imu3StatusText = uiManager.imu3Status.getText().toString();
+        String imu4StatusText = uiManager.imu4Status.getText().toString();
 
-        // Determine border color based on overall status
         String borderColor;
 
-        if (imu1StatusText.equals("Synced") && imu2StatusText.equals("Synced")) {
+        if (imu1StatusText.equals("Synced") && imu2StatusText.equals("Synced")
+                && imu3StatusText.equals("Synced") && imu4StatusText.equals("Synced")) {
             borderColor = "#052A64";
-        } else if (imu1StatusText.equals("Ready") && imu2StatusText.equals("Ready")) {
+        } else if (imu1StatusText.equals("Ready") && imu2StatusText.equals("Ready")
+                && imu3StatusText.equals("Ready") && imu4StatusText.equals("Ready")) {
             borderColor = "#052A64";
-        } else if (imu1StatusText.equals("Syncing") || imu2StatusText.equals("Syncing")) {
-            borderColor = "#FF9933"; // Amber - Currently syncing
-        } else if ((imu1StatusText.equals("Connected") || imu1StatusText.equals("Scanned")) &&
-                (imu2StatusText.equals("Connected") || imu2StatusText.equals("Scanned"))) {
-            borderColor = "#052A64 ";
-        } else if (imu1StatusText.equals("Disconnected") || imu2StatusText.equals("Disconnected") ||
-                imu1StatusText.equals("-") || imu2StatusText.equals("-")) {
-            borderColor = "#AB2727"; // Red - Disconnected or not started
+        } else if (imu1StatusText.equals("Syncing") || imu2StatusText.equals("Syncing")
+                || imu3StatusText.equals("Syncing") || imu4StatusText.equals("Syncing")) {
+            borderColor = "#FF9933";
+        } else if (imu1StatusText.equals("Disconnected") || imu2StatusText.equals("Disconnected")
+                || imu3StatusText.equals("Disconnected") || imu4StatusText.equals("Disconnected")
+                || imu1StatusText.equals("-") || imu2StatusText.equals("-")
+                || imu3StatusText.equals("-") || imu4StatusText.equals("-")) {
+            borderColor = "#AB2727";
         } else {
-            borderColor = "#9E9E9E"; // Gray - Unknown/Initial state
+            borderColor = "#9E9E9E";
         }
 
-        // Update the border color
         uiManager.setAppBorderColor(borderColor);
     }
 

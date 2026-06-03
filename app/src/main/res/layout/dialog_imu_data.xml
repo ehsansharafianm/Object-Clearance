@@ -46,208 +46,391 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="5dp"
-            android:weightSum="2">
+            android:orientation="vertical"
+            android:padding="5dp">
 
-            <!-- IMU1 Column (Left) -->
+            <!-- Row 1: IMU1 and IMU2 -->
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:padding="5dp">
+                android:orientation="horizontal"
+                android:weightSum="2">
 
-                <!-- IMU1 Header -->
-                <TextView
-                    android:layout_width="match_parent"
+                <!-- IMU1 Column (Left) -->
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="IMU 1"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="#052A64"
-                    android:gravity="center"
-                    android:paddingBottom="8dp"/>
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:padding="5dp">
 
-                <!-- IMU1 Roll -->
-                <TextView
-                    android:layout_width="match_parent"
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="IMU 1"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="#052A64"
+                        android:gravity="center"
+                        android:paddingBottom="8dp"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Roll Angle"
+                        android:textSize="12sp"
+                        android:textColor="#666666"
+                        android:paddingBottom="2dp"/>
+                    <TextView
+                        android:id="@+id/imu1Roll"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/rectangle"
+                        android:backgroundTint="#E3F2FD"
+                        android:padding="6dp"
+                        android:text="0.0 deg"
+                        android:textSize="13sp"
+                        android:layout_marginBottom="8dp"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Gyro Mag"
+                        android:textSize="12sp"
+                        android:textColor="#666666"
+                        android:paddingBottom="2dp"/>
+                    <TextView
+                        android:id="@+id/imu1Gyro"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/rectangle"
+                        android:backgroundTint="#E3F2FD"
+                        android:padding="6dp"
+                        android:text="0.0"
+                        android:textSize="13sp"
+                        android:layout_marginBottom="8dp"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Linear Accel"
+                        android:textSize="12sp"
+                        android:textColor="#666666"
+                        android:paddingBottom="2dp"/>
+                    <TextView
+                        android:id="@+id/imu1Accel"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/rectangle"
+                        android:backgroundTint="#E3F2FD"
+                        android:padding="6dp"
+                        android:text="0.0"
+                        android:textSize="13sp"
+                        android:layout_marginBottom="8dp"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Battery"
+                        android:textSize="12sp"
+                        android:textColor="#666666"
+                        android:paddingBottom="2dp"/>
+                    <TextView
+                        android:id="@+id/imu1Battery"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/rectangle"
+                        android:backgroundTint="#E3F2FD"
+                        android:padding="6dp"
+                        android:text="0%"
+                        android:textSize="13sp"/>
+                </LinearLayout>
+
+                <!-- IMU2 Column (Right) -->
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="Roll Angle"
-                    android:textSize="12sp"
-                    android:textColor="#666666"
-                    android:paddingBottom="2dp"/>
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:padding="5dp">
 
-                <TextView
-                    android:id="@+id/imu1Roll"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/rectangle"
-                    android:backgroundTint="#E3F2FD"
-                    android:padding="6dp"
-                    android:text="0.0 deg"
-                    android:textSize="13sp"
-                    android:layout_marginBottom="8dp"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="IMU 2"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="#052A64"
+                        android:gravity="center"
+                        android:paddingBottom="8dp"/>
 
-                <!-- IMU1 Gyro -->
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Gyro Mag"
-                    android:textSize="12sp"
-                    android:textColor="#666666"
-                    android:paddingBottom="2dp"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Roll Angle"
+                        android:textSize="12sp"
+                        android:textColor="#666666"
+                        android:paddingBottom="2dp"/>
+                    <TextView
+                        android:id="@+id/imu2Roll"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/rectangle"
+                        android:backgroundTint="#E3F2FD"
+                        android:padding="6dp"
+                        android:text="0.0 deg"
+                        android:textSize="13sp"
+                        android:layout_marginBottom="8dp"/>
 
-                <TextView
-                    android:id="@+id/imu1Gyro"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/rectangle"
-                    android:backgroundTint="#E3F2FD"
-                    android:padding="6dp"
-                    android:text="0.0"
-                    android:textSize="13sp"
-                    android:layout_marginBottom="8dp"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Gyro Mag"
+                        android:textSize="12sp"
+                        android:textColor="#666666"
+                        android:paddingBottom="2dp"/>
+                    <TextView
+                        android:id="@+id/imu2Gyro"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/rectangle"
+                        android:backgroundTint="#E3F2FD"
+                        android:padding="6dp"
+                        android:text="0.0"
+                        android:textSize="13sp"
+                        android:layout_marginBottom="8dp"/>
 
-                <!-- IMU1 Accel -->
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Linear Accel"
-                    android:textSize="12sp"
-                    android:textColor="#666666"
-                    android:paddingBottom="2dp"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Linear Accel"
+                        android:textSize="12sp"
+                        android:textColor="#666666"
+                        android:paddingBottom="2dp"/>
+                    <TextView
+                        android:id="@+id/imu2Accel"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/rectangle"
+                        android:backgroundTint="#E3F2FD"
+                        android:padding="6dp"
+                        android:text="0.0"
+                        android:textSize="13sp"
+                        android:layout_marginBottom="8dp"/>
 
-                <TextView
-                    android:id="@+id/imu1Accel"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/rectangle"
-                    android:backgroundTint="#E3F2FD"
-                    android:padding="6dp"
-                    android:text="0.0"
-                    android:textSize="13sp"
-                    android:layout_marginBottom="8dp"/>
-
-                <!-- IMU1 Battery -->
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Battery"
-                    android:textSize="12sp"
-                    android:textColor="#666666"
-                    android:paddingBottom="2dp"/>
-
-                <TextView
-                    android:id="@+id/imu1Battery"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/rectangle"
-                    android:backgroundTint="#E3F2FD"
-                    android:padding="6dp"
-                    android:text="0%"
-                    android:textSize="13sp"/>
-
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Battery"
+                        android:textSize="12sp"
+                        android:textColor="#666666"
+                        android:paddingBottom="2dp"/>
+                    <TextView
+                        android:id="@+id/imu2Battery"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/rectangle"
+                        android:backgroundTint="#E3F2FD"
+                        android:padding="6dp"
+                        android:text="0%"
+                        android:textSize="13sp"/>
+                </LinearLayout>
             </LinearLayout>
 
-            <!-- IMU2 Column (Right) -->
+            <!-- Divider between rows -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="#3F51B5"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="12dp"/>
+
+            <!-- Row 2: IMU3 and IMU4 -->
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:padding="5dp">
+                android:orientation="horizontal"
+                android:weightSum="2">
 
-                <!-- IMU2 Header -->
-                <TextView
-                    android:layout_width="match_parent"
+                <!-- IMU3 Column (Left) -->
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="IMU 2"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="#052A64"
-                    android:gravity="center"
-                    android:paddingBottom="8dp"/>
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:padding="5dp">
 
-                <!-- IMU2 Roll -->
-                <TextView
-                    android:layout_width="match_parent"
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="IMU 3"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="#052A64"
+                        android:gravity="center"
+                        android:paddingBottom="8dp"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Roll Angle"
+                        android:textSize="12sp"
+                        android:textColor="#666666"
+                        android:paddingBottom="2dp"/>
+                    <TextView
+                        android:id="@+id/imu3Roll"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/rectangle"
+                        android:backgroundTint="#E3F2FD"
+                        android:padding="6dp"
+                        android:text="0.0 deg"
+                        android:textSize="13sp"
+                        android:layout_marginBottom="8dp"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Gyro Mag"
+                        android:textSize="12sp"
+                        android:textColor="#666666"
+                        android:paddingBottom="2dp"/>
+                    <TextView
+                        android:id="@+id/imu3Gyro"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/rectangle"
+                        android:backgroundTint="#E3F2FD"
+                        android:padding="6dp"
+                        android:text="0.0"
+                        android:textSize="13sp"
+                        android:layout_marginBottom="8dp"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Linear Accel"
+                        android:textSize="12sp"
+                        android:textColor="#666666"
+                        android:paddingBottom="2dp"/>
+                    <TextView
+                        android:id="@+id/imu3Accel"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/rectangle"
+                        android:backgroundTint="#E3F2FD"
+                        android:padding="6dp"
+                        android:text="0.0"
+                        android:textSize="13sp"
+                        android:layout_marginBottom="8dp"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Battery"
+                        android:textSize="12sp"
+                        android:textColor="#666666"
+                        android:paddingBottom="2dp"/>
+                    <TextView
+                        android:id="@+id/imu3Battery"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/rectangle"
+                        android:backgroundTint="#E3F2FD"
+                        android:padding="6dp"
+                        android:text="0%"
+                        android:textSize="13sp"/>
+                </LinearLayout>
+
+                <!-- IMU4 Column (Right) -->
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="Roll Angle"
-                    android:textSize="12sp"
-                    android:textColor="#666666"
-                    android:paddingBottom="2dp"/>
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:padding="5dp">
 
-                <TextView
-                    android:id="@+id/imu2Roll"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/rectangle"
-                    android:backgroundTint="#E3F2FD"
-                    android:padding="6dp"
-                    android:text="0.0 deg"
-                    android:textSize="13sp"
-                    android:layout_marginBottom="8dp"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="IMU 4"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="#052A64"
+                        android:gravity="center"
+                        android:paddingBottom="8dp"/>
 
-                <!-- IMU2 Gyro -->
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Gyro Mag"
-                    android:textSize="12sp"
-                    android:textColor="#666666"
-                    android:paddingBottom="2dp"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Roll Angle"
+                        android:textSize="12sp"
+                        android:textColor="#666666"
+                        android:paddingBottom="2dp"/>
+                    <TextView
+                        android:id="@+id/imu4Roll"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/rectangle"
+                        android:backgroundTint="#E3F2FD"
+                        android:padding="6dp"
+                        android:text="0.0 deg"
+                        android:textSize="13sp"
+                        android:layout_marginBottom="8dp"/>
 
-                <TextView
-                    android:id="@+id/imu2Gyro"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/rectangle"
-                    android:backgroundTint="#E3F2FD"
-                    android:padding="6dp"
-                    android:text="0.0"
-                    android:textSize="13sp"
-                    android:layout_marginBottom="8dp"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Gyro Mag"
+                        android:textSize="12sp"
+                        android:textColor="#666666"
+                        android:paddingBottom="2dp"/>
+                    <TextView
+                        android:id="@+id/imu4Gyro"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/rectangle"
+                        android:backgroundTint="#E3F2FD"
+                        android:padding="6dp"
+                        android:text="0.0"
+                        android:textSize="13sp"
+                        android:layout_marginBottom="8dp"/>
 
-                <!-- IMU2 Accel -->
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Linear Accel"
-                    android:textSize="12sp"
-                    android:textColor="#666666"
-                    android:paddingBottom="2dp"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Linear Accel"
+                        android:textSize="12sp"
+                        android:textColor="#666666"
+                        android:paddingBottom="2dp"/>
+                    <TextView
+                        android:id="@+id/imu4Accel"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/rectangle"
+                        android:backgroundTint="#E3F2FD"
+                        android:padding="6dp"
+                        android:text="0.0"
+                        android:textSize="13sp"
+                        android:layout_marginBottom="8dp"/>
 
-                <TextView
-                    android:id="@+id/imu2Accel"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/rectangle"
-                    android:backgroundTint="#E3F2FD"
-                    android:padding="6dp"
-                    android:text="0.0"
-                    android:textSize="13sp"
-                    android:layout_marginBottom="8dp"/>
-
-                <!-- IMU2 Battery -->
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Battery"
-                    android:textSize="12sp"
-                    android:textColor="#666666"
-                    android:paddingBottom="2dp"/>
-
-                <TextView
-                    android:id="@+id/imu2Battery"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/rectangle"
-                    android:backgroundTint="#E3F2FD"
-                    android:padding="6dp"
-                    android:text="0%"
-                    android:textSize="13sp"/>
-
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Battery"
+                        android:textSize="12sp"
+                        android:textColor="#666666"
+                        android:paddingBottom="2dp"/>
+                    <TextView
+                        android:id="@+id/imu4Battery"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/rectangle"
+                        android:backgroundTint="#E3F2FD"
+                        android:padding="6dp"
+                        android:text="0%"
+                        android:textSize="13sp"/>
+                </LinearLayout>
             </LinearLayout>
 
         </LinearLayout>

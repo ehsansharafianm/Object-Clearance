@@ -47,6 +47,15 @@ public class UiManager {
     public TextView dialogImu1Accel, dialogImu2Accel;
     public TextView dialogImu1Index, dialogImu2Index;
     public TextView dialogImu1Battery, dialogImu2Battery;
+
+    public TextView dialogImu3Status, dialogImu4Status;
+    public TextView dialogImu3Roll, dialogImu4Roll;
+    public TextView dialogImu3Gyro, dialogImu4Gyro;
+    public TextView dialogImu3Accel, dialogImu4Accel;
+    public TextView dialogImu3Index, dialogImu4Index;
+    public TextView dialogImu3Battery, dialogImu4Battery;
+
+
     private View labelDialogView;
     public Button logToggleButton;
     public TextView imu1Status, imu2Status, logContents;
@@ -55,6 +64,13 @@ public class UiManager {
     public TextView imu1Accel, imu2Accel;         // Linear accelerations
     public TextView imu1Index, imu2Index;         // Packet indices
     public TextView imu1Battery, imu2Battery, logContentsDialog;
+
+    public TextView imu3Status, imu4Status;
+    public TextView imu3Roll, imu4Roll;
+    public TextView imu3Gyro, imu4Gyro;
+    public TextView imu3Accel, imu4Accel;
+    public TextView imu3Index, imu4Index;
+    public TextView imu3Battery, imu4Battery;
     public EditText enterSubjectNumber;
     // Feature detection display fields
     public TextView imu1WindowNumber, imu1TerrainType, imu1BiasValue, imu1MaxHeight, imu1MaxStride;
@@ -62,11 +78,11 @@ public class UiManager {
             dialogImu1MaxHeight, dialogImu1MaxStride;
 
     public CardView imuListDialog;
-    public Spinner spinnerIMU1, spinnerIMU2;
+    public Spinner spinnerIMU1, spinnerIMU2, spinnerIMU3, spinnerIMU4;
     private Map<String, String> macToNameMap; // Maps MAC address to name
     private Map<String, String> nameToMacMap; // Maps name to MAC address
-    private String selectedIMU1Mac;
-    private String selectedIMU2Mac;
+    private String selectedIMU1Mac, selectedIMU2Mac, selectedIMU3Mac, selectedIMU4Mac;
+
     private LogManager logManager;
     private LinearLayout appBorderContainer;
     private Context context;
@@ -118,6 +134,13 @@ public class UiManager {
         imu2Accel = root.findViewById(R.id.imu2Accel);
         imu2Index = root.findViewById(R.id.imu2Index);
         imu2Battery = root.findViewById(R.id.imu2Battery);
+        // IMU3 data fields
+        imu3Status = root.findViewById(R.id.imu3Status);
+        imu3Index = root.findViewById(R.id.imu3Index);
+
+        // IMU4 data fields
+        imu4Status = root.findViewById(R.id.imu4Status);
+        imu4Index = root.findViewById(R.id.imu4Index);
 
         // Feature detection display fields
         imu1WindowNumber = root.findViewById(R.id.imu1WindowNumber);
@@ -129,6 +152,8 @@ public class UiManager {
         // FOR SPINNERS
         spinnerIMU1 = root.findViewById(R.id.spinnerIMU1);
         spinnerIMU2 = root.findViewById(R.id.spinnerIMU2);
+        spinnerIMU3 = root.findViewById(R.id.spinnerIMU3);
+        spinnerIMU4 = root.findViewById(R.id.spinnerIMU4);
 
         openLabelDialogButton = root.findViewById(R.id.openLabelDialogButton);
         showFeaturesButton = root.findViewById(R.id.showFeaturesButton);
@@ -315,6 +340,18 @@ public class UiManager {
         imu2Accel.setText("");
         imu2Index.setText("");
         imu2Battery.setText("");
+
+        if (imu3Roll != null) imu3Roll.setText("");
+        if (imu3Gyro != null) imu3Gyro.setText("");
+        if (imu3Accel != null) imu3Accel.setText("");
+        if (imu3Index != null) imu3Index.setText("");
+        if (imu3Battery != null) imu3Battery.setText("");
+
+        if (imu4Roll != null) imu4Roll.setText("");
+        if (imu4Gyro != null) imu4Gyro.setText("");
+        if (imu4Accel != null) imu4Accel.setText("");
+        if (imu4Index != null) imu4Index.setText("");
+        if (imu4Battery != null) imu4Battery.setText("");
     }
 
     // Method to update feature detection display with dynamic colors
@@ -462,6 +499,39 @@ public class UiManager {
                 }
             });
         }
+        // Setup IMU3 spinner
+        if (spinnerIMU3 != null) {
+            spinnerIMU3.setAdapter(adapter);
+            spinnerIMU3.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    String selectedName = (String) parent.getItemAtPosition(position);
+                    selectedIMU3Mac = nameToMacMap.get(selectedName);
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+                    selectedIMU3Mac = null;
+                }
+            });
+        }
+
+        // Setup IMU4 spinner
+        if (spinnerIMU4 != null) {
+            spinnerIMU4.setAdapter(adapter);
+            spinnerIMU4.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    String selectedName = (String) parent.getItemAtPosition(position);
+                    selectedIMU4Mac = nameToMacMap.get(selectedName);
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+                    selectedIMU4Mac = null;
+                }
+            });
+        }
     }
 
     // Getter methods for selected MAC addresses
@@ -484,6 +554,27 @@ public class UiManager {
     public String getSelectedIMU2Name() {
         if (spinnerIMU2 != null && spinnerIMU2.getSelectedItem() != null) {
             return (String) spinnerIMU2.getSelectedItem();
+        }
+        return null;
+    }
+    public String getSelectedIMU3Mac() {
+        return selectedIMU3Mac;
+    }
+
+    public String getSelectedIMU4Mac() {
+        return selectedIMU4Mac;
+    }
+
+    public String getSelectedIMU3Name() {
+        if (spinnerIMU3 != null && spinnerIMU3.getSelectedItem() != null) {
+            return (String) spinnerIMU3.getSelectedItem();
+        }
+        return null;
+    }
+
+    public String getSelectedIMU4Name() {
+        if (spinnerIMU4 != null && spinnerIMU4.getSelectedItem() != null) {
+            return (String) spinnerIMU4.getSelectedItem();
         }
         return null;
     }
@@ -551,6 +642,25 @@ public class UiManager {
             if (previousSelection != null && discoveredNamesList.contains(previousSelection)) {
                 int position = discoveredNamesList.indexOf(previousSelection);
                 spinnerIMU2.setSelection(position);
+            }
+        }
+        // Update IMU3 spinner
+        if (spinnerIMU3 != null) {
+            String previousSelection = getSelectedIMU3Name();
+            spinnerIMU3.setAdapter(adapter);
+            if (previousSelection != null && discoveredNamesList.contains(previousSelection)) {
+                int position = discoveredNamesList.indexOf(previousSelection);
+                spinnerIMU3.setSelection(position);
+            }
+        }
+
+        // Update IMU4 spinner
+        if (spinnerIMU4 != null) {
+            String previousSelection = getSelectedIMU4Name();
+            spinnerIMU4.setAdapter(adapter);
+            if (previousSelection != null && discoveredNamesList.contains(previousSelection)) {
+                int position = discoveredNamesList.indexOf(previousSelection);
+                spinnerIMU4.setSelection(position);
             }
         }
     }
@@ -735,6 +845,20 @@ public class UiManager {
         dialogImu2Accel = imuDataDialog.findViewById(R.id.imu2Accel);
         dialogImu2Index = imuDataDialog.findViewById(R.id.imu2Index);
         dialogImu2Battery = imuDataDialog.findViewById(R.id.imu2Battery);
+
+        dialogImu3Status = imuDataDialog.findViewById(R.id.imu3Status);
+        dialogImu3Roll = imuDataDialog.findViewById(R.id.imu3Roll);
+        dialogImu3Gyro = imuDataDialog.findViewById(R.id.imu3Gyro);
+        dialogImu3Accel = imuDataDialog.findViewById(R.id.imu3Accel);
+        dialogImu3Index = imuDataDialog.findViewById(R.id.imu3Index);
+        dialogImu3Battery = imuDataDialog.findViewById(R.id.imu3Battery);
+
+        dialogImu4Status = imuDataDialog.findViewById(R.id.imu4Status);
+        dialogImu4Roll = imuDataDialog.findViewById(R.id.imu4Roll);
+        dialogImu4Gyro = imuDataDialog.findViewById(R.id.imu4Gyro);
+        dialogImu4Accel = imuDataDialog.findViewById(R.id.imu4Accel);
+        dialogImu4Index = imuDataDialog.findViewById(R.id.imu4Index);
+        dialogImu4Battery = imuDataDialog.findViewById(R.id.imu4Battery);
 
         // Setup close button
         Button closeButton = imuDataDialog.findViewById(R.id.closeImuDataDialog);
