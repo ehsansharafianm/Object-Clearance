@@ -179,6 +179,16 @@ public class LogManager {
             e.printStackTrace();
         }
     }
+    public String getLogDirectory() {
+        return context.getApplicationContext().getExternalFilesDir("logs").getPath();
+    }
+
+    public void addExportFileToUploadList(File file) {
+        loggerFilePaths.add(file);
+        loggerFileNames.add(file.getName());
+        log("Export file added to upload list: " + file.getName());
+    }
+
     public void closeFeatureLogs() {
         for (String imuId : featureLogWriters.keySet()) {
             BufferedWriter writer = featureLogWriters.get(imuId);
