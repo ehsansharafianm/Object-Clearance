@@ -43,15 +43,13 @@ public class UiManager {
     // Dialog TextViews for IMU data
     public TextView dialogImu1Status, dialogImu2Status;
     public TextView dialogImu1Roll, dialogImu2Roll;
-    public TextView dialogImu1Gyro, dialogImu2Gyro;
-    public TextView dialogImu1Accel, dialogImu2Accel;
+
     public TextView dialogImu1Index, dialogImu2Index;
     public TextView dialogImu1Battery, dialogImu2Battery;
 
     public TextView dialogImu3Status, dialogImu4Status;
     public TextView dialogImu3Roll, dialogImu4Roll;
-    public TextView dialogImu3Gyro, dialogImu4Gyro;
-    public TextView dialogImu3Accel, dialogImu4Accel;
+
     public TextView dialogImu3Index, dialogImu4Index;
     public TextView dialogImu3Battery, dialogImu4Battery;
 
@@ -60,15 +58,13 @@ public class UiManager {
     public Button logToggleButton;
     public TextView imu1Status, imu2Status, logContents;
     public TextView imu1Roll, imu2Roll;           // Roll angles
-    public TextView imu1Gyro, imu2Gyro;           // Gyro magnitudes
-    public TextView imu1Accel, imu2Accel;         // Linear accelerations
+
     public TextView imu1Index, imu2Index;         // Packet indices
     public TextView imu1Battery, imu2Battery, logContentsDialog;
 
     public TextView imu3Status, imu4Status;
     public TextView imu3Roll, imu4Roll;
-    public TextView imu3Gyro, imu4Gyro;
-    public TextView imu3Accel, imu4Accel;
+
     public TextView imu3Index, imu4Index;
     public TextView imu3Battery, imu4Battery;
     public TextView imu5Status, imu6Status;
@@ -128,15 +124,11 @@ public class UiManager {
 
         // IMU1 data fields
         imu1Roll = root.findViewById(R.id.imu1Roll);
-        imu1Gyro = root.findViewById(R.id.imu1Gyro);
-        imu1Accel = root.findViewById(R.id.imu1Accel);
         imu1Index = root.findViewById(R.id.imu1Index);
         imu1Battery = root.findViewById(R.id.imu1Battery);
 
         // IMU2 data fields
         imu2Roll = root.findViewById(R.id.imu2Roll);
-        imu2Gyro = root.findViewById(R.id.imu2Gyro);
-        imu2Accel = root.findViewById(R.id.imu2Accel);
         imu2Index = root.findViewById(R.id.imu2Index);
         imu2Battery = root.findViewById(R.id.imu2Battery);
         // IMU3 data fields
@@ -347,26 +339,18 @@ public class UiManager {
     // Optional utility: clear all text fields
     public void clearAllValues() {
         imu1Roll.setText("");
-        imu1Gyro.setText("");
-        imu1Accel.setText("");
         imu1Index.setText("");
         imu1Battery.setText("");
 
         imu2Roll.setText("");
-        imu2Gyro.setText("");
-        imu2Accel.setText("");
         imu2Index.setText("");
         imu2Battery.setText("");
 
         if (imu3Roll != null) imu3Roll.setText("");
-        if (imu3Gyro != null) imu3Gyro.setText("");
-        if (imu3Accel != null) imu3Accel.setText("");
         if (imu3Index != null) imu3Index.setText("");
         if (imu3Battery != null) imu3Battery.setText("");
 
         if (imu4Roll != null) imu4Roll.setText("");
-        if (imu4Gyro != null) imu4Gyro.setText("");
-        if (imu4Accel != null) imu4Accel.setText("");
         if (imu4Index != null) imu4Index.setText("");
         if (imu4Battery != null) imu4Battery.setText("");
 
@@ -930,29 +914,21 @@ public class UiManager {
         // Bind the TextViews from dialog
         dialogImu1Status = imuDataDialog.findViewById(R.id.imu1Status);
         dialogImu1Roll = imuDataDialog.findViewById(R.id.imu1Roll);
-        dialogImu1Gyro = imuDataDialog.findViewById(R.id.imu1Gyro);
-        dialogImu1Accel = imuDataDialog.findViewById(R.id.imu1Accel);
         dialogImu1Index = imuDataDialog.findViewById(R.id.imu1Index);
         dialogImu1Battery = imuDataDialog.findViewById(R.id.imu1Battery);
 
         dialogImu2Status = imuDataDialog.findViewById(R.id.imu2Status);
         dialogImu2Roll = imuDataDialog.findViewById(R.id.imu2Roll);
-        dialogImu2Gyro = imuDataDialog.findViewById(R.id.imu2Gyro);
-        dialogImu2Accel = imuDataDialog.findViewById(R.id.imu2Accel);
         dialogImu2Index = imuDataDialog.findViewById(R.id.imu2Index);
         dialogImu2Battery = imuDataDialog.findViewById(R.id.imu2Battery);
 
         dialogImu3Status = imuDataDialog.findViewById(R.id.imu3Status);
         dialogImu3Roll = imuDataDialog.findViewById(R.id.imu3Roll);
-        dialogImu3Gyro = imuDataDialog.findViewById(R.id.imu3Gyro);
-        dialogImu3Accel = imuDataDialog.findViewById(R.id.imu3Accel);
         dialogImu3Index = imuDataDialog.findViewById(R.id.imu3Index);
         dialogImu3Battery = imuDataDialog.findViewById(R.id.imu3Battery);
 
         dialogImu4Status = imuDataDialog.findViewById(R.id.imu4Status);
         dialogImu4Roll = imuDataDialog.findViewById(R.id.imu4Roll);
-        dialogImu4Gyro = imuDataDialog.findViewById(R.id.imu4Gyro);
-        dialogImu4Accel = imuDataDialog.findViewById(R.id.imu4Accel);
         dialogImu4Index = imuDataDialog.findViewById(R.id.imu4Index);
         dialogImu4Battery = imuDataDialog.findViewById(R.id.imu4Battery);
 

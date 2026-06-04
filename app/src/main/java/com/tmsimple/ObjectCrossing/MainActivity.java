@@ -119,12 +119,6 @@ public class MainActivity extends AppCompatActivity implements ImuManagerListene
         uiManager.setupFeatureDialog(this);
         uiManager.setupImuDataDialog(this);
 
-        // After uiManager.bindLabelingDataViews() call, add:
-        if (uiManager.imu1Gyro == null) logManager.log("ERROR: imu1Gyro not bound!");
-        if (uiManager.imu1Accel == null) logManager.log("ERROR: imu1Accel not bound!");
-        if (uiManager.imu2Gyro == null) logManager.log("ERROR: imu2Gyro not bound!");
-        if (uiManager.imu2Accel == null) logManager.log("ERROR: imu2Accel not bound!");
-
 
     }
 
@@ -563,53 +557,6 @@ public class MainActivity extends AppCompatActivity implements ImuManagerListene
     }
     @Override
     public void onZuptDataUpdated(String deviceAddress, double gyroMag, double linearAccelMag) {
-        runOnUiThread(() -> {
-
-            if (deviceAddress.equals("IMU1")) {
-                // Update main page
-                uiManager.setTextView(uiManager.imu1Gyro, String.format(Locale.US,"%.2f", gyroMag), null, null);
-                uiManager.setTextView(uiManager.imu1Accel, String.format(Locale.US,"%.2f", linearAccelMag), null, null);
-
-                // Update dialog
-                if (uiManager.dialogImu1Gyro != null) {
-                    uiManager.dialogImu1Gyro.setText(String.format(Locale.US,"%.2f", gyroMag));
-                }
-                if (uiManager.dialogImu1Accel != null) {
-                    uiManager.dialogImu1Accel.setText(String.format(Locale.US,"%.2f", linearAccelMag));
-                }
-
-            } else if (deviceAddress.equals("IMU2")) {
-                // Update main page
-                uiManager.setTextView(uiManager.imu2Gyro, String.format(Locale.US,"%.2f", gyroMag), null, null);
-                uiManager.setTextView(uiManager.imu2Accel, String.format(Locale.US,"%.2f", linearAccelMag), null, null);
-
-                // Update dialog
-                if (uiManager.dialogImu2Gyro != null) {
-                    uiManager.dialogImu2Gyro.setText(String.format(Locale.US,"%.2f", gyroMag));
-                }
-                if (uiManager.dialogImu2Accel != null) {
-                    uiManager.dialogImu2Accel.setText(String.format(Locale.US,"%.2f", linearAccelMag));
-                }
-            } else if (deviceAddress.equals("IMU3")) {
-                uiManager.setTextView(uiManager.imu3Gyro, String.format(Locale.US, "%.2f", gyroMag), null, null);
-                uiManager.setTextView(uiManager.imu3Accel, String.format(Locale.US, "%.2f", linearAccelMag), null, null);
-                if (uiManager.dialogImu3Gyro != null) {
-                    uiManager.dialogImu3Gyro.setText(String.format(Locale.US, "%.2f", gyroMag));
-                }
-                if (uiManager.dialogImu3Accel != null) {
-                    uiManager.dialogImu3Accel.setText(String.format(Locale.US, "%.2f", linearAccelMag));
-                }
-            } else if (deviceAddress.equals("IMU4")) {
-                uiManager.setTextView(uiManager.imu4Gyro, String.format(Locale.US, "%.2f", gyroMag), null, null);
-                uiManager.setTextView(uiManager.imu4Accel, String.format(Locale.US, "%.2f", linearAccelMag), null, null);
-                if (uiManager.dialogImu4Gyro != null) {
-                    uiManager.dialogImu4Gyro.setText(String.format(Locale.US, "%.2f", gyroMag));
-                }
-                if (uiManager.dialogImu4Accel != null) {
-                    uiManager.dialogImu4Accel.setText(String.format(Locale.US, "%.2f", linearAccelMag));
-                }
-            }
-        });
     }
     @Override
     public void onFeatureDetectionUpdate(int windowNum, String terrainType, double biasValue,
@@ -653,7 +600,7 @@ public class MainActivity extends AppCompatActivity implements ImuManagerListene
 
         uiManager.setButton(uiManager.stopButton, null, null, null, false);
         uiManager.setButton(uiManager.dataLogButton, null, null, null, false);
-        uiManager.setButton(uiManager.measureButton, "Measuring Stopped", null, null, false);
+        uiManager.setButton(uiManager.measureButton, "Stopped", null, null, false);
         uiManager.setButton(uiManager.uploadButton, null, null, null, true);
         uiManager.setButton(uiManager.exportButton, null, null, null, true);
 
@@ -665,7 +612,7 @@ public class MainActivity extends AppCompatActivity implements ImuManagerListene
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                uiManager.setButton(uiManager.measureButton, "Measuring Stopped", null, null, null);
+                uiManager.setButton(uiManager.measureButton, "Stopped", null, null, null);
                 // UPDATE APP BORDER COLOR to indicate stopped
                 uiManager.setAppBorderColor("#AB2727"); // Red for stopped
             }
