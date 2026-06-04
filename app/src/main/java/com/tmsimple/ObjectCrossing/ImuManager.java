@@ -98,6 +98,8 @@ public class ImuManager implements
 
     private String imu5ExportFilePath;
     private String imu6ExportFilePath;
+    private DotLogger imu5ExportLogger;
+    private DotLogger imu6ExportLogger;
 
     public void setUiManager(UiManager uiManager) {
         this.uiManager = uiManager;
@@ -443,38 +445,40 @@ public class ImuManager implements
     }
     public void exportRecordingData(int subjectNumber) {
         logManager.log("exportRecordingData called");
+
         recordingExportDataIds = new byte[]{
                 DotRecordingManager.RECORDING_DATA_ID_TIMESTAMP,
-                DotRecordingManager.RECORDING_DATA_ID_EULER_ANGLES,
+                DotRecordingManager.RECORDING_DATA_ID_ORIENTATION,
                 DotRecordingManager.RECORDING_DATA_ID_CALIBRATED_ACC,
                 DotRecordingManager.RECORDING_DATA_ID_CALIBRATED_GYR
         };
+
         imu5ExportDone = false;
         imu6ExportDone = false;
         isExporting = true;
+
+        String timestamp = java.text.DateFormat.getDateTimeInstance().format(new Date());
 
         java.io.File imu5Folder = context.getApplicationContext().getExternalFilesDir("Subject " + subjectNumber + "/" + IMU5.xsDevice.getTag());
         java.io.File imu6Folder = context.getApplicationContext().getExternalFilesDir("Subject " + subjectNumber + "/" + IMU6.xsDevice.getTag());
         imu5Folder.mkdirs();
         imu6Folder.mkdirs();
 
-        imu5ExportFilePath = imu5Folder.getPath() + "/IMU5_" + IMU5.xsDevice.getTag() + "_" + java.text.DateFormat.getDateTimeInstance().format(new Date())  + ", Subject " + subjectNumber + ".csv";
-        imu6ExportFilePath = imu6Folder.getPath() + "/IMU6_" + IMU6.xsDevice.getTag() + "_" + java.text.DateFormat.getDateTimeInstance().format(new Date())  + ", Subject " + subjectNumber + ".csv";
+        imu5ExportFilePath = imu5Folder.getPath() + "/IMU5_" + IMU5.xsDevice.getTag() + "_" + timestamp + ", Subject " + subjectNumber + ".csv";
+        imu6ExportFilePath = imu6Folder.getPath() + "/IMU6_" + IMU6.xsDevice.getTag() + "_" + timestamp + ", Subject " + subjectNumber + ".csv";
 
-        try {
-            imu5ExportWriter = new java.io.BufferedWriter(new java.io.OutputStreamWriter(
-                    new java.io.FileOutputStream(imu5ExportFilePath, false)));
-            imu5ExportWriter.write("PacketCounter,SampleTimeFine,Roll,Pitch,Yaw,Acc_X,Acc_Y,Acc_Z,Gyr_X,Gyr_Y,Gyr_Z\n");
-            imu5ExportWriter.flush();
-            imu6ExportWriter = new java.io.BufferedWriter(new java.io.OutputStreamWriter(
-                    new java.io.FileOutputStream(imu6ExportFilePath, false)));
-            imu6ExportWriter.write("PacketCounter,SampleTimeFine,Roll,Pitch,Yaw,Acc_X,Acc_Y,Acc_Z,Gyr_X,Gyr_Y,Gyr_Z\n");
-            imu6ExportWriter.flush();
-            logManager.log("IMU5 export writer created: " + imu5ExportFilePath);
-            logManager.log("IMU6 export writer created: " + imu6ExportFilePath);
-        } catch (java.io.IOException e) {
-            logManager.log("Error creating export writers: " + e.getMessage());
-        }
+        imu5ExportLogger = DotLogger.createRecordingsLogger(
+                context.getApplicationContext(), recordingExportDataIds,
+                imu5ExportFilePath, IMU5.xsDevice.getTag(),
+                IMU5.xsDevice.getFirmwareVersion(), "60", 0);
+
+        imu6ExportLogger = DotLogger.createRecordingsLogger(
+                context.getApplicationContext(), recordingExportDataIds,
+                imu6ExportFilePath, IMU6.xsDevice.getTag(),
+                IMU6.xsDevice.getFirmwareVersion(), "60", 0);
+
+        logManager.log("IMU5 export logger created: " + imu5ExportFilePath);
+        logManager.log("IMU6 export logger created: " + imu6ExportFilePath);
 
         new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
             if (IMU5RecordingManager != null) IMU5RecordingManager.enableDataRecordingNotification();
@@ -995,7 +999,7 @@ public class ImuManager implements
         // Step 1: select data fields
         recordingExportDataIds = new byte[]{
                 DotRecordingManager.RECORDING_DATA_ID_TIMESTAMP,
-                DotRecordingManager.RECORDING_DATA_ID_EULER_ANGLES,
+                DotRecordingManager.RECORDING_DATA_ID_ORIENTATION,
                 DotRecordingManager.RECORDING_DATA_ID_CALIBRATED_ACC,
                 DotRecordingManager.RECORDING_DATA_ID_CALIBRATED_GYR
         };
@@ -1018,30 +1022,10 @@ public class ImuManager implements
     }
     @Override
     public void onDotDataExported(String address, com.xsens.dot.android.sdk.models.DotRecordingFileInfo fileInfo, com.xsens.dot.android.sdk.events.DotData dotData) {
-        java.io.BufferedWriter writer = null;
-        if (address.equals(IMU5.MAC)) writer = imu5ExportWriter;
-        else if (address.equals(IMU6.MAC)) writer = imu6ExportWriter;
-        if (writer == null) return;
-
-        try {
-            double[] euler = DotParser.quaternion2Euler(dotData.getQuat());
-            double[] acc = dotData.getAcc();
-            double[] gyr = dotData.getGyr();
-            String row = String.format("%d,%d,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f\n",
-                    dotData.getPacketCounter(),
-                    dotData.getPacketCounter(),
-                    euler != null ? euler[0] : 0,
-                    euler != null ? euler[1] : 0,
-                    euler != null ? euler[2] : 0,
-                    acc != null ? acc[0] : 0,
-                    acc != null ? acc[1] : 0,
-                    acc != null ? acc[2] : 0,
-                    gyr != null ? gyr[0] : 0,
-                    gyr != null ? gyr[1] : 0,
-                    gyr != null ? gyr[2] : 0);
-            writer.write(row);
-        } catch (java.io.IOException e) {
-            logManager.log("Error writing export data: " + e.getMessage());
+        if (address.equals(IMU5.MAC) && imu5ExportLogger != null) {
+            imu5ExportLogger.update(dotData);
+        } else if (address.equals(IMU6.MAC) && imu6ExportLogger != null) {
+            imu6ExportLogger.update(dotData);
         }
     }
 
@@ -1055,29 +1039,26 @@ public class ImuManager implements
         logManager.log("All data exported from " + address);
         if (address.equals(IMU5.MAC)) {
             imu5ExportDone = true;
-            if (imu5ExportWriter != null) {
-                try { imu5ExportWriter.close(); } catch (java.io.IOException e) { logManager.log("Error closing IMU5 writer: " + e.getMessage()); }
-            }
+            if (imu5ExportLogger != null) imu5ExportLogger.stop();
             if (imu5ExportFilePath != null) {
                 logManager.log("IMU5 file exists: " + new java.io.File(imu5ExportFilePath).exists());
                 logManager.addExportFileToUploadList(new java.io.File(imu5ExportFilePath));
             }
         } else if (address.equals(IMU6.MAC)) {
             imu6ExportDone = true;
-            if (imu6ExportWriter != null) {
-                try { imu6ExportWriter.close(); } catch (java.io.IOException e) { logManager.log("Error closing IMU6 writer: " + e.getMessage()); }
-            }
+            if (imu6ExportLogger != null) imu6ExportLogger.stop();
             if (imu6ExportFilePath != null) {
                 logManager.log("IMU6 file exists: " + new java.io.File(imu6ExportFilePath).exists());
                 logManager.addExportFileToUploadList(new java.io.File(imu6ExportFilePath));
             }
         }
-        if (imu5ExportDone && imu6ExportDone) {
+        if (imu5ExportDone && imu6ExportDone && isExporting) {
             isExporting = false;
             listener.onExportComplete();
             logManager.log("Export complete for all recording IMUs");
         }
     }
+
     @Override
     public void onDotRecordingAck(String address, int recordingId, boolean isSuccess, DotRecordingState recordingState) {
         String imuName = (IMU5 != null && address.equals(IMU5.MAC)) ? "IMU5" : "IMU6";
