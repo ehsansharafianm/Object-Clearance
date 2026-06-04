@@ -120,7 +120,7 @@
                         android:id="@+id/labelIMU1"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="IMU 1"
+                        android:text="Left Foot (IMU 1)"
                         android:textSize="14sp"
                         android:textStyle="bold"
                         android:textColor="#1976D2"
@@ -147,7 +147,7 @@
                         android:id="@+id/labelIMU2"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="IMU 2"
+                        android:text="Right Foot (IMU 2)"
                         android:textSize="14sp"
                         android:textStyle="bold"
                         android:textColor="#1976D2"
@@ -182,7 +182,7 @@
                         android:id="@+id/labelIMU3"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="IMU 3"
+                        android:text="Left Thigh (IMU 3)"
                         android:textSize="14sp"
                         android:textStyle="bold"
                         android:textColor="#1976D2"
@@ -209,7 +209,7 @@
                         android:id="@+id/labelIMU4"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="IMU 4"
+                        android:text="Right Thigh (IMU 4)"
                         android:textSize="14sp"
                         android:textStyle="bold"
                         android:textColor="#1976D2"
@@ -243,7 +243,7 @@
                         android:id="@+id/labelIMU5"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="IMU 5 (Rec)"
+                        android:text="Left Shank (IMU 5)"
                         android:textSize="14sp"
                         android:textStyle="bold"
                         android:textColor="#7B1FA2"
@@ -270,7 +270,7 @@
                         android:id="@+id/labelIMU6"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="IMU 6 (Rec)"
+                        android:text="Right Shank (IMU 6)"
                         android:textSize="14sp"
                         android:textStyle="bold"
                         android:textColor="#7B1FA2"
@@ -415,7 +415,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginBottom="12dp"
+                android:layout_marginBottom="4dp"
                 android:gravity="center_vertical">
 
                 <!-- IMU3 Status and Index -->
@@ -546,7 +546,7 @@
                     android:orientation="vertical"
                     android:layout_marginEnd="4dp"
                     android:padding="8dp"
-                    android:background="#F3E5F5">
+                    android:background="#E3F2FD">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -602,7 +602,7 @@
                     android:orientation="vertical"
                     android:layout_marginStart="4dp"
                     android:padding="8dp"
-                    android:background="#F3E5F5">
+                    android:background="#E3F2FD">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -803,11 +803,12 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_marginBottom="10dp"/>
 
+            <!-- Row 1: Stop + Disconnect -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginBottom="8dp">
+                android:layout_marginBottom="6dp">
 
                 <Button
                     android:id="@+id/stopButton"
@@ -821,11 +822,29 @@
                     android:textSize="14sp"/>
 
                 <Button
-                    android:id="@+id/exportButton"
+                    android:id="@+id/disconnectButton"
                     android:layout_width="0dp"
                     android:layout_height="45dp"
                     android:layout_weight="1"
                     android:layout_marginStart="4dp"
+                    android:backgroundTint="#AB2727"
+                    android:onClick="disconnectButton_onClick"
+                    android:text="Disconnect"
+                    android:textSize="14sp"/>
+            </LinearLayout>
+
+            <!-- Row 2: Export + Upload -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="8dp">
+
+                <Button
+                    android:id="@+id/exportButton"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_weight="1"
                     android:layout_marginEnd="4dp"
                     android:backgroundTint="#2196F3"
                     android:onClick="exportButton_onClick"
@@ -838,22 +857,10 @@
                     android:layout_height="45dp"
                     android:layout_weight="1"
                     android:layout_marginStart="4dp"
-                    android:layout_marginEnd="4dp"
                     android:backgroundTint="#2196F3"
                     android:onClick="uploadButton_onClick"
                     android:text="Upload"
                     android:textSize="14sp"/>
-
-                <Button
-                    android:id="@+id/disconnectButton"
-                    android:layout_width="0dp"
-                    android:layout_height="45dp"
-                    android:layout_weight="1"
-                    android:layout_marginStart="4dp"
-                    android:backgroundTint="#AB2727"
-                    android:onClick="disconnectButton_onClick"
-                    android:text="Disconnect"
-                    android:textSize="13sp"/>
             </LinearLayout>
 
         </LinearLayout>
