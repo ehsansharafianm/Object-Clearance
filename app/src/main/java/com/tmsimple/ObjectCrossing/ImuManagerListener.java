@@ -10,4 +10,9 @@ public interface ImuManagerListener {
     void onLogMessage(String message);
     void onFeatureDetectionUpdate(int windowNum, String terrainType, double biasValue,
                                   double maxHeight, double maxStride);
+    void onImuRecordingStatusChanged(String deviceName, String status);
+    void onRecordingImusReady();
+
+    void onExportComplete();
+
 }

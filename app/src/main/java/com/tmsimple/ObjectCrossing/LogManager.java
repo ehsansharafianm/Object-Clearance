@@ -30,6 +30,7 @@ public class LogManager {
     private HashMap<String, File> featureLogFiles = new HashMap<>();
     private HashMap<String, BufferedWriter> featureLogWriters = new HashMap<>();
     private boolean isFeatureLoggingActive = false;
+    private String currentLogDirectory;
 
     public LogManager(Context context, TextView logContents, File logFile) {
         this.context = context;
@@ -90,6 +91,7 @@ public class LogManager {
             File loggerFileFolder;
             String loggerFileName;
             loggerFileFolder = context.getApplicationContext().getExternalFilesDir(subjectTitle + "/" + device.getTag());
+            currentLogDirectory = loggerFileFolder.getPath();
             loggerFileName = ImuID + "_" + device.getTag() + "_" + java.text.DateFormat.getDateTimeInstance().format(new Date()) + ", Subject " + subjectNumber + ".csv";
             String path = loggerFileFolder.getPath() + "/" + loggerFileName;
             File loggerFile = new File(path);
@@ -196,6 +198,14 @@ public class LogManager {
         featureLogFiles.clear();
         isFeatureLoggingActive = false;
         log("All feature logs closed successfully");
+    }
+    public String getLogDirectory() {
+        return context.getApplicationContext().getExternalFilesDir("logs").getPath();
+    }
+    public void addExportFileToUploadList(File file) {
+        loggerFilePaths.add(file);
+        loggerFileNames.add(file.getName());
+        log("Export file added to upload list: " + file.getName());
     }
 
 

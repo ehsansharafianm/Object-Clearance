@@ -71,6 +71,11 @@ public class UiManager {
     public TextView imu3Accel, imu4Accel;
     public TextView imu3Index, imu4Index;
     public TextView imu3Battery, imu4Battery;
+    public TextView imu5Status, imu6Status;
+    public TextView imu5RecStatus, imu6RecStatus;
+    public Button exportButton;
+    public Spinner spinnerIMU5, spinnerIMU6;
+    private String selectedIMU5Mac, selectedIMU6Mac;
     public EditText enterSubjectNumber;
     // Feature detection display fields
     public TextView imu1WindowNumber, imu1TerrainType, imu1BiasValue, imu1MaxHeight, imu1MaxStride;
@@ -141,6 +146,16 @@ public class UiManager {
         // IMU4 data fields
         imu4Status = root.findViewById(R.id.imu4Status);
         imu4Index = root.findViewById(R.id.imu4Index);
+        // IMU5 data fields
+        imu5Status = root.findViewById(R.id.imu5Status);
+        imu5RecStatus = root.findViewById(R.id.imu5RecStatus);
+
+        // IMU6 data fields
+        imu6Status = root.findViewById(R.id.imu6Status);
+        imu6RecStatus = root.findViewById(R.id.imu6RecStatus);
+
+        // Export button
+        exportButton = root.findViewById(R.id.exportButton);
 
         // Feature detection display fields
         imu1WindowNumber = root.findViewById(R.id.imu1WindowNumber);
@@ -154,6 +169,8 @@ public class UiManager {
         spinnerIMU2 = root.findViewById(R.id.spinnerIMU2);
         spinnerIMU3 = root.findViewById(R.id.spinnerIMU3);
         spinnerIMU4 = root.findViewById(R.id.spinnerIMU4);
+        spinnerIMU5 = root.findViewById(R.id.spinnerIMU5);
+        spinnerIMU6 = root.findViewById(R.id.spinnerIMU6);
 
         openLabelDialogButton = root.findViewById(R.id.openLabelDialogButton);
         showFeaturesButton = root.findViewById(R.id.showFeaturesButton);
@@ -352,6 +369,12 @@ public class UiManager {
         if (imu4Accel != null) imu4Accel.setText("");
         if (imu4Index != null) imu4Index.setText("");
         if (imu4Battery != null) imu4Battery.setText("");
+
+        if (imu5Status != null) imu5Status.setText("-");
+        if (imu5RecStatus != null) imu5RecStatus.setText("-");
+
+        if (imu6Status != null) imu6Status.setText("-");
+        if (imu6RecStatus != null) imu6RecStatus.setText("-");
     }
 
     // Method to update feature detection display with dynamic colors
@@ -532,6 +555,39 @@ public class UiManager {
                 }
             });
         }
+        // Setup IMU5 spinner
+        if (spinnerIMU5 != null) {
+            spinnerIMU5.setAdapter(adapter);
+            spinnerIMU5.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    String selectedName = (String) parent.getItemAtPosition(position);
+                    selectedIMU5Mac = nameToMacMap.get(selectedName);
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+                    selectedIMU5Mac = null;
+                }
+            });
+        }
+
+        // Setup IMU6 spinner
+        if (spinnerIMU6 != null) {
+            spinnerIMU6.setAdapter(adapter);
+            spinnerIMU6.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    String selectedName = (String) parent.getItemAtPosition(position);
+                    selectedIMU6Mac = nameToMacMap.get(selectedName);
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+                    selectedIMU6Mac = null;
+                }
+            });
+        }
     }
 
     // Getter methods for selected MAC addresses
@@ -575,6 +631,27 @@ public class UiManager {
     public String getSelectedIMU4Name() {
         if (spinnerIMU4 != null && spinnerIMU4.getSelectedItem() != null) {
             return (String) spinnerIMU4.getSelectedItem();
+        }
+        return null;
+    }
+    public String getSelectedIMU5Mac() {
+        return selectedIMU5Mac;
+    }
+
+    public String getSelectedIMU6Mac() {
+        return selectedIMU6Mac;
+    }
+
+    public String getSelectedIMU5Name() {
+        if (spinnerIMU5 != null && spinnerIMU5.getSelectedItem() != null) {
+            return (String) spinnerIMU5.getSelectedItem();
+        }
+        return null;
+    }
+
+    public String getSelectedIMU6Name() {
+        if (spinnerIMU6 != null && spinnerIMU6.getSelectedItem() != null) {
+            return (String) spinnerIMU6.getSelectedItem();
         }
         return null;
     }
@@ -661,6 +738,25 @@ public class UiManager {
             if (previousSelection != null && discoveredNamesList.contains(previousSelection)) {
                 int position = discoveredNamesList.indexOf(previousSelection);
                 spinnerIMU4.setSelection(position);
+            }
+        }
+        // Update IMU5 spinner
+        if (spinnerIMU5 != null) {
+            String previousSelection = getSelectedIMU5Name();
+            spinnerIMU5.setAdapter(adapter);
+            if (previousSelection != null && discoveredNamesList.contains(previousSelection)) {
+                int position = discoveredNamesList.indexOf(previousSelection);
+                spinnerIMU5.setSelection(position);
+            }
+        }
+
+        // Update IMU6 spinner
+        if (spinnerIMU6 != null) {
+            String previousSelection = getSelectedIMU6Name();
+            spinnerIMU6.setAdapter(adapter);
+            if (previousSelection != null && discoveredNamesList.contains(previousSelection)) {
+                int position = discoveredNamesList.indexOf(previousSelection);
+                spinnerIMU6.setSelection(position);
             }
         }
     }

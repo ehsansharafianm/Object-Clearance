@@ -24,11 +24,13 @@ import java.util.Locale;
 public class MainActivity extends AppCompatActivity implements ImuManagerListener {
 
 
-    private Segment IMU1, IMU2, IMU3, IMU4;
+    private Segment IMU1, IMU2, IMU3, IMU4, IMU5, IMU6;
     public String IMU1MAC = "D4:22:CD:00:63:D6"; //V2-16
     public String IMU2MAC = "D4:22:CD:00:63:8B"; //V2-17
-    public String IMU3MAC = "D4:22:CD:00:A1:76"; //V2-18
-    public String IMU4MAC = "D4:22:CD:00:63:A4"; //V2-19
+    public String IMU3MAC = "D4:22:CD:00:9F:96"; //V2-18
+    public String IMU4MAC = "D4:22:CD:00:9F:94"; //V2-19
+    public String IMU5MAC = "D4:22:CD:00:9F:95"; //V2-20 (recording)
+    public String IMU6MAC = "D4:22:CD:00:63:7D"; //V2-15 (recording)
 
 
     public File logFile;
@@ -91,6 +93,7 @@ public class MainActivity extends AppCompatActivity implements ImuManagerListene
         uiManager.setButton(uiManager.disconnectButton, null, null, null, false);
         uiManager.setButton(uiManager.uploadButton, null, null, null, false);
         uiManager.setButton(uiManager.dataLogButton, null, null, null, false);
+        uiManager.setButton(uiManager.exportButton, null, null, null, false);
 
 
         uiManager.setEnterSubjectNumberHandler(uiManager.enterSubjectNumber, new UiManager.OnSubjectNumberEnteredListener() {
@@ -131,32 +134,34 @@ public class MainActivity extends AppCompatActivity implements ImuManagerListene
     /// ///////////////////////////////////  Sequence of syncing  ///////////////////////////////////////////////////////////////////
 
     public void scanButton_onClick(View view) {
-
         uiManager.setButton(uiManager.listImusButton, "IMUs are selected", "#008080", null, false);
 
-        // Get selected MAC addresses
         IMU1MAC = uiManager.getSelectedIMU1Mac();
         IMU2MAC = uiManager.getSelectedIMU2Mac();
         IMU3MAC = uiManager.getSelectedIMU3Mac();
         IMU4MAC = uiManager.getSelectedIMU4Mac();
+        IMU5MAC = uiManager.getSelectedIMU5Mac();
+        IMU6MAC = uiManager.getSelectedIMU6Mac();
 
-        // Get selected names
         String imu1Name = uiManager.getSelectedIMU1Name();
         String imu2Name = uiManager.getSelectedIMU2Name();
         String imu3Name = uiManager.getSelectedIMU3Name();
         String imu4Name = uiManager.getSelectedIMU4Name();
+        String imu5Name = uiManager.getSelectedIMU5Name();
+        String imu6Name = uiManager.getSelectedIMU6Name();
 
-        logManager.log("IMU1: Name = " + imu1Name + ", MAC: " + IMU1MAC);
-        logManager.log("IMU2: Name = " + imu2Name + ", MAC: " + IMU2MAC);
-        logManager.log("IMU3: Name = " + imu3Name + ", MAC: " + IMU3MAC);
-        logManager.log("IMU4: Name = " + imu4Name + ", MAC: " + IMU4MAC);
+        logManager.log("IMU1: " + imu1Name + ", MAC: " + IMU1MAC);
+        logManager.log("IMU2: " + imu2Name + ", MAC: " + IMU2MAC);
+        logManager.log("IMU3: " + imu3Name + ", MAC: " + IMU3MAC);
+        logManager.log("IMU4: " + imu4Name + ", MAC: " + IMU4MAC);
+        logManager.log("IMU5: " + imu5Name + ", MAC: " + IMU5MAC);
+        logManager.log("IMU6: " + imu6Name + ", MAC: " + IMU6MAC);
 
-        // Check that all 4 IMUs are different
-        String[] macs = {IMU1MAC, IMU2MAC, IMU3MAC, IMU4MAC};
-        String[] names = {"IMU1", "IMU2", "IMU3", "IMU4"};
+        String[] macs = {IMU1MAC, IMU2MAC, IMU3MAC, IMU4MAC, IMU5MAC, IMU6MAC};
+        String[] names = {"IMU1", "IMU2", "IMU3", "IMU4", "IMU5", "IMU6"};
         for (int i = 0; i < macs.length; i++) {
             for (int j = i + 1; j < macs.length; j++) {
-                if (macs[i] != null && macs[i].equals(macs[j])) {
+                if (macs[i].equals(macs[j])) {
                     new androidx.appcompat.app.AlertDialog.Builder(this)
                             .setTitle("Selection Error")
                             .setMessage("Please choose different IMUs! " + names[i] + " and " + names[j] + " are the same.")
@@ -169,12 +174,13 @@ public class MainActivity extends AppCompatActivity implements ImuManagerListene
             }
         }
 
-        // Configure IMU segments
         IMU1 = new Segment("IMU1 IMU", IMU1MAC);
         IMU2 = new Segment("IMU2 IMU", IMU2MAC);
         IMU3 = new Segment("IMU3 IMU", IMU3MAC);
         IMU4 = new Segment("IMU4 IMU", IMU4MAC);
-        imuManager.setSegments(IMU1, IMU2, IMU3, IMU4);
+        IMU5 = new Segment("IMU5 IMU", IMU5MAC);
+        IMU6 = new Segment("IMU6 IMU", IMU6MAC);
+        imuManager.setSegments(IMU1, IMU2, IMU3, IMU4, IMU5, IMU6);
 
         if (imuManager.startScan()) {
             isScanning = true;
@@ -191,12 +197,14 @@ public class MainActivity extends AppCompatActivity implements ImuManagerListene
     public void listImusButton_onClick(View view) {
         // Initialize segments to prevent null pointer exception
 
-        if (IMU1 == null || IMU2 == null || IMU3 == null || IMU4 == null) {
+        if (IMU1 == null || IMU2 == null || IMU3 == null || IMU4 == null || IMU5 == null || IMU6 == null) {
             IMU1 = new Segment("IMU1 IMU", IMU1MAC);
             IMU2 = new Segment("IMU2 IMU", IMU2MAC);
             IMU3 = new Segment("IMU3 IMU", IMU3MAC);
             IMU4 = new Segment("IMU4 IMU", IMU4MAC);
-            imuManager.setSegments(IMU1, IMU2, IMU3, IMU4);
+            IMU5 = new Segment("IMU5 IMU", IMU5MAC);
+            IMU6 = new Segment("IMU6 IMU", IMU6MAC);
+            imuManager.setSegments(IMU1, IMU2, IMU3, IMU4, IMU5, IMU6);
         }
 
         // Disable scan button during IMU discovery
@@ -262,7 +270,12 @@ public class MainActivity extends AppCompatActivity implements ImuManagerListene
                 if (uiManager.dialogImu4Status != null) {
                     uiManager.dialogImu4Status.setText(statusText);
                 }
+            } else if (deviceName.equals("IMU5 IMU")) {
+                uiManager.setTextView(uiManager.imu5Status, statusText, null, null);
+            } else if (deviceName.equals("IMU6 IMU")) {
+                uiManager.setTextView(uiManager.imu6Status, statusText, null, null);
             }
+
 
             if (!connected && !isSyncing) {
                 // Only reset buttons on DISCONNECT
@@ -304,6 +317,10 @@ public class MainActivity extends AppCompatActivity implements ImuManagerListene
                 if (uiManager.dialogImu4Status != null) {
                     uiManager.dialogImu4Status.setText("Scanned");
                 }
+            } else if (deviceName.equals("IMU5 IMU")) {
+                uiManager.setTextView(uiManager.imu5Status, "Scanned", null, null);
+            } else if (deviceName.equals("IMU6 IMU")) {
+                uiManager.setTextView(uiManager.imu6Status, "Scanned", null, null);
             }
             if (isScanning) {
                 uiManager.setButton(uiManager.scanButton, "Scanning...", "#AB2727", null, null);
@@ -338,9 +355,12 @@ public class MainActivity extends AppCompatActivity implements ImuManagerListene
                 if (uiManager.dialogImu4Status != null) {
                     uiManager.dialogImu4Status.setText("Ready");
                 }
+            } else if (deviceName.equals("IMU5 IMU")) {
+                uiManager.setTextView(uiManager.imu5Status, "Ready", null, null);
+            } else if (deviceName.equals("IMU6 IMU")) {
+                uiManager.setTextView(uiManager.imu6Status, "Ready", null, null);
             }
             if (IMU1.isReady && IMU2.isReady && IMU3.isReady && IMU4.isReady) {
-                uiManager.setButton(uiManager.syncButton, null, null, null, true);
                 uiManager.setButton(uiManager.scanButton, "Scanned", "#008080", null, true);
             }
             // UPDATE APP BORDER COLOR
@@ -360,6 +380,8 @@ public class MainActivity extends AppCompatActivity implements ImuManagerListene
                 uiManager.setTextView(uiManager.imu2Status, "Syncing", null, null);
                 uiManager.setTextView(uiManager.imu3Status, "Syncing", null, null);
                 uiManager.setTextView(uiManager.imu4Status, "Syncing", null, null);
+                uiManager.setTextView(uiManager.imu5Status, "Syncing", null, null);
+                uiManager.setTextView(uiManager.imu6Status, "Syncing", null, null);
 
                 // ADD THIS:
                 if (uiManager.dialogImu1Status != null) {
@@ -398,6 +420,8 @@ public class MainActivity extends AppCompatActivity implements ImuManagerListene
             uiManager.setTextView(uiManager.imu2Status, "Synced", null, null);
             uiManager.setTextView(uiManager.imu3Status, "Synced", null, null);
             uiManager.setTextView(uiManager.imu4Status, "Synced", null, null);
+            uiManager.setTextView(uiManager.imu5Status, "Synced", null, null);
+            uiManager.setTextView(uiManager.imu6Status, "Synced", null, null);
 
             if (uiManager.dialogImu1Status != null) {
                 uiManager.dialogImu1Status.setText("Synced");
@@ -416,6 +440,24 @@ public class MainActivity extends AppCompatActivity implements ImuManagerListene
             logManager.log("(Main): --- Syncing is done! ---- ");
             // UPDATE APP BORDER COLOR
             updateAppBorderColor();
+        });
+    }
+    @Override
+    public void onImuRecordingStatusChanged(String deviceName, String status) {
+        runOnUiThread(() -> {
+            if (deviceName.equals("IMU5 IMU") || deviceName.equals("IMU5")) {
+                uiManager.setTextView(uiManager.imu5RecStatus, status, null, null);
+            } else if (deviceName.equals("IMU6 IMU") || deviceName.equals("IMU6")) {
+                uiManager.setTextView(uiManager.imu6RecStatus, status, null, null);
+            }
+
+            // Enable upload only after both are exported
+            String imu5Rec = uiManager.imu5RecStatus != null ? uiManager.imu5RecStatus.getText().toString() : "";
+            String imu6Rec = uiManager.imu6RecStatus != null ? uiManager.imu6RecStatus.getText().toString() : "";
+            if (imu5Rec.equals("Exported") && imu6Rec.equals("Exported")) {
+                uiManager.setButton(uiManager.exportButton, "Exported", "#008080", null, false);
+                uiManager.setButton(uiManager.uploadButton, null, null, null, true);
+            }
         });
     }
 
@@ -613,6 +655,7 @@ public class MainActivity extends AppCompatActivity implements ImuManagerListene
         uiManager.setButton(uiManager.dataLogButton, null, null, null, false);
         uiManager.setButton(uiManager.measureButton, "Measuring Stopped", null, null, false);
         uiManager.setButton(uiManager.uploadButton, null, null, null, true);
+        uiManager.setButton(uiManager.exportButton, null, null, null, true);
 
         logManager.log("Stopping");
         imuManager.stopMeasurement();
@@ -628,6 +671,11 @@ public class MainActivity extends AppCompatActivity implements ImuManagerListene
             }
         });
 
+    }
+    public void exportButton_onClick(View view) {
+        uiManager.setButton(uiManager.exportButton, "Exporting...", "#AB2727", null, false);
+        logManager.log("Export started for recording IMUs");
+        imuManager.exportRecordingData(subjectNumber);
     }
 
     public void uploadButton_onClick(View view) {
@@ -691,30 +739,45 @@ public class MainActivity extends AppCompatActivity implements ImuManagerListene
     private void updateAppBorderColor() {
         String imu1StatusText = uiManager.imu1Status.getText().toString();
         String imu2StatusText = uiManager.imu2Status.getText().toString();
-        String imu3StatusText = uiManager.imu3Status.getText().toString();
-        String imu4StatusText = uiManager.imu4Status.getText().toString();
+        String imu5StatusText = uiManager.imu5Status != null ? uiManager.imu5Status.getText().toString() : "-";
+        String imu6StatusText = uiManager.imu6Status != null ? uiManager.imu6Status.getText().toString() : "-";
 
         String borderColor;
 
-        if (imu1StatusText.equals("Synced") && imu2StatusText.equals("Synced")
-                && imu3StatusText.equals("Synced") && imu4StatusText.equals("Synced")) {
+        if (imu1StatusText.equals("Synced") && imu2StatusText.equals("Synced")) {
             borderColor = "#052A64";
-        } else if (imu1StatusText.equals("Ready") && imu2StatusText.equals("Ready")
-                && imu3StatusText.equals("Ready") && imu4StatusText.equals("Ready")) {
+        } else if (imu1StatusText.equals("Ready") && imu2StatusText.equals("Ready")) {
             borderColor = "#052A64";
-        } else if (imu1StatusText.equals("Syncing") || imu2StatusText.equals("Syncing")
-                || imu3StatusText.equals("Syncing") || imu4StatusText.equals("Syncing")) {
+        } else if (imu1StatusText.equals("Syncing") || imu2StatusText.equals("Syncing")) {
             borderColor = "#FF9933";
-        } else if (imu1StatusText.equals("Disconnected") || imu2StatusText.equals("Disconnected")
-                || imu3StatusText.equals("Disconnected") || imu4StatusText.equals("Disconnected")
-                || imu1StatusText.equals("-") || imu2StatusText.equals("-")
-                || imu3StatusText.equals("-") || imu4StatusText.equals("-")) {
+        } else if ((imu1StatusText.equals("Connected") || imu1StatusText.equals("Scanned")) &&
+                (imu2StatusText.equals("Connected") || imu2StatusText.equals("Scanned"))) {
+            borderColor = "#052A64";
+        } else if (imu1StatusText.equals("Disconnected") || imu2StatusText.equals("Disconnected") ||
+                imu5StatusText.equals("Disconnected") || imu6StatusText.equals("Disconnected") ||
+                imu1StatusText.equals("-") || imu2StatusText.equals("-")) {
             borderColor = "#AB2727";
         } else {
             borderColor = "#9E9E9E";
         }
 
         uiManager.setAppBorderColor(borderColor);
+    }
+
+    @Override
+    public void onRecordingImusReady() {
+        runOnUiThread(() -> {
+            uiManager.setButton(uiManager.syncButton, null, null, null, true);
+            logManager.log("IMU5 and IMU6 erase complete — sync button enabled");
+        });
+    }
+    @Override
+    public void onExportComplete() {
+        runOnUiThread(() -> {
+            uiManager.setButton(uiManager.exportButton, "Exported", "#008080", null, false);
+            uiManager.setButton(uiManager.uploadButton, null, null, null, true);
+            logManager.log("Export complete — files ready for upload");
+        });
     }
 
 

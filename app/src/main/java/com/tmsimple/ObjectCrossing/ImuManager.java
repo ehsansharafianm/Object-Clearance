@@ -1,9 +1,10 @@
 package com.tmsimple.ObjectCrossing;
+import com.xsens.dot.android.sdk.recording.DotRecordingManager;
+import com.xsens.dot.android.sdk.models.DotRecordingState;
+import com.xsens.dot.android.sdk.models.DotRecordingFileInfo;
 
 import androidx.bluetooth.BluetoothDevice;
-
 import android.content.Context;
-
 import com.xsens.dot.android.sdk.DotSdk;
 import com.xsens.dot.android.sdk.interfaces.DotDeviceCallback;
 import com.xsens.dot.android.sdk.interfaces.DotMeasurementCallback;
@@ -18,6 +19,10 @@ import com.xsens.dot.android.sdk.utils.DotScanner;
 import android.bluetooth.le.ScanSettings;
 import android.content.res.Resources;
 
+import com.xsens.dot.android.sdk.events.DotData;
+import com.xsens.dot.android.sdk.utils.DotLogger;
+
+import java.util.Date;
 import java.util.List;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -40,7 +45,29 @@ public class ImuManager implements
     private ArrayList<DotDevice> deviceList;
     private ZuptDetector zuptDetector;
 
-    private Segment IMU1, IMU2, IMU3, IMU4;
+    private Segment IMU1, IMU2, IMU3, IMU4, IMU5, IMU6;
+
+    // Recording managers
+    private com.xsens.dot.android.sdk.recording.DotRecordingManager IMU5RecordingManager;
+    private com.xsens.dot.android.sdk.recording.DotRecordingManager IMU6RecordingManager;
+
+    // Recording state flags
+    private boolean imu5EraseCompleted = false;
+    private boolean imu6EraseCompleted = false;
+    private boolean isExporting = false;
+
+    // Export data IDs
+    private byte[] recordingExportDataIds;
+
+    // Export loggers
+    private java.io.BufferedWriter imu5ExportWriter;
+    private java.io.BufferedWriter imu6ExportWriter;
+    // Export file tracking
+
+    private boolean imu5ExportDone = false;
+    private boolean imu6ExportDone = false;
+
+
     private boolean isLoggingData = false;
     private int packetCounterOffset = 0;
 
@@ -68,6 +95,10 @@ public class ImuManager implements
     private HashMap<String, HashMap<String, Integer>> confusionMatrix;
     private List<String> terrainTypes;
     private HashMap<Integer, String> packetToLabelMap; // Track labels for each packet
+
+    private String imu5ExportFilePath;
+    private String imu6ExportFilePath;
+
     public void setUiManager(UiManager uiManager) {
         this.uiManager = uiManager;
     }
@@ -212,11 +243,13 @@ public class ImuManager implements
 
 
     /*===========================================================================*/
-    public void setSegments(Segment IMU1, Segment IMU2, Segment IMU3, Segment IMU4) {
+    public void setSegments(Segment IMU1, Segment IMU2, Segment IMU3, Segment IMU4, Segment IMU5, Segment IMU6) {
         this.IMU1 = IMU1;
         this.IMU2 = IMU2;
         this.IMU3 = IMU3;
         this.IMU4 = IMU4;
+        this.IMU5 = IMU5;
+        this.IMU6 = IMU6;
     }
     public int getMeasurementMode() {
         return measurementMode;
@@ -231,32 +264,22 @@ public class ImuManager implements
 
     @Override
     public void onDotScanned(android.bluetooth.BluetoothDevice bluetoothDevice, int rssi) {
-
-        if (IMU1 == null || IMU2 == null || IMU3 == null || IMU4 == null) {
+        if (IMU1 == null || IMU2 == null || IMU3 == null || IMU4 == null || IMU5 == null || IMU6 == null) {
             logManager.log("Error: Segments not initialized before scanning!");
             return;
         }
-
 
         String address = bluetoothDevice.getAddress();
 
         if (isDiscoveryMode) {
             if (!discoveredDevices.contains(address)) {
                 discoveredDevices.add(address);
-
                 String tagFromMap = macToTagMap.getOrDefault(address, "Unknown Tag");
-                String deviceInfo = "Address= " + address + ", Tag= " + tagFromMap;
-                logManager.log("IMU Found: " + deviceInfo);
-
-                // ADD THIS LINE: Update spinners with new discovered devices
-                if (uiManager != null) {
-                    uiManager.updateSpinnersWithDiscoveredDevices(context, discoveredDevices);
-                }
+                logManager.log("IMU Found: Address= " + address + ", Tag= " + tagFromMap);
+                if (uiManager != null) uiManager.updateSpinnersWithDiscoveredDevices(context, discoveredDevices);
             }
             return;
         }
-        // ----------
-
 
         if (address.equals(IMU1.MAC) && !IMU1.isScanned) {
             IMU1.isScanned = true;
@@ -264,44 +287,53 @@ public class ImuManager implements
             IMU1.xsDevice.connect();
             IMU1.isConnected = true;
             deviceList.add(IMU1.xsDevice);
-
             listener.onImuScanned(IMU1.Name);
-            logManager.log(IMU1.Name + " is scanned and logger is created");
-        }
-        else if (address.equals(IMU2.MAC) && !IMU2.isScanned) {
+            logManager.log(IMU1.Name + " scanned");
+        } else if (address.equals(IMU2.MAC) && !IMU2.isScanned) {
             IMU2.isScanned = true;
             IMU2.xsDevice = new DotDevice(context, bluetoothDevice, this);
             IMU2.xsDevice.connect();
-            deviceList.add(IMU2.xsDevice);
             IMU2.isConnected = true;
-
+            deviceList.add(IMU2.xsDevice);
             listener.onImuScanned(IMU2.Name);
-            logManager.log(IMU2.Name + " is scanned and logger is created");
-        }
-        else if (address.equals(IMU3.MAC) && !IMU3.isScanned) {
+            logManager.log(IMU2.Name + " scanned");
+        } else if (address.equals(IMU3.MAC) && !IMU3.isScanned) {
             IMU3.isScanned = true;
             IMU3.xsDevice = new DotDevice(context, bluetoothDevice, this);
             IMU3.xsDevice.connect();
-            deviceList.add(IMU3.xsDevice);
             IMU3.isConnected = true;
-
+            deviceList.add(IMU3.xsDevice);
             listener.onImuScanned(IMU3.Name);
-            logManager.log(IMU3.Name + " is scanned and logger is created");
-        }
-        else if (address.equals(IMU4.MAC) && !IMU4.isScanned) {
+            logManager.log(IMU3.Name + " scanned");
+        } else if (address.equals(IMU4.MAC) && !IMU4.isScanned) {
             IMU4.isScanned = true;
             IMU4.xsDevice = new DotDevice(context, bluetoothDevice, this);
             IMU4.xsDevice.connect();
-            deviceList.add(IMU4.xsDevice);
             IMU4.isConnected = true;
-
+            deviceList.add(IMU4.xsDevice);
             listener.onImuScanned(IMU4.Name);
-            logManager.log(IMU4.Name + " is scanned and logger is created");
+            logManager.log(IMU4.Name + " scanned");
+        } else if (address.equals(IMU5.MAC) && !IMU5.isScanned) {
+            IMU5.isScanned = true;
+            IMU5.xsDevice = new DotDevice(context, bluetoothDevice, this);
+            IMU5.xsDevice.connect();
+            IMU5.isConnected = true;
+            deviceList.add(IMU5.xsDevice);
+            listener.onImuScanned(IMU5.Name);
+            logManager.log(IMU5.Name + " scanned");
+        } else if (address.equals(IMU6.MAC) && !IMU6.isScanned) {
+            IMU6.isScanned = true;
+            IMU6.xsDevice = new DotDevice(context, bluetoothDevice, this);
+            IMU6.xsDevice.connect();
+            IMU6.isConnected = true;
+            deviceList.add(IMU6.xsDevice);
+            listener.onImuScanned(IMU6.Name);
+            logManager.log(IMU6.Name + " scanned");
         }
 
-        if (IMU1.isScanned && IMU2.isScanned && IMU3.isScanned && IMU4.isScanned) {
+        if (IMU1.isScanned && IMU2.isScanned && IMU3.isScanned && IMU4.isScanned && IMU5.isScanned && IMU6.isScanned) {
             mScanner.stopScan();
-            logManager.log("All Devices are Scanned");
+            logManager.log("All 6 devices scanned");
         }
     }
     @Override
@@ -310,94 +342,153 @@ public class ImuManager implements
             IMU1.isReady = true;
             IMU1.xsDevice.setOutputRate(60);
             listener.onImuReady(IMU1.Name);
-            logManager.log("IMU1 IMU sample rate is : " + String.valueOf(IMU1.xsDevice.getCurrentOutputRate()));
-        }
-        else if (address.equals(IMU2.MAC)) {
+        } else if (address.equals(IMU2.MAC)) {
             IMU2.isReady = true;
             IMU2.xsDevice.setOutputRate(60);
             listener.onImuReady(IMU2.Name);
-            logManager.log("IMU2 IMU sample rate is : " + String.valueOf(IMU2.xsDevice.getCurrentOutputRate()));
-        }
-        else if (address.equals(IMU3.MAC)) {
+        } else if (address.equals(IMU3.MAC)) {
             IMU3.isReady = true;
             IMU3.xsDevice.setOutputRate(60);
             listener.onImuReady(IMU3.Name);
-            logManager.log("IMU3 IMU sample rate is : " + String.valueOf(IMU3.xsDevice.getCurrentOutputRate()));
-        }
-        else if (address.equals(IMU4.MAC)) {
+        } else if (address.equals(IMU4.MAC)) {
             IMU4.isReady = true;
             IMU4.xsDevice.setOutputRate(60);
             listener.onImuReady(IMU4.Name);
-            logManager.log("IMU4 IMU sample rate is : " + String.valueOf(IMU4.xsDevice.getCurrentOutputRate()));
+        } else if (address.equals(IMU5.MAC)) {
+            IMU5.isReady = true;
+            listener.onImuReady(IMU5.Name);
+            logManager.log("IMU5 init done");
+            if (IMU5RecordingManager == null) {
+                IMU5RecordingManager = new com.xsens.dot.android.sdk.recording.DotRecordingManager(context, IMU5.xsDevice, this);
+                new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                    IMU5RecordingManager.enableDataRecordingNotification();
+                    logManager.log("IMU5 enableDataRecordingNotification called");
+                }, 2000);
+            } else {
+                // After sync reconnect — re-enable without erasing
+                new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                    IMU5RecordingManager.enableDataRecordingNotification();
+                    logManager.log("IMU5 re-enabled notifications after sync reconnect");
+                }, 2000);
+            }
+        } else if (address.equals(IMU6.MAC)) {
+            IMU6.isReady = true;
+            listener.onImuReady(IMU6.Name);
+            logManager.log("IMU6 init done");
+            if (IMU6RecordingManager == null) {
+                IMU6RecordingManager = new com.xsens.dot.android.sdk.recording.DotRecordingManager(context, IMU6.xsDevice, this);
+                new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                    IMU6RecordingManager.enableDataRecordingNotification();
+                    logManager.log("IMU6 enableDataRecordingNotification called");
+                }, 2000);
+            } else {
+                new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                    IMU6RecordingManager.enableDataRecordingNotification();
+                    logManager.log("IMU6 re-enabled notifications after sync reconnect");
+                }, 2000);
+            }
         }
     }
 
     public void startSync() {
-
         DotSyncManager.getInstance(this).stopSyncing();
-
-        logManager.log("Start Sync clicked");
-        logManager.log("Device List size: " + deviceList.size());
+        logManager.log("Start Sync clicked. Device list size: " + deviceList.size());
 
         if (!IMU1.isReady || !IMU2.isReady || !IMU3.isReady || !IMU4.isReady) {
-            logManager.log("Error: Devices not ready for syncing. IMU1: " + IMU1.isReady + ", IMU2: " + IMU2.isReady + ", IMU3: " + IMU3.isReady + ", IMU4: " + IMU4.isReady);
+            logManager.log("Error: Streaming IMUs not ready for sync");
             return;
         }
 
         deviceList.get(0).setRootDevice(true);
-        logManager.log("Root device set: " + deviceList.get(0).getTag());
         DotSyncManager.getInstance(this).startSyncing(deviceList, 100);
         logManager.log("Sync requested.");
     }
+
+
     @Override
     public void onSyncingDone(HashMap<String, Boolean> results, boolean allSuccess, int errorCode) {
-        // 1ï¸âƒ£ Set measurement mode
         measurementMode = SelectionMesurementMode;
         IMU1.xsDevice.setMeasurementMode(measurementMode);
         IMU2.xsDevice.setMeasurementMode(measurementMode);
         IMU3.xsDevice.setMeasurementMode(measurementMode);
         IMU4.xsDevice.setMeasurementMode(measurementMode);
-
-        // Optional: store if you need
-        // this.measurementMode = measurementMode;
-
-        // 2ï¸âƒ£ Log detailed mode info
-        logManager.log("Measurement Mode set: "
-                + IMU1.xsDevice.getMeasurementMode()
-                + " / " + IMU2.xsDevice.getMeasurementMode()
-                + " / " + IMU3.xsDevice.getMeasurementMode()
-                + " / " + IMU4.xsDevice.getMeasurementMode());
-
-        // 3ï¸âƒ£ Log syncing result
-        logManager.log("---------- Syncing is done! ----------");
-
-        // 4ï¸âƒ£ Notify UI through listener
+        // IMU5 and IMU6 intentionally excluded — they use recording mode
+        logManager.log("---------- Syncing done ----------");
         listener.onSyncingDone();
     }
     public void startMeasurement() {
+        if (IMU1.xsDevice.startMeasuring()) logManager.log("IMU1 measuring");
+        else logManager.log("IMU1 startMeasuring FAILED");
 
-        if (IMU1.xsDevice.startMeasuring()) {logManager.log("IMU1 is measuring");}
-        if (IMU2.xsDevice.startMeasuring()) {logManager.log("IMU2 is measuring");}
-        if (IMU3.xsDevice.startMeasuring()) {logManager.log("IMU3 is measuring");}
-        if (IMU4.xsDevice.startMeasuring()) {logManager.log("IMU4 is measuring");}
+        if (IMU2.xsDevice.startMeasuring()) logManager.log("IMU2 measuring");
+        else logManager.log("IMU2 startMeasuring FAILED");
+
+        if (IMU3.xsDevice.startMeasuring()) logManager.log("IMU3 measuring");
+        else logManager.log("IMU3 startMeasuring FAILED");
+
+        if (IMU4.xsDevice.startMeasuring()) logManager.log("IMU4 measuring");
+        else logManager.log("IMU4 startMeasuring FAILED");
+
+        if (IMU5RecordingManager != null) { IMU5RecordingManager.startRecording(); logManager.log("IMU5 recording started"); }
+        if (IMU6RecordingManager != null) { IMU6RecordingManager.startRecording(); logManager.log("IMU6 recording started"); }
     }
     public void stopMeasurement() {
-        IMU1.xsDevice.stopMeasuring();
-        IMU1.normalDataLogger.stop();
-        IMU2.xsDevice.stopMeasuring();
-        IMU2.normalDataLogger.stop();
-        IMU3.xsDevice.stopMeasuring();
-        IMU3.normalDataLogger.stop();
-        IMU4.xsDevice.stopMeasuring();
-        IMU4.normalDataLogger.stop();
-
+        IMU1.xsDevice.stopMeasuring(); if (IMU1.normalDataLogger != null) IMU1.normalDataLogger.stop();
+        IMU2.xsDevice.stopMeasuring(); if (IMU2.normalDataLogger != null) IMU2.normalDataLogger.stop();
+        IMU3.xsDevice.stopMeasuring(); if (IMU3.normalDataLogger != null) IMU3.normalDataLogger.stop();
+        IMU4.xsDevice.stopMeasuring(); if (IMU4.normalDataLogger != null) IMU4.normalDataLogger.stop();
+        if (IMU5RecordingManager != null) IMU5RecordingManager.stopRecording();
+        if (IMU6RecordingManager != null) IMU6RecordingManager.stopRecording();
         logConfusionMatrix();
     }
+    public void exportRecordingData(int subjectNumber) {
+        logManager.log("exportRecordingData called");
+        recordingExportDataIds = new byte[]{
+                DotRecordingManager.RECORDING_DATA_ID_TIMESTAMP,
+                DotRecordingManager.RECORDING_DATA_ID_EULER_ANGLES,
+                DotRecordingManager.RECORDING_DATA_ID_CALIBRATED_ACC,
+                DotRecordingManager.RECORDING_DATA_ID_CALIBRATED_GYR
+        };
+        imu5ExportDone = false;
+        imu6ExportDone = false;
+        isExporting = true;
+
+        java.io.File imu5Folder = context.getApplicationContext().getExternalFilesDir("Subject " + subjectNumber + "/" + IMU5.xsDevice.getTag());
+        java.io.File imu6Folder = context.getApplicationContext().getExternalFilesDir("Subject " + subjectNumber + "/" + IMU6.xsDevice.getTag());
+        imu5Folder.mkdirs();
+        imu6Folder.mkdirs();
+
+        imu5ExportFilePath = imu5Folder.getPath() + "/IMU5_" + IMU5.xsDevice.getTag() + "_" + java.text.DateFormat.getDateTimeInstance().format(new Date())  + ", Subject " + subjectNumber + ".csv";
+        imu6ExportFilePath = imu6Folder.getPath() + "/IMU6_" + IMU6.xsDevice.getTag() + "_" + java.text.DateFormat.getDateTimeInstance().format(new Date())  + ", Subject " + subjectNumber + ".csv";
+
+        try {
+            imu5ExportWriter = new java.io.BufferedWriter(new java.io.OutputStreamWriter(
+                    new java.io.FileOutputStream(imu5ExportFilePath, false)));
+            imu5ExportWriter.write("PacketCounter,SampleTimeFine,Roll,Pitch,Yaw,Acc_X,Acc_Y,Acc_Z,Gyr_X,Gyr_Y,Gyr_Z\n");
+            imu5ExportWriter.flush();
+            imu6ExportWriter = new java.io.BufferedWriter(new java.io.OutputStreamWriter(
+                    new java.io.FileOutputStream(imu6ExportFilePath, false)));
+            imu6ExportWriter.write("PacketCounter,SampleTimeFine,Roll,Pitch,Yaw,Acc_X,Acc_Y,Acc_Z,Gyr_X,Gyr_Y,Gyr_Z\n");
+            imu6ExportWriter.flush();
+            logManager.log("IMU5 export writer created: " + imu5ExportFilePath);
+            logManager.log("IMU6 export writer created: " + imu6ExportFilePath);
+        } catch (java.io.IOException e) {
+            logManager.log("Error creating export writers: " + e.getMessage());
+        }
+
+        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+            if (IMU5RecordingManager != null) IMU5RecordingManager.enableDataRecordingNotification();
+            if (IMU6RecordingManager != null) IMU6RecordingManager.enableDataRecordingNotification();
+            logManager.log("Export: enableDataRecordingNotification called for IMU5 and IMU6");
+        }, 2000);
+    }
     public void disconnectAll() {
-        IMU1.xsDevice.disconnect();
-        IMU2.xsDevice.disconnect();
-        IMU3.xsDevice.disconnect();
-        IMU4.xsDevice.disconnect();
+        if (IMU1.xsDevice != null) IMU1.xsDevice.disconnect();
+        if (IMU2.xsDevice != null) IMU2.xsDevice.disconnect();
+        if (IMU3.xsDevice != null) IMU3.xsDevice.disconnect();
+        if (IMU4.xsDevice != null) IMU4.xsDevice.disconnect();
+        if (IMU5.xsDevice != null) IMU5.xsDevice.disconnect();
+        if (IMU6.xsDevice != null) IMU6.xsDevice.disconnect();
     }
     // Callbacks will go here in the next step
 
@@ -418,13 +509,22 @@ public class ImuManager implements
             listener.onImuConnectionChanged(IMU2.Name, isConnected);
         } else if (address.equals(IMU3.MAC)) {
             IMU3.isConnected = isConnected;
-            logManager.log("IMU3 IMU is " + (isConnected ? "connected!" : "disconnected!"));
+            logManager.log("IMU3 " + (isConnected ? "connected" : "disconnected"));
             listener.onImuConnectionChanged(IMU3.Name, isConnected);
         } else if (address.equals(IMU4.MAC)) {
             IMU4.isConnected = isConnected;
-            logManager.log("IMU4 IMU is " + (isConnected ? "connected!" : "disconnected!"));
+            logManager.log("IMU4 " + (isConnected ? "connected" : "disconnected"));
             listener.onImuConnectionChanged(IMU4.Name, isConnected);
+        } else if (address.equals(IMU5.MAC)) {
+            IMU5.isConnected = isConnected;
+            logManager.log("IMU5 " + (isConnected ? "connected" : "disconnected"));
+            listener.onImuConnectionChanged(IMU5.Name, isConnected);
+        } else if (address.equals(IMU6.MAC)) {
+            IMU6.isConnected = isConnected;
+            logManager.log("IMU6 " + (isConnected ? "connected" : "disconnected"));
+            listener.onImuConnectionChanged(IMU6.Name, isConnected);
         }
+
     }
 
     @Override
@@ -459,8 +559,7 @@ public class ImuManager implements
             calculateInitialValues(IMU3, dotData, eulerAngles, gyroData, accelData);
             double[] calibrated = applyCalibratedData(IMU3, eulerAngles, gyroData, accelData);
             eulerAngles[0] = calibrated[0];
-        }
-        else if (address.equals(IMU4.MAC)) {
+        } else if (address.equals(IMU4.MAC)) {
             dotData.setPacketCounter(dotData.getPacketCounter() + packetCounterOffset);
             calculateInitialValues(IMU4, dotData, eulerAngles, gyroData, accelData);
             double[] calibrated = applyCalibratedData(IMU4, eulerAngles, gyroData, accelData);
@@ -492,14 +591,12 @@ public class ImuManager implements
                 // Store data in the segment object
                 // IMU2.storeData(eulerAngles, quats, accelData, dotData.getPacketCounter());
 
-            }
-            else if (address.equals(IMU3.MAC)) {
-                IMU3.normalDataLogger.update(dotData);
+            } else if (address.equals(IMU3.MAC)) {
+                if (IMU3.normalDataLogger != null) IMU3.normalDataLogger.update(dotData);
                 IMU3.sampleCounter++;
                 IMU3.dataOutput[3] = decimalFormat.format(dotData.getPacketCounter());
-            }
-            else if (address.equals(IMU4.MAC)) {
-                IMU4.normalDataLogger.update(dotData);
+            } else if (address.equals(IMU4.MAC)) {
+                if (IMU4.normalDataLogger != null) IMU4.normalDataLogger.update(dotData);
                 IMU4.sampleCounter++;
                 IMU4.dataOutput[3] = decimalFormat.format(dotData.getPacketCounter());
             }
@@ -837,6 +934,178 @@ public class ImuManager implements
     }
 
     @Override
+    public void onDotRecordingNotification(String address, boolean isEnabled) {
+        if (!isEnabled) return;
+        logManager.log("onDotRecordingNotification: " + address + " isEnabled=" + isEnabled + " isExporting=" + isExporting);
+
+        if (isExporting) {
+            new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                if (address.equals(IMU5.MAC) && IMU5RecordingManager != null) {
+                    IMU5RecordingManager.requestFlashInfo();
+                    logManager.log("IMU5 requestFlashInfo called (export)");
+                } else if (address.equals(IMU6.MAC) && IMU6RecordingManager != null) {
+                    IMU6RecordingManager.requestFlashInfo();
+                    logManager.log("IMU6 requestFlashInfo called (export)");
+                }
+            }, 2000);
+        } else {
+            if (address.equals(IMU5.MAC) && !imu5EraseCompleted && IMU5RecordingManager != null) {
+                IMU5RecordingManager.eraseRecordingData();
+                logManager.log("IMU5 eraseRecordingData called");
+                listener.onImuRecordingStatusChanged("IMU5", "Erasing...");
+            } else if (address.equals(IMU6.MAC) && !imu6EraseCompleted && IMU6RecordingManager != null) {
+                IMU6RecordingManager.eraseRecordingData();
+                logManager.log("IMU6 eraseRecordingData called");
+                listener.onImuRecordingStatusChanged("IMU6", "Erasing...");
+            }
+        }
+    }
+    @Override
+    public void onDotRequestFlashInfoDone(String address, int usedFlashSize, int remainingFlashSize) {
+        logManager.log("onDotRequestFlashInfoDone: " + address + " used=" + usedFlashSize);
+        if (isExporting) {
+            // Export chain step 2: flash info → request file info
+            if (address.equals(IMU5.MAC) && IMU5RecordingManager != null) {
+                IMU5RecordingManager.requestFileInfo();
+                logManager.log("IMU5 requestFileInfo called");
+            } else if (address.equals(IMU6.MAC) && IMU6RecordingManager != null) {
+                IMU6RecordingManager.requestFileInfo();
+                logManager.log("IMU6 requestFileInfo called");
+            }
+        }
+    }
+    @Override
+    public void onDotRequestFileInfoDone(String address, java.util.ArrayList<com.xsens.dot.android.sdk.models.DotRecordingFileInfo> fileList, boolean success) {
+        logManager.log("onDotRequestFileInfoDone: " + address + " fileCount=" + (fileList != null ? fileList.size() : 0) + " success=" + success);
+        if (!isExporting) return;
+
+        if (fileList == null || fileList.isEmpty()) {
+            logManager.log("No recording files found on " + address);
+            return;
+        }
+
+        com.xsens.dot.android.sdk.recording.DotRecordingManager manager = null;
+        if (address.equals(IMU5.MAC)) manager = IMU5RecordingManager;
+        else if (address.equals(IMU6.MAC)) manager = IMU6RecordingManager;
+        if (manager == null) return;
+
+        final com.xsens.dot.android.sdk.recording.DotRecordingManager finalManager = manager;
+        final java.util.ArrayList<com.xsens.dot.android.sdk.models.DotRecordingFileInfo> finalFileList = fileList;
+
+        // Step 1: select data fields
+        recordingExportDataIds = new byte[]{
+                DotRecordingManager.RECORDING_DATA_ID_TIMESTAMP,
+                DotRecordingManager.RECORDING_DATA_ID_EULER_ANGLES,
+                DotRecordingManager.RECORDING_DATA_ID_CALIBRATED_ACC,
+                DotRecordingManager.RECORDING_DATA_ID_CALIBRATED_GYR
+        };
+
+        if (finalManager.selectExportedData(recordingExportDataIds)) {
+            logManager.log("selectExportedData OK for " + address);
+        } else {
+            logManager.log("selectExportedData FAILED for " + address);
+            return;
+        }
+
+        // Step 2: start exporting after 1 second
+        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+            if (finalManager.startExporting(finalFileList)) {
+                logManager.log("startExporting called for " + address + " with " + finalFileList.size() + " files");
+            } else {
+                logManager.log("startExporting FAILED for " + address);
+            }
+        }, 1000);
+    }
+    @Override
+    public void onDotDataExported(String address, com.xsens.dot.android.sdk.models.DotRecordingFileInfo fileInfo, com.xsens.dot.android.sdk.events.DotData dotData) {
+        java.io.BufferedWriter writer = null;
+        if (address.equals(IMU5.MAC)) writer = imu5ExportWriter;
+        else if (address.equals(IMU6.MAC)) writer = imu6ExportWriter;
+        if (writer == null) return;
+
+        try {
+            double[] euler = DotParser.quaternion2Euler(dotData.getQuat());
+            double[] acc = dotData.getAcc();
+            double[] gyr = dotData.getGyr();
+            String row = String.format("%d,%d,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f\n",
+                    dotData.getPacketCounter(),
+                    dotData.getPacketCounter(),
+                    euler != null ? euler[0] : 0,
+                    euler != null ? euler[1] : 0,
+                    euler != null ? euler[2] : 0,
+                    acc != null ? acc[0] : 0,
+                    acc != null ? acc[1] : 0,
+                    acc != null ? acc[2] : 0,
+                    gyr != null ? gyr[0] : 0,
+                    gyr != null ? gyr[1] : 0,
+                    gyr != null ? gyr[2] : 0);
+            writer.write(row);
+        } catch (java.io.IOException e) {
+            logManager.log("Error writing export data: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void onDotDataExported(String address, com.xsens.dot.android.sdk.models.DotRecordingFileInfo fileInfo) {
+        logManager.log("File exported from " + address + ": " + fileInfo.getFileName());
+    }
+
+    @Override
+    public void onDotAllDataExported(String address) {
+        logManager.log("All data exported from " + address);
+        if (address.equals(IMU5.MAC)) {
+            imu5ExportDone = true;
+            if (imu5ExportWriter != null) {
+                try { imu5ExportWriter.close(); } catch (java.io.IOException e) { logManager.log("Error closing IMU5 writer: " + e.getMessage()); }
+            }
+            if (imu5ExportFilePath != null) {
+                logManager.log("IMU5 file exists: " + new java.io.File(imu5ExportFilePath).exists());
+                logManager.addExportFileToUploadList(new java.io.File(imu5ExportFilePath));
+            }
+        } else if (address.equals(IMU6.MAC)) {
+            imu6ExportDone = true;
+            if (imu6ExportWriter != null) {
+                try { imu6ExportWriter.close(); } catch (java.io.IOException e) { logManager.log("Error closing IMU6 writer: " + e.getMessage()); }
+            }
+            if (imu6ExportFilePath != null) {
+                logManager.log("IMU6 file exists: " + new java.io.File(imu6ExportFilePath).exists());
+                logManager.addExportFileToUploadList(new java.io.File(imu6ExportFilePath));
+            }
+        }
+        if (imu5ExportDone && imu6ExportDone) {
+            isExporting = false;
+            listener.onExportComplete();
+            logManager.log("Export complete for all recording IMUs");
+        }
+    }
+    @Override
+    public void onDotRecordingAck(String address, int recordingId, boolean isSuccess, DotRecordingState recordingState) {
+        String imuName = (IMU5 != null && address.equals(IMU5.MAC)) ? "IMU5" : "IMU6";
+        if (recordingId == DotRecordingManager.RECORDING_ID_START_RECORDING) {
+            logManager.log(imuName + " start recording ack: " + (isSuccess ? "OK" : "FAILED") + " state=" + recordingState);
+        } else if (recordingId == DotRecordingManager.RECORDING_ID_STOP_RECORDING) {
+            logManager.log(imuName + " stop recording ack: " + (isSuccess ? "OK" : "FAILED") + " state=" + recordingState);
+        }
+    }
+    @Override
+    public void onDotEraseDone(String address, boolean success) {
+        logManager.log("onDotEraseDone: " + address + " success=" + success);
+        if (address.equals(IMU5.MAC)) {
+            imu5EraseCompleted = true;
+            logManager.log("IMU5 erase done");
+            listener.onImuRecordingStatusChanged("IMU5", "Erased");
+        } else if (address.equals(IMU6.MAC)) {
+            imu6EraseCompleted = true;
+            logManager.log("IMU6 erase done");
+            listener.onImuRecordingStatusChanged("IMU6", "Erased");
+        }
+        if (imu5EraseCompleted && imu6EraseCompleted) {
+            listener.onRecordingImusReady();
+            logManager.log("Both recording IMUs erased and ready");
+        }
+    }
+
+    @Override
     public void onDotButtonClicked(String s, long l) {}
 
     @Override
@@ -857,32 +1126,15 @@ public class ImuManager implements
     @Override
     public void onSyncStatusUpdate(String s, boolean b) {}
 
-    @Override
-    public void onDotRecordingNotification(String address, boolean isEnabled) {}
 
-    @Override
-    public void onDotEraseDone(String s, boolean b) {}
-
-    @Override
-    public void onDotRequestFlashInfoDone(String s, int i, int i1) {}
-
-    @Override
-    public void onDotRecordingAck(String s, int i, boolean b, com.xsens.dot.android.sdk.models.DotRecordingState dotRecordingState) {}
 
     @Override
     public void onDotGetRecordingTime(String s, int i, int i1, int i2) {}
 
-    @Override
-    public void onDotRequestFileInfoDone(String s, java.util.ArrayList<com.xsens.dot.android.sdk.models.DotRecordingFileInfo> arrayList, boolean b) {}
 
-    @Override
-    public void onDotDataExported(String s, com.xsens.dot.android.sdk.models.DotRecordingFileInfo dotRecordingFileInfo, com.xsens.dot.android.sdk.events.DotData dotData) {}
 
-    @Override
-    public void onDotDataExported(String s, com.xsens.dot.android.sdk.models.DotRecordingFileInfo dotRecordingFileInfo) {}
 
-    @Override
-    public void onDotAllDataExported(String s) {}
+
 
     @Override
     public void onDotStopExportingData(String s) {}

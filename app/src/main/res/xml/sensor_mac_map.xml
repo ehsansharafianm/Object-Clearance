@@ -6,6 +6,8 @@
         <item>D4:22:CD:00:63:8B,V2–17</item>
         <item>D4:22:CD:00:A1:76,V2–18</item>
         <item>D4:22:CD:00:63:A4,V2–19</item>
+        <item>D4:22:CD:00:9F:95,V2-20</item>
+        <item>D4:22:CD:00:63:7D,V2-15</item>
 
         <!-- Add more sensors here as needed -->
     </string-array>
