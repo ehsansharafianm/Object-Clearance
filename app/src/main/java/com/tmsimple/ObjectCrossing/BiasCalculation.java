@@ -15,7 +15,7 @@ public class BiasCalculation {
     // ========== CALIBRATION PHASE VARIABLES ==========
     private boolean isCalibrated = false;
     private int calibrationWindowCount = 0;
-    private static final int REQUIRED_CALIBRATION_WINDOWS = 20;
+    private static final int REQUIRED_CALIBRATION_WINDOWS = 10;
     private ArrayList<Double> calibrationBiasValues = new ArrayList<>();
 
     // Calculated calibration parameters
@@ -78,9 +78,9 @@ public class BiasCalculation {
         }
 
         int sampleCount = windowData.packetCountersInWindow.size();
-        logManager.log("------------------------------------------");
+        /*logManager.log("------------------------------------------");
         logManager.log("Processing " + sampleCount + " samples from packet " +
-                windowData.startPacket + " to " + windowData.endPacket);
+                windowData.startPacket + " to " + windowData.endPacket);*/
 
         // Extract the arrays from windowData
         ArrayList<Integer> packetCounters = windowData.packetCountersInWindow;
@@ -265,18 +265,19 @@ public class BiasCalculation {
                 calibrationBiasValues.add(biasV_hs);
                 calibrationWindowCount++;
 
-                logManager.log("------------------------------------------");
+                /*logManager.log("------------------------------------------");
                 logManager.log("CALIBRATION Window #" + calibrationWindowCount + "/" + REQUIRED_CALIBRATION_WINDOWS);
                 logManager.log("  Bias V_hs: " + decimalFormat.format(biasV_hs));
-                logManager.log("------------------------------------------");
+                logManager.log("------------------------------------------");*/
+
+                logManager.log("CAL " + windowData.imuId + " [" + calibrationWindowCount + "/" + REQUIRED_CALIBRATION_WINDOWS + "] bias:" + decimalFormat.format(biasV_hs));
 
                 // Check if calibration is complete
                 if (calibrationWindowCount >= REQUIRED_CALIBRATION_WINDOWS) {
                     performCalibration();
                 }
             } else {
-                logManager.log("WARNING: Window #" + windowNum + " skipped - calibration requires Level_Walk only");
-                logManager.log("  Current terrain: " + groundTruthTerrain);
+                logManager.log("CAL " + windowData.imuId + " Win#" + windowNum + " skipped (terrain: " + groundTruthTerrain + ")");
             }
 
             // During calibration, we don't do terrain classification or second integration
@@ -285,10 +286,6 @@ public class BiasCalculation {
         }
 
         // ========== AFTER CALIBRATION: NORMAL PROCESSING ==========
-        logManager.log("------------------------------------------");
-        logManager.log("Processing Window #" + windowNum + " (" + sampleCount + " samples)");
-        logManager.log("  Packets: " + startPacket + " to " + endPacket);
-        logManager.log("  Raw Bias V_hs: " + decimalFormat.format(biasV_hs));
 
         // **** Terrain Determination using CALIBRATED thresholds
 //         String terrainType = terrainDeterminationAdaptive(biasV_hs);
@@ -296,7 +293,7 @@ public class BiasCalculation {
         // **** Terrain Determination using hardcoded thresholds
         String terrainType = terrainDeterminationHardcoded(biasV_hs, biasAcc);
 
-        logManager.log("  Classified: " + terrainType);
+        logManager.log("WIN " + windowData.imuId + " #" + windowNum + " bias:" + decimalFormat.format(biasV_hs) + " -> " + terrainType);
 
 
 

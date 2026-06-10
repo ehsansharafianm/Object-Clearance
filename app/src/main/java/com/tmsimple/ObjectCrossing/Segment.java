@@ -40,18 +40,9 @@ public class Segment {
     public void storeData(double[] eulerAngles, float[] quats, double[] accelData, int packetCounter) {
 
         // Remove label offset from packet counter - HANDLE ALL LABELS
-        if (packetCounter >= 1000000 && packetCounter < 2000000) {
-            packetCounter = packetCounter - 1000000;
-        } else if (packetCounter >= 2000000 && packetCounter < 3000000) {
-            packetCounter = packetCounter - 2000000;
-        } else if (packetCounter >= 3000000 && packetCounter < 4000000) {
-            packetCounter = packetCounter - 3000000;
-        } else if (packetCounter >= 4000000 && packetCounter < 5000000) {
-            packetCounter = packetCounter - 4000000;
-        } else if (packetCounter >= 5000000 && packetCounter < 6000000) {
-            packetCounter = packetCounter - 5000000;
-        } else if (packetCounter >= 6000000 && packetCounter < 7000000) {
-            packetCounter = packetCounter - 6000000;
+        if (packetCounter >= 1000000) {
+            int offsetMultiplier = packetCounter / 1000000;
+            packetCounter = packetCounter - (offsetMultiplier * 1000000);
         }
 
 

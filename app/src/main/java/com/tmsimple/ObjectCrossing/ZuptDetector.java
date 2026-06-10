@@ -320,15 +320,10 @@ public class ZuptDetector {
                 if (windowTracker.canAcceptNewZupt(bestCandidate.packetCounter)) {
 
                     double timeSinceLastZupt = windowTracker.getPacketTimeSinceLastZupt(bestCandidate.packetCounter);
-                    logManager.log("=================   START    ========================");
-                    // Log that ZUPT is detected and accepted
-                    logManager.log("OPTIMAL ZUPT ACCEPTED - " + imuId +
-                            "| at packet: " + bestCandidate.packetCounter +
-                            "| At time: " + decimalFormat.format(timeSinceLastZupt) + "s" +
-                            "| to previous ZUPT " +
-                            "| Accel Mag: " + decimalFormat.format(bestCandidate.accelMagnitude) +
-                            "| Velocity Mag: " + decimalFormat.format(bestCandidate.gyroMagnitude) +
-                            "| Score Mag: " + decimalFormat.format(bestCandidate.combinedScore));
+                    logManager.log("ZUPT " + imuId + " pkt:" + bestCandidate.packetCounter +
+                            " t:" + decimalFormat.format(timeSinceLastZupt) + "s" +
+                            " accel:" + decimalFormat.format(bestCandidate.accelMagnitude) +
+                            " gyro:" + decimalFormat.format(bestCandidate.gyroMagnitude));
 
                     // Accept the new ZUPT and get the completed gait cycle
                     GaitWindow completedGaitCycle = windowTracker.acceptNewZupt(bestCandidate.packetCounter);

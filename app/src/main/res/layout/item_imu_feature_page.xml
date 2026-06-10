@@ -1,0 +1,162 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="@drawable/log_border"
+    android:layout_margin="12dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="13dp">
+
+        <!-- IMU Label -->
+        <TextView
+            android:id="@+id/pageImuLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="#052A63"
+            android:textAlignment="center"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="10dp"
+            android:text="IMU"/>
+
+        <!-- Terrain Type -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="10dp"
+            android:text="TERRAIN TYPE"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#666666"/>
+
+        <TextView
+            android:id="@+id/pageTerrainType"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/rectangle_terrain_box"
+            android:padding="20dp"
+            android:text="--"
+            android:textAlignment="center"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"/>
+
+        <!-- Window Number -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="30dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Cycle #:"
+                android:textSize="15sp"/>
+
+            <TextView
+                android:id="@+id/pageWindowNumber"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/rectangle"
+                android:backgroundTint="#E3F2FD"
+                android:padding="8dp"
+                android:text="--"
+                android:textSize="15sp"/>
+        </LinearLayout>
+
+        <!-- Bias Value -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="15dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Bias Value:"
+                android:textSize="15sp"/>
+
+            <TextView
+                android:id="@+id/pageBiasValue"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/rectangle"
+                android:backgroundTint="#E3F2FD"
+                android:padding="8dp"
+                android:text="--"
+                android:textSize="15sp"/>
+        </LinearLayout>
+
+        <!-- Max Height -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="15dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Max Height:"
+                android:textSize="15sp"/>
+
+            <TextView
+                android:id="@+id/pageMaxHeight"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/rectangle"
+                android:backgroundTint="#E3F2FD"
+                android:padding="8dp"
+                android:text="-- m"
+                android:textSize="15sp"/>
+        </LinearLayout>
+
+        <!-- Max Stride Length -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="15dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Max Stride Length:"
+                android:textSize="15sp"/>
+
+            <TextView
+                android:id="@+id/pageMaxStride"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/rectangle"
+                android:backgroundTint="#E3F2FD"
+                android:padding="8dp"
+                android:text="-- m"
+                android:textSize="15sp"/>
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

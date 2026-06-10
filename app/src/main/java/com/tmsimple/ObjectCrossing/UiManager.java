@@ -75,8 +75,8 @@ public class UiManager {
     public EditText enterSubjectNumber;
     // Feature detection display fields
     public TextView imu1WindowNumber, imu1TerrainType, imu1BiasValue, imu1MaxHeight, imu1MaxStride;
-    public TextView dialogImu1WindowNumber, dialogImu1TerrainType, dialogImu1BiasValue,
-            dialogImu1MaxHeight, dialogImu1MaxStride;
+    // Per-page views for the ViewPager (index 0 = IMU1, index 1 = IMU2)
+    private android.view.View[] featurePages = new android.view.View[2];
 
     public CardView imuListDialog;
     public Spinner spinnerIMU1, spinnerIMU2, spinnerIMU3, spinnerIMU4;
@@ -150,11 +150,11 @@ public class UiManager {
         exportButton = root.findViewById(R.id.exportButton);
 
         // Feature detection display fields
-        imu1WindowNumber = root.findViewById(R.id.imu1WindowNumber);
-        imu1TerrainType = root.findViewById(R.id.imu1TerrainType);
-        imu1BiasValue = root.findViewById(R.id.imu1BiasValue);
-        imu1MaxHeight = root.findViewById(R.id.imu1MaxHeight);
-        imu1MaxStride = root.findViewById(R.id.imu1MaxStride);
+//        imu1WindowNumber = root.findViewById(R.id.imu1WindowNumber);
+//        imu1TerrainType = root.findViewById(R.id.imu1TerrainType);
+//        imu1BiasValue = root.findViewById(R.id.imu1BiasValue);
+//        imu1MaxHeight = root.findViewById(R.id.imu1MaxHeight);
+//        imu1MaxStride = root.findViewById(R.id.imu1MaxStride);
 
         // FOR SPINNERS
         spinnerIMU1 = root.findViewById(R.id.spinnerIMU1);
@@ -278,11 +278,13 @@ public class UiManager {
 
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
+                    if (v.getParent() != null) v.getParent().requestDisallowInterceptTouchEvent(true);
                     imuManager.setPacketCounterOffset(info.offset);
                     v.setBackgroundColor(info.activeColor);
                     break;
                 case MotionEvent.ACTION_UP:
                 case MotionEvent.ACTION_CANCEL:
+                    if (v.getParent() != null) v.getParent().requestDisallowInterceptTouchEvent(false);
                     imuManager.setPacketCounterOffset(0);
                     v.setBackgroundColor(info.defaultColor);
                     break;
@@ -363,75 +365,54 @@ public class UiManager {
 
     // Method to update feature detection display with dynamic colors
     // Method to update feature detection display with dynamic colors
-    public void updateFeatureDisplay(int windowNum, String terrainType, double biasValue,
-                                     double maxHeight, double maxStride) {
-        // Calculate color once (used for both main page and dialog)
+    public void updateFeatureDisplay(String imuId, int windowNum, String terrainType, double biasValue, double maxHeight, double maxStride) {
         int backgroundColor;
         switch (terrainType) {
-            case "Level_Walk":
-                backgroundColor = Color.parseColor("#4CAF50"); // Green
-                break;
-            case "Stair_Ascend":
-                backgroundColor = Color.parseColor("#FF5722"); // Red-Orange
-                break;
-            case "Stair_Descend":
-                backgroundColor = Color.parseColor("#F44336"); // Red
-                break;
-            case "Ramp_Ascend":
-                backgroundColor = Color.parseColor("#FF9800"); // Orange
-                break;
-            case "Ramp_Descend":
-                backgroundColor = Color.parseColor("#FFC107"); // Amber
-                break;
-            default:
-                backgroundColor = Color.parseColor("#9E9E9E"); // Gray for unknown
-                break;
+            case "Level_Walk":    backgroundColor = Color.parseColor("#4CAF50"); break;
+            case "Stair_Ascend":  backgroundColor = Color.parseColor("#2196F3"); break;
+            case "Stair_Descend": backgroundColor = Color.parseColor("#673AB7"); break;
+            case "Ramp_Ascend":   backgroundColor = Color.parseColor("#FF9800"); break;
+            case "Ramp_Descend":  backgroundColor = Color.parseColor("#FFC107"); break;
+            default:              backgroundColor = Color.parseColor("#9E9E9E"); break;
         }
 
-        // UPDATE MAIN PAGE TextViews (if they exist)
-        if (imu1WindowNumber != null) {
-            imu1WindowNumber.setText(String.valueOf(windowNum));
-        }
-        if (imu1TerrainType != null) {
-            imu1TerrainType.setText(terrainType);
-            // Create drawable for main page
-            android.graphics.drawable.GradientDrawable drawable = new android.graphics.drawable.GradientDrawable();
-            drawable.setShape(android.graphics.drawable.GradientDrawable.RECTANGLE);
-            drawable.setColor(backgroundColor);
-            drawable.setCornerRadius(8);
-            imu1TerrainType.setBackground(drawable);
-        }
-        if (imu1BiasValue != null) {
-            imu1BiasValue.setText(String.format(Locale.US, "%.3f", biasValue));
-        }
-        if (imu1MaxHeight != null) {
-            imu1MaxHeight.setText(String.format(Locale.US, "%.3f m", maxHeight));
-        }
-        if (imu1MaxStride != null) {
-            imu1MaxStride.setText(String.format(Locale.US, "%.3f m", maxStride));
+        // Update main-page TextViews (IMU1 only)
+        if (imuId.equals("IMU1")) {
+            if (imu1WindowNumber != null) imu1WindowNumber.setText(String.valueOf(windowNum));
+            if (imu1TerrainType != null) {
+                imu1TerrainType.setText(terrainType);
+                android.graphics.drawable.GradientDrawable d = new android.graphics.drawable.GradientDrawable();
+                d.setShape(android.graphics.drawable.GradientDrawable.RECTANGLE);
+                d.setColor(backgroundColor);
+                d.setCornerRadius(8);
+                imu1TerrainType.setBackground(d);
+            }
+            if (imu1BiasValue != null) imu1BiasValue.setText(String.format(Locale.US, "%.3f", biasValue));
+            if (imu1MaxHeight != null) imu1MaxHeight.setText(String.format(Locale.US, "%.3f m", maxHeight));
+            if (imu1MaxStride != null) imu1MaxStride.setText(String.format(Locale.US, "%.3f m", maxStride));
         }
 
-        // UPDATE DIALOG TextViews (if they exist)
-        if (dialogImu1WindowNumber != null) {
-            dialogImu1WindowNumber.setText(String.valueOf(windowNum));
-        }
-        if (dialogImu1TerrainType != null) {
-            dialogImu1TerrainType.setText(terrainType);
-            // Create new drawable for dialog (can't reuse the same drawable)
-            android.graphics.drawable.GradientDrawable dialogDrawable = new android.graphics.drawable.GradientDrawable();
-            dialogDrawable.setShape(android.graphics.drawable.GradientDrawable.RECTANGLE);
-            dialogDrawable.setColor(backgroundColor);
-            dialogDrawable.setCornerRadius(8);
-            dialogImu1TerrainType.setBackground(dialogDrawable);
-        }
-        if (dialogImu1BiasValue != null) {
-            dialogImu1BiasValue.setText(String.format(Locale.US, "%.3f", biasValue));
-        }
-        if (dialogImu1MaxHeight != null) {
-            dialogImu1MaxHeight.setText(String.format(Locale.US, "%.3f m", maxHeight));
-        }
-        if (dialogImu1MaxStride != null) {
-            dialogImu1MaxStride.setText(String.format(Locale.US, "%.3f m", maxStride));
+        // Update correct ViewPager page
+        int pageIndex = imuId.equals("IMU1") ? 0 : 1;
+        if (featurePages[pageIndex] != null) {
+            android.view.View page = featurePages[pageIndex];
+            android.widget.TextView tvTerrain = page.findViewById(R.id.pageTerrainType);
+            android.widget.TextView tvWindow  = page.findViewById(R.id.pageWindowNumber);
+            android.widget.TextView tvBias    = page.findViewById(R.id.pageBiasValue);
+            android.widget.TextView tvHeight  = page.findViewById(R.id.pageMaxHeight);
+            android.widget.TextView tvStride  = page.findViewById(R.id.pageMaxStride);
+            if (tvWindow  != null) tvWindow.setText(String.valueOf(windowNum));
+            if (tvBias    != null) tvBias.setText(String.format(Locale.US, "%.3f", biasValue));
+            if (tvHeight  != null) tvHeight.setText(String.format(Locale.US, "%.3f m", maxHeight));
+            if (tvStride  != null) tvStride.setText(String.format(Locale.US, "%.3f m", maxStride));
+            if (tvTerrain != null) {
+                tvTerrain.setText(terrainType);
+                android.graphics.drawable.GradientDrawable d = new android.graphics.drawable.GradientDrawable();
+                d.setShape(android.graphics.drawable.GradientDrawable.RECTANGLE);
+                d.setColor(backgroundColor);
+                d.setCornerRadius(8);
+                tvTerrain.setBackground(d);
+            }
         }
     }
 
@@ -747,71 +728,102 @@ public class UiManager {
 
     // Add method to setup and show the label dialog
     public void setupLabelDialog(android.content.Context context) {
-        // Create the dialog
         labelDialog = new android.app.Dialog(context);
-        labelDialog.setContentView(R.layout.dialog_label_buttons);
 
-        // Set size and position
+        android.view.LayoutInflater inflater = android.view.LayoutInflater.from(context);
+        android.view.View dialogView = inflater.inflate(R.layout.dialog_label_buttons, null);
+        labelDialog.setContentView(dialogView);
+
         if (labelDialog.getWindow() != null) {
-            // OPTION 1: Size configuration
-            // Change width - choose one:
-            int dialogWidth = android.view.ViewGroup.LayoutParams.MATCH_PARENT;  // Full width
-            // int dialogWidth = (int)(context.getResources().getDisplayMetrics().widthPixels * 0.9);  // 90% width
-            // int dialogWidth = 800;  // Fixed 800 pixels
-
-            // Change height - choose one:
-            // int dialogHeight = android.view.ViewGroup.LayoutParams.WRAP_CONTENT;  // Wrap content (recommended)
-            int dialogHeight = (int)(context.getResources().getDisplayMetrics().heightPixels * 0.7);  // 70% height
-            // int dialogHeight = 1000;  // Fixed 1000 pixels
-
+            int dialogWidth = android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+            int dialogHeight = (int)(context.getResources().getDisplayMetrics().heightPixels * 0.7);
             labelDialog.getWindow().setLayout(dialogWidth, dialogHeight);
 
-            // OPTION 2: Position configuration
             android.view.WindowManager.LayoutParams params = labelDialog.getWindow().getAttributes();
-
-            // Set gravity - choose one or combine:
-            // params.gravity = android.view.Gravity.CENTER;  // Center (default)
-            params.gravity = android.view.Gravity.BOTTOM;  // Bottom of screen
-            // params.gravity = android.view.Gravity.TOP;  // Top of screen
-            // params.gravity = android.view.Gravity.TOP | android.view.Gravity.RIGHT;  // Top-right corner
-
-            // Set offset (optional):
-            params.y = 0;   // Vertical offset: positive = down, negative = up (in pixels)
-            params.x = 0;   // Horizontal offset: positive = right, negative = left (in pixels)
-            // params.y = -200;  // Example: move 200 pixels UP
-            // params.y = 100;   // Example: move 100 pixels DOWN
-
-            // ADD THIS: Make background semi-transparent
-            params.dimAmount = 0.1f; // 0.0f = no dim, 1.0f = fully dark
+            params.gravity = android.view.Gravity.BOTTOM;
+            params.y = 0;
+            params.x = 0;
+            params.dimAmount = 0.1f;
             labelDialog.getWindow().addFlags(android.view.WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-
             labelDialog.getWindow().setAttributes(params);
-
-            // Background style
             labelDialog.getWindow().setBackgroundDrawableResource(android.R.drawable.dialog_holo_light_frame);
-            // For transparent background (useful with custom drawable):
-            // labelDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         }
 
-        // Get the dialog view
-        labelDialogView = labelDialog.findViewById(android.R.id.content);
+        // Inflate pages
+        android.view.View page1 = inflater.inflate(R.layout.item_label_page1, null);
+        android.view.View page2 = inflater.inflate(R.layout.item_label_page2, null);
 
-        // Bind label buttons functionality to dialog buttons
-        bindLabelButtonsInDialog(labelDialogView);
+        // Bind label buttons for page 1 (offsets 1M-6M)
+        bindLabelButtonsInDialog(page1);
 
-        // Setup close button
-        Button closeButton = labelDialog.findViewById(R.id.closeLabelDialog);
-        if (closeButton != null) {
-            closeButton.setOnClickListener(v -> labelDialog.dismiss());
+        // Bind label buttons for page 2 (offsets 7M-10M)
+        PacketOffsetItem[] page2Configs = new PacketOffsetItem[] {
+                new PacketOffsetItem(R.id.labelButton7,  7000000, Color.parseColor("#05fff8"), Color.parseColor("#E65100")),
+                new PacketOffsetItem(R.id.labelButton8,  8000000, Color.parseColor("#05fff8"), Color.parseColor("#F57C00")),
+                new PacketOffsetItem(R.id.labelButton9,  9000000, Color.parseColor("#05fff8"), Color.parseColor("#FB8C00")),
+                new PacketOffsetItem(R.id.labelButton10, 10000000, Color.parseColor("#05fff8"), Color.parseColor("#FFA726")),
+        };
+        for (PacketOffsetItem cfg : page2Configs) {
+            Button btn = page2.findViewById(cfg.buttonId);
+            if (btn != null) {
+                btn.setTag(cfg);
+                btn.setOnTouchListener(labelTouchListener);
+            }
         }
 
-        // Setup the open button
+        // Setup ViewPager
+        androidx.viewpager2.widget.ViewPager2 viewPager = dialogView.findViewById(R.id.labelViewPager);
+        android.widget.LinearLayout dotsContainer = dialogView.findViewById(R.id.labelDotsContainer);
+
+        final android.view.View[] labelPages = new android.view.View[]{ page1, page2 };
+
+        viewPager.setAdapter(new androidx.recyclerview.widget.RecyclerView.Adapter<androidx.recyclerview.widget.RecyclerView.ViewHolder>() {
+            @Override
+            public androidx.recyclerview.widget.RecyclerView.ViewHolder onCreateViewHolder(android.view.ViewGroup parent, int viewType) {
+                android.view.View page = labelPages[viewType];
+                if (page.getParent() != null) ((android.view.ViewGroup) page.getParent()).removeView(page);
+                page.setLayoutParams(new android.view.ViewGroup.LayoutParams(
+                        android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                        android.view.ViewGroup.LayoutParams.MATCH_PARENT));
+                return new androidx.recyclerview.widget.RecyclerView.ViewHolder(page) {};
+            }
+            @Override public void onBindViewHolder(androidx.recyclerview.widget.RecyclerView.ViewHolder h, int pos) {}
+            @Override public int getItemCount() { return 2; }
+            @Override public int getItemViewType(int position) { return position; }
+        });
+
+        // Dot indicators
+        android.widget.TextView[] dots = new android.widget.TextView[2];
+        for (int i = 0; i < 2; i++) {
+            dots[i] = new android.widget.TextView(context);
+            dots[i].setText("●");
+            dots[i].setTextSize(22);
+            android.widget.LinearLayout.LayoutParams lp = new android.widget.LinearLayout.LayoutParams(
+                    android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
+                    android.widget.LinearLayout.LayoutParams.WRAP_CONTENT);
+            lp.setMargins(6, 0, 6, 0);
+            dots[i].setLayoutParams(lp);
+            dotsContainer.addView(dots[i]);
+        }
+        dots[0].setTextColor(android.graphics.Color.parseColor("#052A63"));
+        dots[1].setTextColor(android.graphics.Color.parseColor("#CCCCCC"));
+
+        viewPager.registerOnPageChangeCallback(new androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                dots[0].setTextColor(position == 0 ? android.graphics.Color.parseColor("#052A63") : android.graphics.Color.parseColor("#CCCCCC"));
+                dots[1].setTextColor(position == 1 ? android.graphics.Color.parseColor("#052A63") : android.graphics.Color.parseColor("#CCCCCC"));
+            }
+        });
+
+        // Close button
+        Button closeButton = dialogView.findViewById(R.id.closeLabelDialog);
+        if (closeButton != null) closeButton.setOnClickListener(v -> labelDialog.dismiss());
+
+        labelDialogView = dialogView;
+
         if (openLabelDialogButton != null) {
-            openLabelDialogButton.setOnClickListener(v -> {
-                if (labelDialog != null) {
-                    labelDialog.show();
-                }
-            });
+            openLabelDialogButton.setOnClickListener(v -> { if (labelDialog != null) labelDialog.show(); });
         }
     }
 
@@ -845,50 +857,93 @@ public class UiManager {
 
     }
     public void setupFeatureDialog(android.content.Context context) {
-        // Create the dialog
         featureDialog = new android.app.Dialog(context, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
         featureDialog.setContentView(R.layout.dialog_feature_results);
 
-        // Set size and position
         if (featureDialog.getWindow() != null) {
-            // OPTION 1: 80% height, centered (recommended)
             featureDialog.getWindow().setLayout(
                     android.view.ViewGroup.LayoutParams.MATCH_PARENT,
                     (int)(context.getResources().getDisplayMetrics().heightPixels * 0.72)
             );
-
-            // OPTION 2: Full screen
-            // featureDialog.getWindow().setLayout(
-            //         android.view.ViewGroup.LayoutParams.MATCH_PARENT,
-            //         android.view.ViewGroup.LayoutParams.MATCH_PARENT
-            // );
-
             android.view.WindowManager.LayoutParams params = featureDialog.getWindow().getAttributes();
-            // params.gravity = android.view.Gravity.CENTER;
-            // For bottom sheet style:
-             params.gravity = android.view.Gravity.BOTTOM;
+            params.gravity = android.view.Gravity.BOTTOM;
             featureDialog.getWindow().setAttributes(params);
         }
 
-        // Bind the TextViews from dialog
-        dialogImu1WindowNumber = featureDialog.findViewById(R.id.imu1WindowNumber);
-        dialogImu1TerrainType = featureDialog.findViewById(R.id.imu1TerrainType);
-        dialogImu1BiasValue = featureDialog.findViewById(R.id.imu1BiasValue);
-        dialogImu1MaxHeight = featureDialog.findViewById(R.id.imu1MaxHeight);
-        dialogImu1MaxStride = featureDialog.findViewById(R.id.imu1MaxStride);
+        androidx.viewpager2.widget.ViewPager2 viewPager = featureDialog.findViewById(R.id.featureViewPager);
+        android.widget.LinearLayout dotsContainer = featureDialog.findViewById(R.id.dotsContainer);
 
-        // Setup close button
+        // Inflate both pages
+        android.view.LayoutInflater inflater = android.view.LayoutInflater.from(context);
+        featurePages[0] = inflater.inflate(R.layout.item_imu_feature_page, null);
+        featurePages[1] = inflater.inflate(R.layout.item_imu_feature_page, null);
+
+        // Set IMU labels
+        ((android.widget.TextView) featurePages[0].findViewById(R.id.pageImuLabel)).setText("Left Side");
+        ((android.widget.TextView) featurePages[1].findViewById(R.id.pageImuLabel)).setText("Right Side");
+
+        // Setup ViewPager adapter
+        viewPager.setAdapter(new androidx.recyclerview.widget.RecyclerView.Adapter<androidx.recyclerview.widget.RecyclerView.ViewHolder>() {
+            @Override
+            public androidx.recyclerview.widget.RecyclerView.ViewHolder onCreateViewHolder(android.view.ViewGroup parent, int viewType) {
+                android.view.View page = featurePages[viewType];
+                if (page.getParent() != null) {
+                    ((android.view.ViewGroup) page.getParent()).removeView(page);
+                }
+                page.setLayoutParams(new android.view.ViewGroup.LayoutParams(
+                        android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                        android.view.ViewGroup.LayoutParams.MATCH_PARENT));
+                return new androidx.recyclerview.widget.RecyclerView.ViewHolder(page) {};
+            }
+
+            @Override
+            public void onBindViewHolder(androidx.recyclerview.widget.RecyclerView.ViewHolder holder, int position) {}
+
+            @Override
+            public int getItemCount() { return 2; }
+
+            @Override
+            public int getItemViewType(int position) { return position; }
+        });
+
+        // Setup dot indicators
+        android.widget.TextView[] dots = new android.widget.TextView[2];
+        for (int i = 0; i < 2; i++) {
+            dots[i] = new android.widget.TextView(context);
+            dots[i].setText("●");
+            dots[i].setTextSize(22);
+            android.widget.LinearLayout.LayoutParams lp = new android.widget.LinearLayout.LayoutParams(
+                    android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
+                    android.widget.LinearLayout.LayoutParams.WRAP_CONTENT);
+            lp.setMargins(6, 0, 6, 0);
+            dots[i].setLayoutParams(lp);
+            dotsContainer.addView(dots[i]);
+        }
+        dots[0].setTextColor(android.graphics.Color.parseColor("#052A63"));
+        dots[1].setTextColor(android.graphics.Color.parseColor("#CCCCCC"));
+
+        viewPager.registerOnPageChangeCallback(new androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                dots[0].setTextColor(position == 0
+                        ? android.graphics.Color.parseColor("#052A63")
+                        : android.graphics.Color.parseColor("#CCCCCC"));
+                dots[1].setTextColor(position == 1
+                        ? android.graphics.Color.parseColor("#052A63")
+                        : android.graphics.Color.parseColor("#CCCCCC"));
+            }
+        });
+
+        // Close button
         Button closeButton = featureDialog.findViewById(R.id.closeFeatureDialog);
         if (closeButton != null) {
             closeButton.setOnClickListener(v -> featureDialog.dismiss());
         }
 
-        // Setup the show button
+        // Show button
         if (showFeaturesButton != null) {
             showFeaturesButton.setOnClickListener(v -> {
-                if (featureDialog != null) {
-                    featureDialog.show();
-                }
+                if (featureDialog != null) featureDialog.show();
             });
         }
     }

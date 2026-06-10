@@ -74,11 +74,12 @@ public class ImuManager implements
     private LogManager logManager;
     int measurementMode;
     private BiasCalculation biasCalculation;
+    private BiasCalculation biasCalculation2;
     private FeatureDetectorThroughWindow featureDetectorThroughWindow;
     private String groundTruthTerrain;
     // ========== NEW: CALIBRATION STATE TRACKING ==========
     private boolean isCalibrationComplete = false;
-    private int calibrationWindowsProcessed = 0;
+    private boolean isCalibrationComplete2 = false;
 
 
     private int SelectionMesurementMode = DotPayload.PAYLOAD_TYPE_CUSTOM_MODE_5;
@@ -92,7 +93,9 @@ public class ImuManager implements
     private UiManager uiManager;
 
     // Confusion Matrix Variables
-    private HashMap<String, HashMap<String, Integer>> confusionMatrix;
+
+    private HashMap<String, HashMap<String, Integer>> confusionMatrixImu1;
+    private HashMap<String, HashMap<String, Integer>> confusionMatrixImu2;
     private List<String> terrainTypes;
     private HashMap<Integer, String> packetToLabelMap; // Track labels for each packet
 
@@ -125,6 +128,7 @@ public class ImuManager implements
 
         deviceList = new ArrayList<>();
         this.biasCalculation = new BiasCalculation(this , logManager);
+        this.biasCalculation2 = new BiasCalculation(this, logManager);
         // In the constructor, after biasCalculation initialization
         this.featureDetectorThroughWindow = new FeatureDetectorThroughWindow(this, logManager);
     }
@@ -151,95 +155,57 @@ public class ImuManager implements
             logManager.log("ERROR: MainActivity listener is null!");
         }
     }
-    public void onGaitWindowCreated(String imuId, int windowNum, int startPacket, int endPacket, double duration){ //This is called when a gait cycle is detected, is coming from ZuptDetector
-
-        logManager.log("GAIT CYCLE is Received in  ImuManager - " + imuId +
-                " | Start Packet: " + startPacket +
-                " | End Packet: " + endPacket +
-                " | Duration: " + decimalFormat.format(duration) + "s");
-
+    public void onGaitWindowCreated(String imuId, int windowNum, int startPacket, int endPacket, double duration) {
         if (isLoggingData) {
-            // Extract the gait window data
             GaitWindowData windowData = extractGaitWindowData(imuId, startPacket, endPacket);
-            biasCalculation.processBiasCalculation(windowData, windowNum, startPacket, endPacket, groundTruthTerrain);
-
-            // ⚠️ ADD THIS CHECK HERE:
-            if (!isCalibrationComplete && biasCalculation.isCalibrated()) {
-                onCalibrationJustCompleted();
+            if (imuId.equals("IMU1")) {
+                biasCalculation.processBiasCalculation(windowData, windowNum, startPacket, endPacket, groundTruthTerrain);
+                if (!isCalibrationComplete && biasCalculation.isCalibrated()) {
+                    onCalibrationJustCompleted("IMU1");
+                }
+            } else if (imuId.equals("IMU2")) {
+                biasCalculation2.processBiasCalculation(windowData, windowNum, startPacket, endPacket, groundTruthTerrain);
+                if (!isCalibrationComplete2 && biasCalculation2.isCalibrated()) {
+                    onCalibrationJustCompleted("IMU2");
+                }
             }
         }
     }
 
     // ========== NEW: HANDLE CALIBRATION COMPLETION ==========
-    private void onCalibrationJustCompleted() {
-        isCalibrationComplete = true;
-
-        logManager.log("==========================================");
-        logManager.log(">>> CALIBRATION COMPLETE IN IMU MANAGER <<<");
-        logManager.log("  System is now ready for terrain classification");
-        logManager.log("  Confusion matrix tracking enabled");
-        logManager.log("==========================================");
-
-        // Initialize confusion matrix now that calibration is done
+    private void onCalibrationJustCompleted(String imuId) {
+        if (imuId.equals("IMU1")) isCalibrationComplete = true;
+        else isCalibrationComplete2 = true;
+        logManager.log(">>> CALIBRATION COMPLETE: " + imuId + " - terrain classification active");
         initializeConfusionMatrix();
     }
     public void onBiasCalculationComplete(String imuId, int windowNum, double biasValue, double recalculatedBias, String terrainType, ArrayList<double[]> a_corrected, ArrayList<double[]> v_corrected, ArrayList<double[]> p_corrected, int startPacket, int endPacket) {
+        boolean calComplete = imuId.equals("IMU1") ? isCalibrationComplete : isCalibrationComplete2;
 
-
-        // ========== ONLY UPDATE CONFUSION MATRIX AFTER CALIBRATION ==========
-        if (isCalibrationComplete) {
-            // Only update confusion matrix if we have valid terrain data
-            if (!groundTruthTerrain.equals("Unknown") && !groundTruthTerrain.equals("Standing")) {
-                updateConfusionMatrix(groundTruthTerrain, terrainType);
-
-                logManager.log("Window #" + windowNum + " - Ground Truth: " + groundTruthTerrain +
-                        ", Predicted: " + terrainType +
-                        (groundTruthTerrain.equals(terrainType) ? " ✓ CORRECT" : " ✗ INCORRECT"));
-            } else {
-                logManager.log("Window #" + windowNum + " - Skipped (Ground Truth: " + groundTruthTerrain + ")");
-            }
-        } else {
-            // During calibration, just acknowledge window processing
-            logManager.log("Window #" + windowNum + " - Calibration in progress (no classification yet)");
+        if (calComplete && !groundTruthTerrain.equals("Unknown") && !groundTruthTerrain.equals("Standing")) {
+            updateConfusionMatrix(imuId, groundTruthTerrain, terrainType);
+            logManager.log(imuId + " Win#" + windowNum + " GT:" + groundTruthTerrain + " Pred:" + terrainType +
+                    (groundTruthTerrain.equals(terrainType) ? " ✓" : " ✗"));
         }
 
-
-        // Pass the data to the feature detector
         featureDetectorThroughWindow.processFeatureDetectionInWindowData(imuId, windowNum, biasValue, recalculatedBias,
-                terrainType, a_corrected, v_corrected, p_corrected, startPacket, endPacket);
-
-
+                terrainType, a_corrected, v_corrected, p_corrected, startPacket, endPacket, groundTruthTerrain);
     }
     @Override
     public void onFeatureDetectionComplete(String imuId, int windowNum, String terrainType,
-                                           ArrayList<Double> extractedFeatures, double biasValue, int startPacket, int endPacket) {
-
-        logManager.log("Feature Detection Complete for " + imuId + " Window #" + windowNum);
-
-        // Extract the two features
+                                           ArrayList<Double> extractedFeatures, double biasValue, int startPacket, int endPacket, String groundTruth) {
         if (extractedFeatures.size() >= 2) {
             double maxHeight = extractedFeatures.get(0);
             double maxStrideLength = extractedFeatures.get(1);
-
-
-//            logManager.log("  Max Stride Length (XY): " + decimalFormat.format(maxStrideLength) + " m");
-//            logManager.log("  Max Height (Z): " + decimalFormat.format(maxHeight) + " m");
-
-            // Log to feature CSV
             if (isLoggingData) {
-                logManager.logFeatureData(imuId, windowNum, terrainType, maxHeight, maxStrideLength, biasValue, startPacket, endPacket);
-                // NEW: Update UI display for IMU1 only
-                if (imuId.equals("IMU1") && listener != null) {
-                    listener.onFeatureDetectionUpdate(windowNum, terrainType, biasValue,
-                            maxHeight, maxStrideLength);
+                logManager.logFeatureData(imuId, windowNum, terrainType, groundTruth, maxHeight, maxStrideLength, biasValue, startPacket, endPacket);
+                if (listener != null) {
+                    listener.onFeatureDetectionUpdate(imuId, windowNum, terrainType, biasValue, maxHeight, maxStrideLength);
                 }
             }
         } else {
-            logManager.log("  ERROR: Insufficient features extracted! Expected 2, got " + extractedFeatures.size());
+            logManager.log(imuId + " Win#" + windowNum + " ERROR: expected 2 features, got " + extractedFeatures.size());
         }
-        logManager.log("  Terrain Type: " + terrainType);
-        logManager.log("=================   END    ========================");
-
     }
 
 
@@ -593,7 +559,7 @@ public class ImuManager implements
                 IMU2.dataOutput[3] = decimalFormat.format(dotData.getPacketCounter());
 
                 // Store data in the segment object
-                // IMU2.storeData(eulerAngles, quats, accelData, dotData.getPacketCounter());
+                IMU2.storeData(eulerAngles, quats, accelData, dotData.getPacketCounter());
 
             } else if (address.equals(IMU3.MAC)) {
                 if (IMU3.normalDataLogger != null) IMU3.normalDataLogger.update(dotData);
@@ -621,11 +587,11 @@ public class ImuManager implements
             zuptDetector.processNewImuData("IMU1", calibratedGyro, calibratedAccel, eulerAngles[0], removeLabelOffset(dotData.getPacketCounter()));
 
         } else if (address.equals(IMU2.MAC)) {
-            // Use calibrated data for ZUPT
             double[] calibrated = applyCalibratedData(IMU2, eulerAngles, gyroData, accelData);
             double calibratedGyro = calibrated[1];
             double calibratedAccel = calibrated[2];
-            //zuptDetector.processNewImuData("IMU2", calibratedGyro, calibratedAccel, eulerAngles[0], dotData.getPacketCounter());
+            groundTruthTerrain = getGroundTruthTerrain(dotData.getPacketCounter());
+            zuptDetector.processNewImuData("IMU2", calibratedGyro, calibratedAccel, eulerAngles[0], removeLabelOffset(dotData.getPacketCounter()));
         }
 
     }
@@ -752,7 +718,7 @@ public class ImuManager implements
 
     // Remove label offset from packet counter
     private int removeLabelOffset(int labeledPacketCounter) {
-        if (labeledPacketCounter >= 1000000 && labeledPacketCounter < 10000000){
+        if (labeledPacketCounter >= 1000000) {
             int offsetMultiplier = labeledPacketCounter / 1000000;
             return labeledPacketCounter - (offsetMultiplier * 1000000);
         } else {
@@ -826,8 +792,16 @@ public class ImuManager implements
             return "Stair_Descend";
         } else if (packetCounter >= 1000000 && packetCounter < 2000000) {
             return "Standing";  // Based on your existing standing mode
+        } else if (packetCounter >= 7000000 && packetCounter < 8000000) {
+            return "Object_Height_1";
+        } else if (packetCounter >= 8000000 && packetCounter < 9000000) {
+            return "Object_Height_2";
+        } else if (packetCounter >= 9000000 && packetCounter < 10000000) {
+            return "Object_Height_3";
+        } else if (packetCounter >= 10000000 && packetCounter < 11000000) {
+            return "Object_Height_4";
         } else {
-            return "Unknown";  // For packet counters outside defined ranges
+            return "NA";  // For packet counters outside defined ranges
         }
     }
 
@@ -843,100 +817,71 @@ public class ImuManager implements
         return discoveredDevicesList;
     }
 
-    private void initializeConfusionMatrix() {
-        terrainTypes = new ArrayList<>();
-        terrainTypes.add("Level_Walk");
-        terrainTypes.add("Ramp_Ascend");
-        terrainTypes.add("Stair_Ascend");
-        terrainTypes.add("Ramp_Descend");
-        terrainTypes.add("Stair_Descend");
-
-        confusionMatrix = new HashMap<>();
+    private HashMap<String, HashMap<String, Integer>> createEmptyConfusionMatrix() {
+        HashMap<String, HashMap<String, Integer>> matrix = new HashMap<>();
         for (String actual : terrainTypes) {
             HashMap<String, Integer> row = new HashMap<>();
-            for (String predicted : terrainTypes) {
-                row.put(predicted, 0);
-            }
-            confusionMatrix.put(actual, row);
+            for (String predicted : terrainTypes) row.put(predicted, 0);
+            matrix.put(actual, row);
         }
-
-        packetToLabelMap = new HashMap<>();
-        logManager.log("Confusion Matrix initialized");
+        return matrix;
     }
 
-    private void updateConfusionMatrix(String groundTruth, String predicted) {
-        if (confusionMatrix == null) {
-            initializeConfusionMatrix();
+    private void initializeConfusionMatrix() {
+        if (terrainTypes == null) {
+            terrainTypes = new ArrayList<>();
+            terrainTypes.add("Level_Walk");
+            terrainTypes.add("Ramp_Ascend");
+            terrainTypes.add("Stair_Ascend");
+            terrainTypes.add("Ramp_Descend");
+            terrainTypes.add("Stair_Descend");
+            packetToLabelMap = new HashMap<>();
         }
-
-        // Make sure both terrain types are valid
-        if (!terrainTypes.contains(groundTruth)) {
-            logManager.log("WARNING: Unknown ground truth terrain: " + groundTruth);
-            return;
-        }
-        if (!terrainTypes.contains(predicted)) {
-            logManager.log("WARNING: Unknown predicted terrain: " + predicted);
-            return;
-        }
-
-        // Update the confusion matrix
-        HashMap<String, Integer> row = confusionMatrix.get(groundTruth);
-        int currentCount = row.get(predicted);
-        row.put(predicted, currentCount + 1);
-
-        logManager.log("Confusion Matrix Updated: Actual=" + groundTruth + ", Predicted=" + predicted);
-
+        if (confusionMatrixImu1 == null) confusionMatrixImu1 = createEmptyConfusionMatrix();
+        if (confusionMatrixImu2 == null) confusionMatrixImu2 = createEmptyConfusionMatrix();
     }
 
-    // Add this method to display the confusion matrix
+    private void updateConfusionMatrix(String imuId, String groundTruth, String predicted) {
+        initializeConfusionMatrix();
+        if (!terrainTypes.contains(groundTruth) || !terrainTypes.contains(predicted)) return;
+        HashMap<String, HashMap<String, Integer>> matrix = imuId.equals("IMU1") ? confusionMatrixImu1 : confusionMatrixImu2;
+        HashMap<String, Integer> row = matrix.get(groundTruth);
+        row.put(predicted, row.get(predicted) + 1);
+    }
+
     private void logConfusionMatrix() {
-        if (confusionMatrix == null || confusionMatrix.isEmpty()) {
-            logManager.log("Confusion Matrix is empty");
+        if (terrainTypes == null) return;
+        logSingleConfusionMatrix("IMU1", confusionMatrixImu1);
+        logSingleConfusionMatrix("IMU2", confusionMatrixImu2);
+    }
+
+    private void logSingleConfusionMatrix(String imuId, HashMap<String, HashMap<String, Integer>> matrix) {
+        if (matrix == null || matrix.isEmpty()) {
+            logManager.log(imuId + " Confusion Matrix: no data");
             return;
         }
-
-        logManager.log("============ CONFUSION MATRIX ==============");
-
-        // Header row
-        StringBuilder header = new StringBuilder("Actual\\Predicted".format("%-20s", "Actual\\Predicted"));
-        for (String predicted : terrainTypes) {
-            header.append(String.format("%-15s", predicted));
-        }
+        logManager.log("===== CONFUSION MATRIX: " + imuId + " =====");
+        StringBuilder header = new StringBuilder(String.format("%-18s", "Actual\\Predicted"));
+        for (String predicted : terrainTypes) header.append(String.format("%-15s", predicted));
         logManager.log(header.toString());
-        logManager.log("----------------------------------------------------------");
 
-        // Data rows
-        int totalSamples = 0;
-        int correctPredictions = 0;
-
+        int totalSamples = 0, correctPredictions = 0;
         for (String actual : terrainTypes) {
-            StringBuilder row = new StringBuilder(String.format("%-20s", actual));
-            HashMap<String, Integer> rowData = confusionMatrix.get(actual);
-
+            StringBuilder row = new StringBuilder(String.format("%-18s", actual));
+            HashMap<String, Integer> rowData = matrix.get(actual);
             for (String predicted : terrainTypes) {
                 int count = rowData.get(predicted);
                 row.append(String.format("%-15d", count));
                 totalSamples += count;
-
-                if (actual.equals(predicted)) {
-                    correctPredictions += count;
-                }
+                if (actual.equals(predicted)) correctPredictions += count;
             }
             logManager.log(row.toString());
         }
-
-        logManager.log("----------------------------------------------------------");
-
-        // Calculate and display accuracy
         if (totalSamples > 0) {
             double accuracy = (correctPredictions * 100.0) / totalSamples;
-            logManager.log("Total Samples: " + totalSamples);
-            logManager.log("Correct Predictions: " + correctPredictions);
-            logManager.log("Overall Accuracy: " + decimalFormat.format(accuracy) + "%");
+            logManager.log(imuId + " Accuracy: " + correctPredictions + "/" + totalSamples + " = " + decimalFormat.format(accuracy) + "%");
         }
-
     }
-
     @Override
     public void onDotRecordingNotification(String address, boolean isEnabled) {
         if (!isEnabled) return;

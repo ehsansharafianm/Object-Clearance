@@ -559,12 +559,8 @@ public class MainActivity extends AppCompatActivity implements ImuManagerListene
     public void onZuptDataUpdated(String deviceAddress, double gyroMag, double linearAccelMag) {
     }
     @Override
-    public void onFeatureDetectionUpdate(int windowNum, String terrainType, double biasValue,
-                                         double maxHeight, double maxStride) {
-        runOnUiThread(() -> {
-            uiManager.updateFeatureDisplay(windowNum, terrainType, biasValue,
-                    maxHeight, maxStride);
-        });
+    public void onFeatureDetectionUpdate(String imuId, int windowNum, String terrainType, double biasValue, double maxHeight, double maxStride) {
+        runOnUiThread(() -> uiManager.updateFeatureDisplay(imuId, windowNum, terrainType, biasValue, maxHeight, maxStride));
     }
 
     @Override
