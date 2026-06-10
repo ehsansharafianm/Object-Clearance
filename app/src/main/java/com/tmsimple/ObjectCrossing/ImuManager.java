@@ -66,6 +66,11 @@ public class ImuManager implements
 
     private boolean imu5ExportDone = false;
     private boolean imu6ExportDone = false;
+    // ADD these four:
+    private int imu5TotalPackets = 0;
+    private int imu6TotalPackets = 0;
+    private int imu5ExportedPackets = 0;
+    private int imu6ExportedPackets = 0;
 
 
     private boolean isLoggingData = false;
@@ -422,6 +427,11 @@ public class ImuManager implements
         imu5ExportDone = false;
         imu6ExportDone = false;
         isExporting = true;
+
+        imu5TotalPackets = 0;
+        imu6TotalPackets = 0;
+        imu5ExportedPackets = 0;
+        imu6ExportedPackets = 0;
 
         String timestamp = java.text.DateFormat.getDateTimeInstance().format(new Date());
 
@@ -888,6 +898,8 @@ public class ImuManager implements
         logManager.log("onDotRecordingNotification: " + address + " isEnabled=" + isEnabled + " isExporting=" + isExporting);
 
         if (isExporting) {
+            String imuName = address.equals(IMU5.MAC) ? "IMU5" : "IMU6";
+            listener.onImuRecordingStatusChanged(imuName, "Exporting...");
             new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
                 if (address.equals(IMU5.MAC) && IMU5RecordingManager != null) {
                     IMU5RecordingManager.requestFlashInfo();
@@ -909,15 +921,23 @@ public class ImuManager implements
             }
         }
     }
-    @Override
     public void onDotRequestFlashInfoDone(String address, int usedFlashSize, int remainingFlashSize) {
-        logManager.log("onDotRequestFlashInfoDone: " + address + " used=" + usedFlashSize);
+        logManager.log("onDotRequestFlashInfoDone: " + address
+                + " used=" + usedFlashSize + " remaining=" + remainingFlashSize);
         if (isExporting) {
-            // Export chain step 2: flash info → request file info
-            if (address.equals(IMU5.MAC) && IMU5RecordingManager != null) {
+            int totalFlash = usedFlashSize + remainingFlashSize;
+            double percent = (totalFlash > 0) ? (usedFlashSize * 100.0 / totalFlash) : 0;
+            int totalPackets = (int)(percent * 365 * 60.0 * 60.0);
+            logManager.log("percent=" + String.format("%.4f", percent) + "% → totalPackets=" + totalPackets);
+
+            if (address.equals(IMU5.MAC)) {
+                imu5TotalPackets = totalPackets;
+                imu5ExportedPackets = 0;
                 IMU5RecordingManager.requestFileInfo();
                 logManager.log("IMU5 requestFileInfo called");
-            } else if (address.equals(IMU6.MAC) && IMU6RecordingManager != null) {
+            } else if (address.equals(IMU6.MAC)) {
+                imu6TotalPackets = totalPackets;
+                imu6ExportedPackets = 0;
                 IMU6RecordingManager.requestFileInfo();
                 logManager.log("IMU6 requestFileInfo called");
             }
@@ -965,12 +985,19 @@ public class ImuManager implements
             }
         }, 1000);
     }
-    @Override
     public void onDotDataExported(String address, com.xsens.dot.android.sdk.models.DotRecordingFileInfo fileInfo, com.xsens.dot.android.sdk.events.DotData dotData) {
         if (address.equals(IMU5.MAC) && imu5ExportLogger != null) {
             imu5ExportLogger.update(dotData);
+            imu5ExportedPackets++;
+            if (imu5ExportedPackets % 50 == 0) {
+                listener.onImuRecordingStatusChanged("IMU5", "Exporting " + imu5ExportedPackets + " samples");
+            }
         } else if (address.equals(IMU6.MAC) && imu6ExportLogger != null) {
             imu6ExportLogger.update(dotData);
+            imu6ExportedPackets++;
+            if (imu6ExportedPackets % 50 == 0) {
+                listener.onImuRecordingStatusChanged("IMU6", "Exporting " + imu6ExportedPackets + " samples");
+            }
         }
     }
 
@@ -984,6 +1011,7 @@ public class ImuManager implements
         logManager.log("All data exported from " + address);
         if (address.equals(IMU5.MAC)) {
             imu5ExportDone = true;
+            listener.onImuRecordingStatusChanged("IMU5", "Exported");
             if (imu5ExportLogger != null) imu5ExportLogger.stop();
             if (imu5ExportFilePath != null) {
                 logManager.log("IMU5 file exists: " + new java.io.File(imu5ExportFilePath).exists());
@@ -991,6 +1019,7 @@ public class ImuManager implements
             }
         } else if (address.equals(IMU6.MAC)) {
             imu6ExportDone = true;
+            listener.onImuRecordingStatusChanged("IMU6", "Exported");
             if (imu6ExportLogger != null) imu6ExportLogger.stop();
             if (imu6ExportFilePath != null) {
                 logManager.log("IMU6 file exists: " + new java.io.File(imu6ExportFilePath).exists());
