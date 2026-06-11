@@ -800,16 +800,18 @@ public class ImuManager implements
             return "Stair_Ascend";
         } else if (packetCounter >= 6000000 && packetCounter < 7000000) {
             return "Stair_Descend";
-        } else if (packetCounter >= 1000000 && packetCounter < 2000000) {
-            return "Standing";  // Based on your existing standing mode
         } else if (packetCounter >= 7000000 && packetCounter < 8000000) {
-            return "Object_Height_1";
+            return "Height1_Depth1";
         } else if (packetCounter >= 8000000 && packetCounter < 9000000) {
-            return "Object_Height_2";
+            return "Height1_Depth2";
         } else if (packetCounter >= 9000000 && packetCounter < 10000000) {
-            return "Object_Height_3";
+            return "Height2_Depth1";
         } else if (packetCounter >= 10000000 && packetCounter < 11000000) {
-            return "Object_Height_4";
+            return "Height2_Depth2";
+        } else if (packetCounter >= 11000000 && packetCounter < 12000000) {
+            return "Height3_Depth1";
+        } else if (packetCounter >= 12000000 && packetCounter < 13000000) {
+            return "Height3_Depth2";
         } else {
             return "NA";  // For packet counters outside defined ranges
         }
