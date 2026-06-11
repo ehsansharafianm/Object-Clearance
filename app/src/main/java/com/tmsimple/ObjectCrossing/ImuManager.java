@@ -206,13 +206,13 @@ public class ImuManager implements
 
         // Pass the data to the feature detector
         featureDetectorThroughWindow.processFeatureDetectionInWindowData(imuId, windowNum, biasValue, recalculatedBias,
-                terrainType, a_corrected, v_corrected, p_corrected, startPacket, endPacket);
+                terrainType, a_corrected, v_corrected, p_corrected, startPacket, endPacket, groundTruthTerrain);
 
 
     }
     @Override
     public void onFeatureDetectionComplete(String imuId, int windowNum, String terrainType,
-                                           ArrayList<Double> extractedFeatures, double biasValue, int startPacket, int endPacket) {
+                                           ArrayList<Double> extractedFeatures, double biasValue, int startPacket, int endPacket, String groundTruth) {
 
         logManager.log("Feature Detection Complete for " + imuId + " Window #" + windowNum);
 
@@ -227,10 +227,10 @@ public class ImuManager implements
 
             // Log to feature CSV
             if (isLoggingData) {
-                logManager.logFeatureData(imuId, windowNum, terrainType, maxHeight, maxStrideLength, biasValue, startPacket, endPacket);
+                logManager.logFeatureData(imuId, windowNum, terrainType, groundTruth, maxHeight, maxStrideLength, biasValue, startPacket, endPacket);
                 // NEW: Update UI display for IMU1 only
                 if (imuId.equals("IMU1") && listener != null) {
-                    listener.onFeatureDetectionUpdate(windowNum, terrainType, biasValue,
+                    listener.onFeatureDetectionUpdate(imuId, windowNum, terrainType, biasValue,
                             maxHeight, maxStrideLength);
                 }
             }
@@ -814,7 +814,9 @@ public class ImuManager implements
     }
 
     private String getGroundTruthTerrain(int packetCounter) {
-        if (packetCounter >= 2000000 && packetCounter < 3000000) {
+        if (packetCounter >= 1000000 && packetCounter < 2000000) {
+            return "Standing";
+        } else if (packetCounter >= 2000000 && packetCounter < 3000000) {
             return "Level_Walk";
         } else if (packetCounter >= 3000000 && packetCounter < 4000000) {
             return "Ramp_Ascend";
@@ -824,10 +826,20 @@ public class ImuManager implements
             return "Stair_Ascend";
         } else if (packetCounter >= 6000000 && packetCounter < 7000000) {
             return "Stair_Descend";
-        } else if (packetCounter >= 1000000 && packetCounter < 2000000) {
-            return "Standing";  // Based on your existing standing mode
+        } else if (packetCounter >= 7000000 && packetCounter < 8000000) {
+            return "H1_D1";
+        } else if (packetCounter >= 8000000 && packetCounter < 9000000) {
+            return "H1_D2";
+        } else if (packetCounter >= 9000000 && packetCounter < 10000000) {
+            return "H2_D1";
+        } else if (packetCounter >= 10000000 && packetCounter < 11000000) {
+            return "H2_D2";
+        } else if (packetCounter >= 11000000 && packetCounter < 12000000) {
+            return "H3_D1";
+        } else if (packetCounter >= 12000000 && packetCounter < 13000000) {
+            return "H3_D2";
         } else {
-            return "Unknown";  // For packet counters outside defined ranges
+            return "NA";
         }
     }
 

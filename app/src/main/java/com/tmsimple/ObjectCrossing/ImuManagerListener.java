@@ -8,7 +8,7 @@ public interface ImuManagerListener {
     void onDataUpdated(String deviceName, double[] eulerAngles);
     void onZuptDataUpdated(String deviceName, double gyroMag, double linearAccelMag);
     void onLogMessage(String message);
-    void onFeatureDetectionUpdate(int windowNum, String terrainType, double biasValue,
+    void onFeatureDetectionUpdate(String imuId, int windowNum, String terrainType, double biasValue,
                                   double maxHeight, double maxStride);
     void onImuRecordingStatusChanged(String deviceName, String status);
     void onRecordingImusReady();

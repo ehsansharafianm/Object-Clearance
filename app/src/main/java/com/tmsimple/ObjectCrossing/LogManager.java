@@ -126,7 +126,7 @@ public class LogManager {
             BufferedWriter featureLogWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(featureLogFile, false)));
 
             // Write CSV header
-            featureLogWriter.write("Window_Number,Terrain_Type,Start_Packet,End_Packet,Max_Height_m,Max_Stride_Length_m,Bias_Value\n");
+            featureLogWriter.write("Window_Number,Terrain_Type,Ground_Truth,Start_Packet,End_Packet,Max_Height_m,Max_Stride_Length_m,Bias_Value\n");
             featureLogWriter.flush();
 
             // Store in HashMaps
@@ -152,7 +152,7 @@ public class LogManager {
         log("Feature logging initialized for all IMUs");
     }
 
-    public void logFeatureData(String imuId, int windowNum, String terrainType,
+    public void logFeatureData(String imuId, int windowNum, String terrainType, String groundTruth,
                                double maxHeight, double maxStrideLength, double biasValue, int startPacket, int endPacket) {
         if (!isFeatureLoggingActive) {
             log("WARNING: Feature logging not active!");
@@ -166,9 +166,9 @@ public class LogManager {
         }
 
         try {
-            // Format: Window_Number,Terrain_Type,Start_Packet,End_Packet,Max_Height_m,Max_Stride_Length_m,Bias_Value
-            String row = String.format("%d,%s,%d,%d,%.4f,%.4f,%.4f\n",
-                    windowNum, terrainType, startPacket, endPacket,
+            // Format: Window_Number,Terrain_Type,Ground_Truth,Start_Packet,End_Packet,Max_Height_m,Max_Stride_Length_m,Bias_Value
+            String row = String.format("%d,%s,%s,%d,%d,%.4f,%.4f,%.4f\n",
+                    windowNum, terrainType, groundTruth, startPacket, endPacket,
                     maxHeight, maxStrideLength, biasValue);
 
             writer.write(row);
