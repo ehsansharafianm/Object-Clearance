@@ -109,6 +109,26 @@ public class UiManager {
     public void bindLabelingDataViews(View root) {
 
         enterSubjectNumber = root.findViewById(R.id.enterSubjectNumber);
+        android.view.View setupImusHeader = root.findViewById(R.id.setupImusHeader);
+        android.view.View setupImusContent = root.findViewById(R.id.setupImusContent);
+        android.widget.TextView setupImusArrow = root.findViewById(R.id.setupImusArrow);
+
+        if (setupImusHeader != null && setupImusContent != null) {
+            setupImusArrow.setText("−");
+            setupImusArrow.setTextColor(android.graphics.Color.parseColor("#5B5B5B"));
+            setupImusHeader.setOnClickListener(v -> {
+                if (setupImusContent.getVisibility() == android.view.View.VISIBLE) {
+                    setupImusContent.setVisibility(android.view.View.GONE);
+                    setupImusArrow.setText("+");
+                    setupImusArrow.setTextColor(android.graphics.Color.parseColor("#3F51B5"));
+
+                } else {
+                    setupImusContent.setVisibility(android.view.View.VISIBLE);
+                    setupImusArrow.setText("−");
+                    setupImusArrow.setTextColor(android.graphics.Color.parseColor("#5B5B5B"));
+                }
+            });
+        }
         scanButton = root.findViewById(R.id.scanButton);
         syncButton = root.findViewById(R.id.syncButton);
         measureButton = root.findViewById(R.id.measureButton);

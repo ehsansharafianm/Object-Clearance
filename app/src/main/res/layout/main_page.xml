@@ -70,7 +70,252 @@
             </LinearLayout>
 
             <!-- ============================================ -->
-            <!-- SECTION 2: SETUP IMUs -->
+            <!-- SECTION 2: SETUP IMUs (COLLAPSIBLE) -->
+            <!-- ============================================ -->
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="#3F51B5"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="0dp"/>
+
+            <!-- Collapsible header -->
+            <LinearLayout
+                android:id="@+id/setupImusHeader"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Setup IMUs"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#333333"
+                    android:gravity="center"/>
+
+                <TextView
+                    android:id="@+id/setupImusArrow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="−"
+                    android:textStyle="bold"
+                    android:textSize="26sp"
+                    android:textColor="#5B5B5B"/>
+            </LinearLayout>
+
+            <!-- Collapsible content (starts collapsed) -->
+            <LinearLayout
+                android:id="@+id/setupImusContent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="visible">
+
+                <Button
+                    android:id="@+id/listImusButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="45dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="12dp"
+                    android:backgroundTint="#2196F3"
+                    android:onClick="listImusButton_onClick"
+                    android:text="Search Available IMUs"
+                    android:textSize="14sp"/>
+
+                <!-- Row 1: IMU1 and IMU2 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="8dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginEnd="4dp">
+
+                        <TextView
+                            android:id="@+id/labelIMU1"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Left Foot (IMU 1)"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:textColor="#1976D2"
+                            android:gravity="center"
+                            android:layout_marginBottom="4dp"/>
+
+                        <Spinner
+                            android:id="@+id/spinnerIMU1"
+                            android:layout_width="match_parent"
+                            android:layout_height="40dp"
+                            android:background="@android:drawable/btn_dropdown"
+                            android:spinnerMode="dropdown"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginStart="4dp">
+
+                        <TextView
+                            android:id="@+id/labelIMU2"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Right Foot (IMU 2)"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:textColor="#1976D2"
+                            android:gravity="center"
+                            android:layout_marginBottom="4dp"/>
+
+                        <Spinner
+                            android:id="@+id/spinnerIMU2"
+                            android:layout_width="match_parent"
+                            android:layout_height="40dp"
+                            android:background="@android:drawable/btn_dropdown"
+                            android:spinnerMode="dropdown"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Row 2: IMU3 and IMU4 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="8dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginEnd="4dp">
+
+                        <TextView
+                            android:id="@+id/labelIMU3"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Left Thigh (IMU 3)"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:textColor="#1976D2"
+                            android:gravity="center"
+                            android:layout_marginBottom="4dp"/>
+
+                        <Spinner
+                            android:id="@+id/spinnerIMU3"
+                            android:layout_width="match_parent"
+                            android:layout_height="40dp"
+                            android:background="@android:drawable/btn_dropdown"
+                            android:spinnerMode="dropdown"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginStart="4dp">
+
+                        <TextView
+                            android:id="@+id/labelIMU4"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Right Thigh (IMU 4)"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:textColor="#1976D2"
+                            android:gravity="center"
+                            android:layout_marginBottom="4dp"/>
+
+                        <Spinner
+                            android:id="@+id/spinnerIMU4"
+                            android:layout_width="match_parent"
+                            android:layout_height="40dp"
+                            android:background="@android:drawable/btn_dropdown"
+                            android:spinnerMode="dropdown"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Row 3: IMU5 and IMU6 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="12dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginEnd="4dp">
+
+                        <TextView
+                            android:id="@+id/labelIMU5"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Left Shank (IMU 5)"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:textColor="#1976D2"
+                            android:gravity="center"
+                            android:layout_marginBottom="4dp"/>
+
+                        <Spinner
+                            android:id="@+id/spinnerIMU5"
+                            android:layout_width="match_parent"
+                            android:layout_height="40dp"
+                            android:background="@android:drawable/btn_dropdown"
+                            android:spinnerMode="dropdown"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginStart="4dp">
+
+                        <TextView
+                            android:id="@+id/labelIMU6"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Right Shank (IMU 6)"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:textColor="#1976D2"
+                            android:gravity="center"
+                            android:layout_marginBottom="4dp"/>
+
+                        <Spinner
+                            android:id="@+id/spinnerIMU6"
+                            android:layout_width="match_parent"
+                            android:layout_height="40dp"
+                            android:background="@android:drawable/btn_dropdown"
+                            android:spinnerMode="dropdown"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- ============================================ -->
+            <!-- SECTION 3: PROCESSING IMUs -->
             <!-- ============================================ -->
 
             <View
@@ -83,7 +328,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Setup IMUs"
+                android:text="Processing IMUs"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:textColor="#333333"
@@ -91,205 +336,77 @@
                 android:layout_marginBottom="10dp"/>
 
             <Button
-                android:id="@+id/listImusButton"
+                android:id="@+id/scanButton"
                 android:layout_width="match_parent"
                 android:layout_height="45dp"
-                android:layout_marginBottom="12dp"
+                android:layout_marginBottom="10dp"
                 android:backgroundTint="#2196F3"
-                android:onClick="listImusButton_onClick"
-                android:text="Search Available IMUs"
+                android:onClick="scanButton_onClick"
+                android:text="Start Scan"
                 android:textSize="14sp"/>
 
-            <!-- IMU Selection Layout - Labels at top, Spinners below -->
-            <!-- IMU Selection Layout - Row 1: IMU1 and IMU2 -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginBottom="8dp">
+                android:layout_marginBottom="10dp">
 
-                <!-- IMU 1 Column -->
-                <LinearLayout
+                <Button
+                    android:id="@+id/syncButton"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="45dp"
                     android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:layout_marginEnd="4dp">
+                    android:layout_marginEnd="4dp"
+                    android:backgroundTint="#2196F3"
+                    android:onClick="syncButton_onClick"
+                    android:text="Sync"
+                    android:textSize="14sp"/>
 
-                    <TextView
-                        android:id="@+id/labelIMU1"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Left Foot (IMU 1)"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:textColor="#1976D2"
-                        android:gravity="center"
-                        android:layout_marginBottom="4dp"/>
-
-                    <Spinner
-                        android:id="@+id/spinnerIMU1"
-                        android:layout_width="match_parent"
-                        android:layout_height="40dp"
-                        android:background="@android:drawable/btn_dropdown"
-                        android:spinnerMode="dropdown"/>
-                </LinearLayout>
-
-                <!-- IMU 2 Column -->
-                <LinearLayout
+                <Button
+                    android:id="@+id/measureButton"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="45dp"
                     android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:layout_marginStart="4dp">
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="4dp"
+                    android:backgroundTint="#2196F3"
+                    android:onClick="measureButton_onClick"
+                    android:text="Measure"
+                    android:textSize="14sp"/>
 
-                    <TextView
-                        android:id="@+id/labelIMU2"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Right Foot (IMU 2)"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:textColor="#1976D2"
-                        android:gravity="center"
-                        android:layout_marginBottom="4dp"/>
-
-                    <Spinner
-                        android:id="@+id/spinnerIMU2"
-                        android:layout_width="match_parent"
-                        android:layout_height="40dp"
-                        android:background="@android:drawable/btn_dropdown"
-                        android:spinnerMode="dropdown"/>
-                </LinearLayout>
+                <Button
+                    android:id="@+id/dataLogButton"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="4dp"
+                    android:backgroundTint="#2196F3"
+                    android:text="Data Log"
+                    android:textSize="14sp"/>
             </LinearLayout>
 
-            <!-- IMU Selection Layout - Row 2: IMU3 and IMU4 -->
-            <LinearLayout
+            <!-- ============================================ -->
+            <!-- IMU STATUS BOXES -->
+            <!-- ============================================ -->
+
+            <View
                 android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="#3F51B5"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="12dp">
+                android:text="IMU Status"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#333333"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="10dp"/>
 
-                <!-- IMU 3 Column -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:layout_marginEnd="4dp">
-
-                    <TextView
-                        android:id="@+id/labelIMU3"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Left Thigh (IMU 3)"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:textColor="#1976D2"
-                        android:gravity="center"
-                        android:layout_marginBottom="4dp"/>
-
-                    <Spinner
-                        android:id="@+id/spinnerIMU3"
-                        android:layout_width="match_parent"
-                        android:layout_height="40dp"
-                        android:background="@android:drawable/btn_dropdown"
-                        android:spinnerMode="dropdown"/>
-                </LinearLayout>
-
-                <!-- IMU 4 Column -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:layout_marginStart="4dp">
-
-                    <TextView
-                        android:id="@+id/labelIMU4"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Right Thigh (IMU 4)"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:textColor="#1976D2"
-                        android:gravity="center"
-                        android:layout_marginBottom="4dp"/>
-
-                    <Spinner
-                        android:id="@+id/spinnerIMU4"
-                        android:layout_width="match_parent"
-                        android:layout_height="40dp"
-                        android:background="@android:drawable/btn_dropdown"
-                        android:spinnerMode="dropdown"/>
-                </LinearLayout>
-            </LinearLayout>
-            <!-- IMU Selection Layout - Row 3: IMU5 and IMU6 (Recording IMUs) -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="12dp">
-
-                <!-- IMU 5 Column -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:layout_marginEnd="4dp">
-
-                    <TextView
-                        android:id="@+id/labelIMU5"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Left Shank (IMU 5)"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:textColor="#7B1FA2"
-                        android:gravity="center"
-                        android:layout_marginBottom="4dp"/>
-
-                    <Spinner
-                        android:id="@+id/spinnerIMU5"
-                        android:layout_width="match_parent"
-                        android:layout_height="40dp"
-                        android:background="@android:drawable/btn_dropdown"
-                        android:spinnerMode="dropdown"/>
-                </LinearLayout>
-
-                <!-- IMU 6 Column -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:layout_marginStart="4dp">
-
-                    <TextView
-                        android:id="@+id/labelIMU6"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Right Shank (IMU 6)"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:textColor="#7B1FA2"
-                        android:gravity="center"
-                        android:layout_marginBottom="4dp"/>
-
-                    <Spinner
-                        android:id="@+id/spinnerIMU6"
-                        android:layout_width="match_parent"
-                        android:layout_height="40dp"
-                        android:background="@android:drawable/btn_dropdown"
-                        android:spinnerMode="dropdown"/>
-                </LinearLayout>
-            </LinearLayout>
-
-
-
-            <!-- IMU Status and Index Display - No IMU names inside -->
-            <!-- IMU Status and Index Display - Row 1 -->
+            <!-- IMU Status Row 1: IMU1 and IMU2 -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -297,7 +414,6 @@
                 android:layout_marginBottom="4dp"
                 android:gravity="center_vertical">
 
-                <!-- IMU1 Status and Index -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -353,7 +469,6 @@
                     </LinearLayout>
                 </LinearLayout>
 
-                <!-- IMU2 Status and Index -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -410,7 +525,7 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- IMU Status and Index Display - Row 2 -->
+            <!-- IMU Status Row 2: IMU3 and IMU4 -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -418,7 +533,6 @@
                 android:layout_marginBottom="4dp"
                 android:gravity="center_vertical">
 
-                <!-- IMU3 Status and Index -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -474,7 +588,6 @@
                     </LinearLayout>
                 </LinearLayout>
 
-                <!-- IMU4 Status and Index -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -530,7 +643,8 @@
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
-            <!-- IMU Status and Index Display - Row 3 (Recording IMUs) -->
+
+            <!-- IMU Status Row 3: IMU5 and IMU6 -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -538,7 +652,6 @@
                 android:layout_marginBottom="12dp"
                 android:gravity="center_vertical">
 
-                <!-- IMU5 Status -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -594,7 +707,6 @@
                     </LinearLayout>
                 </LinearLayout>
 
-                <!-- IMU6 Status -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -651,78 +763,6 @@
                 </LinearLayout>
             </LinearLayout>
 
-
-            <Button
-                android:id="@+id/scanButton"
-                android:layout_width="match_parent"
-                android:layout_height="45dp"
-                android:layout_marginBottom="10dp"
-                android:backgroundTint="#2196F3"
-                android:onClick="scanButton_onClick"
-                android:text="Start Scan"
-                android:textSize="14sp"/>
-
-            <!-- ============================================ -->
-            <!-- SECTION 3: PROCESSING IMUs -->
-            <!-- ============================================ -->
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="2dp"
-                android:background="#3F51B5"
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="8dp"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Processing IMUs"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="#333333"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginBottom="10dp"/>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="10dp">
-
-                <Button
-                    android:id="@+id/syncButton"
-                    android:layout_width="0dp"
-                    android:layout_height="45dp"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="4dp"
-                    android:backgroundTint="#2196F3"
-                    android:onClick="syncButton_onClick"
-                    android:text="Sync"
-                    android:textSize="14sp"/>
-
-                <Button
-                    android:id="@+id/measureButton"
-                    android:layout_width="0dp"
-                    android:layout_height="45dp"
-                    android:layout_weight="1"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginEnd="4dp"
-                    android:backgroundTint="#2196F3"
-                    android:onClick="measureButton_onClick"
-                    android:text="Measure"
-                    android:textSize="14sp"/>
-
-                <Button
-                    android:id="@+id/dataLogButton"
-                    android:layout_width="0dp"
-                    android:layout_height="45dp"
-                    android:layout_weight="1"
-                    android:layout_marginStart="4dp"
-                    android:backgroundTint="#2196F3"
-                    android:text="Data Log"
-                    android:textSize="14sp"/>
-            </LinearLayout>
-
             <!-- ============================================ -->
             <!-- SECTION 4: ONLINE INFORMATION -->
             <!-- ============================================ -->
@@ -744,7 +784,6 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_marginBottom="10dp"/>
 
-            <!-- Activity Labels button (full width, on top) -->
             <Button
                 android:id="@+id/openLabelDialogButton"
                 android:layout_width="match_parent"
@@ -754,7 +793,6 @@
                 android:text="Activity Labels"
                 android:textSize="14sp"/>
 
-            <!-- IMU Data and Features buttons (side by side) -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -803,7 +841,6 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_marginBottom="10dp"/>
 
-            <!-- Row 1: Stop + Disconnect -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -833,7 +870,6 @@
                     android:textSize="14sp"/>
             </LinearLayout>
 
-            <!-- Row 2: Export + Upload -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -881,7 +917,6 @@
         android:elevation="8dp"
         android:visibility="visible">
 
-        <!-- Log Header -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -895,7 +930,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="System Logs"
-                android:textSize="14sp"
+                android:textSize="18sp"
                 android:textStyle="bold"
                 android:textColor="#FFFFFF"/>
 
@@ -910,7 +945,6 @@
 
         </LinearLayout>
 
-        <!-- Scrollable log content -->
         <ScrollView
             android:id="@+id/logScrollView"
             android:layout_width="match_parent"
