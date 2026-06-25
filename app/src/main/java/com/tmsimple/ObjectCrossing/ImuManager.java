@@ -73,6 +73,7 @@ public class ImuManager implements
     private int imu6ExportedPackets = 0;
 
 
+
     private boolean isLoggingData = false;
     private int packetCounterOffset = 0;
 
@@ -988,17 +989,23 @@ public class ImuManager implements
         }, 1000);
     }
     public void onDotDataExported(String address, com.xsens.dot.android.sdk.models.DotRecordingFileInfo fileInfo, com.xsens.dot.android.sdk.events.DotData dotData) {
+        int totalNonRec = IMU1.sampleCounter + IMU2.sampleCounter + IMU3.sampleCounter + IMU4.sampleCounter;
+
         if (address.equals(IMU5.MAC) && imu5ExportLogger != null) {
             imu5ExportLogger.update(dotData);
             imu5ExportedPackets++;
             if (imu5ExportedPackets % 50 == 0) {
-                listener.onImuRecordingStatusChanged("IMU5", "Exporting " + imu5ExportedPackets + " samples");
+                int pct = totalNonRec > 0 ? (int)(imu5ExportedPackets * 100.0 / totalNonRec) : 0;
+                if (pct > 99) pct = 99;
+                listener.onImuRecordingStatusChanged("IMU5", "Exporting " + imu5ExportedPackets + " pkts (" + pct + "%)");
             }
         } else if (address.equals(IMU6.MAC) && imu6ExportLogger != null) {
             imu6ExportLogger.update(dotData);
             imu6ExportedPackets++;
             if (imu6ExportedPackets % 50 == 0) {
-                listener.onImuRecordingStatusChanged("IMU6", "Exporting " + imu6ExportedPackets + " samples");
+                int pct = totalNonRec > 0 ? (int)(imu6ExportedPackets * 100.0 / totalNonRec) : 0;
+                if (pct > 99) pct = 99;
+                listener.onImuRecordingStatusChanged("IMU6", "Exporting " + imu6ExportedPackets + " pkts (" + pct + "%)");
             }
         }
     }

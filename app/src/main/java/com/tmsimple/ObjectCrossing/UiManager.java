@@ -264,26 +264,28 @@ public class UiManager {
     public void setEnterSubjectNumberHandler(EditText editText, OnSubjectNumberEnteredListener listener) {
         if (editText == null || listener == null) return;
 
-        editText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
-
-            @Override
-            public void afterTextChanged(Editable string) {
-                if (!TextUtils.isEmpty(string)) {
+        editText.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_DONE
+                    || actionId == android.view.inputmethod.EditorInfo.IME_ACTION_NEXT
+                    || (event != null && event.getKeyCode() == android.view.KeyEvent.KEYCODE_ENTER)) {
+                String text = editText.getText().toString().trim();
+                if (!TextUtils.isEmpty(text)) {
                     try {
-                        int number = Integer.parseInt(string.toString());
+                        int number = Integer.parseInt(text);
                         listener.onSubjectNumberEntered(number);
                         setButton(scanButton, null, null, null, true);
+                        // Hide keyboard
+                        android.view.inputmethod.InputMethodManager imm =
+                                (android.view.inputmethod.InputMethodManager) editText.getContext()
+                                        .getSystemService(Context.INPUT_METHOD_SERVICE);
+                        if (imm != null) imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
                     } catch (NumberFormatException e) {
                         e.printStackTrace();
                     }
-
                 }
+                return true;
             }
+            return false;
         });
     }
 
