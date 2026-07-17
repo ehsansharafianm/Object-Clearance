@@ -109,6 +109,7 @@ public class ImuManager implements
     private String imu6ExportFilePath;
     private DotLogger imu5ExportLogger;
     private DotLogger imu6ExportLogger;
+    private int lastIMU1PacketCounter = 0;
 
     public void setUiManager(UiManager uiManager) {
         this.uiManager = uiManager;
@@ -520,7 +521,7 @@ public class ImuManager implements
         if (address.equals(IMU1.MAC)) {
             dotData.setPacketCounter(dotData.getPacketCounter() + packetCounterOffset);
             // Calculate initial values during standing
-
+            lastIMU1PacketCounter = dotData.getPacketCounter();
 
             calculateInitialValues(IMU1, dotData, eulerAngles, gyroData, accelData);
 
@@ -728,7 +729,7 @@ public class ImuManager implements
     }
 
     // Remove label offset from packet counter
-    private int removeLabelOffset(int labeledPacketCounter) {
+    public int removeLabelOffset(int labeledPacketCounter) {
         if (labeledPacketCounter >= 1000000) {
             int offsetMultiplier = labeledPacketCounter / 1000000;
             return labeledPacketCounter - (offsetMultiplier * 1000000);
@@ -1067,6 +1068,10 @@ public class ImuManager implements
             listener.onRecordingImusReady();
             logManager.log("Both recording IMUs erased and ready");
         }
+    }
+
+    public int getLastPacketCounter() {
+        return lastIMU1PacketCounter;
     }
 
     @Override

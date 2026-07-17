@@ -94,6 +94,9 @@ public class UiManager {
     private Button toggleLogButton;
     private boolean isLogExpanded = true;
 
+    private int pressStartPacket = 0;
+    private String pressedObstacleLabel = "";
+
 
 
     public void setLogManager(LogManager logManager) {
@@ -295,16 +298,25 @@ public class UiManager {
     private final View.OnTouchListener labelTouchListener = new View.OnTouchListener() {
         @Override
         public boolean onTouch(View v, MotionEvent event) {
-            // each button has a PacketOffsetItem in its tag
             PacketOffsetItem info = (PacketOffsetItem) v.getTag();
 
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
                     if (v.getParent() != null) v.getParent().requestDisallowInterceptTouchEvent(true);
+                    pressStartPacket = imuManager.getLastPacketCounter();
+                    pressedObstacleLabel = offsetToLabel(info.offset);
                     imuManager.setPacketCounterOffset(info.offset);
                     v.setBackgroundColor(info.activeColor);
                     break;
                 case MotionEvent.ACTION_UP:
+                    if (v.getParent() != null) v.getParent().requestDisallowInterceptTouchEvent(false);
+                    imuManager.setPacketCounterOffset(0);
+                    v.setBackgroundColor(info.defaultColor);
+                    int pressEndPacket = imuManager.getLastPacketCounter();
+                    if (info.offset >= 7000000) {
+                        showLeadingLegPopup(pressStartPacket, pressEndPacket, pressedObstacleLabel);
+                    }
+                    break;
                 case MotionEvent.ACTION_CANCEL:
                     if (v.getParent() != null) v.getParent().requestDisallowInterceptTouchEvent(false);
                     imuManager.setPacketCounterOffset(0);
@@ -1092,6 +1104,19 @@ public class UiManager {
         }
     }
 
+    private String offsetToLabel(int offset) {
+        switch (offset) {
+            case 7000000:  return "H1_D1";
+            case 8000000:  return "H1_D2";
+            case 9000000:  return "H2_D1";
+            case 10000000: return "H2_D2";
+            case 11000000: return "H3_D1";
+            case 12000000: return "H3_D2";
+            default:       return "";
+        }
+    }
+
+
     // Phone vibration method
     public void vibratePhone(int durationMs) {
         android.os.Vibrator vibrator = (android.os.Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
@@ -1100,6 +1125,206 @@ public class UiManager {
         }
     }
 
+    private void showLeadingLegPopup(int startPacket, int endPacket, String obstacleLabel) {
+        if (obstacleLabel.isEmpty()) return;
+
+        int dp = (int) context.getResources().getDisplayMetrics().density;
+
+        // Root card layout
+        android.widget.LinearLayout card = new android.widget.LinearLayout(context);
+        card.setOrientation(android.widget.LinearLayout.VERTICAL);
+        card.setPadding(24 * dp, 28 * dp, 24 * dp, 20 * dp);
+        card.setGravity(android.view.Gravity.CENTER_HORIZONTAL);
+        android.graphics.drawable.GradientDrawable cardBg = new android.graphics.drawable.GradientDrawable();
+        cardBg.setColor(0xFFF5F5F5);
+        cardBg.setCornerRadius(16 * dp);
+        card.setBackground(cardBg);
+
+        // Title
+        android.widget.TextView title = new android.widget.TextView(context);
+        title.setText("Which Leg Was Leading?");
+        title.setTextSize(24);
+        title.setTypeface(null, android.graphics.Typeface.BOLD);
+        title.setTextColor(0xFF212121);
+        title.setGravity(android.view.Gravity.CENTER);
+        android.widget.LinearLayout.LayoutParams titleLp = new android.widget.LinearLayout.LayoutParams(
+                android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
+                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT);
+        titleLp.setMargins(0, 0, 0, 4 * dp);
+        title.setLayoutParams(titleLp);
+        card.addView(title);
+
+        // Subtitle: obstacle label
+        android.widget.TextView subtitle = new android.widget.TextView(context);
+        subtitle.setText(obstacleLabel);
+        subtitle.setTextSize(13);
+        subtitle.setTypeface(null, android.graphics.Typeface.ITALIC);
+        subtitle.setTextColor(0xFF757575);
+        subtitle.setGravity(android.view.Gravity.CENTER);
+        android.widget.LinearLayout.LayoutParams subtitleLp = new android.widget.LinearLayout.LayoutParams(
+                android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
+                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT);
+        subtitleLp.setMargins(0, 0, 0, 20 * dp);
+        subtitle.setLayoutParams(subtitleLp);
+        card.addView(subtitle);
+
+        // Divider
+        android.view.View divider = new android.view.View(context);
+        divider.setBackgroundColor(0xFFDDDDDD);
+        android.widget.LinearLayout.LayoutParams divLp = new android.widget.LinearLayout.LayoutParams(
+                android.widget.LinearLayout.LayoutParams.MATCH_PARENT, 1);
+        divLp.setMargins(0, 0, 0, 20 * dp);
+        divider.setLayoutParams(divLp);
+        card.addView(divider);
+
+        // Row 1: Left | Right
+        android.widget.LinearLayout topRow = new android.widget.LinearLayout(context);
+        topRow.setOrientation(android.widget.LinearLayout.HORIZONTAL);
+        topRow.setGravity(android.view.Gravity.CENTER);
+        android.widget.LinearLayout.LayoutParams topRowLp = new android.widget.LinearLayout.LayoutParams(
+                android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
+                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT);
+        topRowLp.setMargins(0, 0, 0, 0);
+        topRow.setLayoutParams(topRowLp);
+        card.addView(topRow);
+
+        Button btnLeft  = makeLeadingButton(context, "◀  Left",  0xFF43A047, dp);
+        Button btnRight = makeLeadingButton(context, "Right  ▶", 0xFF1E88E5, dp);
+
+        android.widget.LinearLayout.LayoutParams sideLp = new android.widget.LinearLayout.LayoutParams(0, 110 * dp, 1f);
+        sideLp.setMargins(0, 0, 8 * dp, 0);
+        btnLeft.setLayoutParams(sideLp);
+
+        android.widget.LinearLayout.LayoutParams sideLp2 = new android.widget.LinearLayout.LayoutParams(0, 110 * dp, 1f);
+        sideLp2.setMargins(8 * dp, 0, 0, 0);
+        btnRight.setLayoutParams(sideLp2);
+
+        topRow.addView(btnLeft);
+        topRow.addView(btnRight);
+
+        // Row 2: Unknown — same width as Left or Right, centered
+        android.widget.LinearLayout bottomRow = new android.widget.LinearLayout(context);
+        bottomRow.setOrientation(android.widget.LinearLayout.HORIZONTAL);
+        bottomRow.setGravity(android.view.Gravity.CENTER);
+        android.widget.LinearLayout.LayoutParams bottomRowLp = new android.widget.LinearLayout.LayoutParams(
+                android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
+                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT);
+        bottomRowLp.setMargins(0, 24 * dp, 0, 0);
+        bottomRow.setLayoutParams(bottomRowLp);
+        card.addView(bottomRow);
+
+        // Left spacer (weight 1)
+        android.view.View spacerLeft = new android.view.View(context);
+        android.widget.LinearLayout.LayoutParams spacerLp1 = new android.widget.LinearLayout.LayoutParams(0, 0, 1f);
+        spacerLeft.setLayoutParams(spacerLp1);
+        bottomRow.addView(spacerLeft);
+
+        // Unknown button (weight 2 = same width as one side button)
+        Button btnUnknown = makeLeadingButton(context, "Unknown", 0xFF9E9E9E, dp);
+        android.widget.LinearLayout.LayoutParams unknownLp = new android.widget.LinearLayout.LayoutParams(0, 110 * dp, 2f);
+        unknownLp.setMargins(8 * dp, 0, 8 * dp, 0);
+        btnUnknown.setLayoutParams(unknownLp);
+        bottomRow.addView(btnUnknown);
+
+        // Right spacer (weight 1)
+        android.view.View spacerRight = new android.view.View(context);
+        android.widget.LinearLayout.LayoutParams spacerLp2 = new android.widget.LinearLayout.LayoutParams(0, 0, 1f);
+        spacerRight.setLayoutParams(spacerLp2);
+        bottomRow.addView(spacerRight);
+
+        // Countdown label
+        android.widget.TextView countdown = new android.widget.TextView(context);
+        countdown.setTextSize(11);
+        countdown.setTextColor(0xFFAAAAAA);
+        countdown.setGravity(android.view.Gravity.CENTER);
+        android.widget.LinearLayout.LayoutParams cdLp = new android.widget.LinearLayout.LayoutParams(
+                android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
+                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT);
+        cdLp.setMargins(0, 10 * dp, 0, 0);
+        countdown.setLayoutParams(cdLp);
+        card.addView(countdown);
+
+        // Dialog
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(context);
+        builder.setView(card);
+        builder.setCancelable(false);
+        android.app.AlertDialog dialog = builder.create();
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(
+                    new android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT));
+        }
+        android.app.AlertDialog[] holder = new android.app.AlertDialog[1];
+        holder[0] = dialog;
+
+        btnLeft.setOnClickListener(v -> {
+            setLeadingButtonColor(btnLeft, 0xFF05FFF8, dp);
+            logLeading(obstacleLabel, startPacket, endPacket, "Left");
+            new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                if (holder[0] != null) holder[0].dismiss();
+            }, 50);
+        });
+        btnRight.setOnClickListener(v -> {
+            setLeadingButtonColor(btnRight, 0xFF05FFF8, dp);
+            logLeading(obstacleLabel, startPacket, endPacket, "Right");
+            new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                if (holder[0] != null) holder[0].dismiss();
+            }, 50);
+        });
+        btnUnknown.setOnClickListener(v -> {
+            setLeadingButtonColor(btnUnknown, 0xFF05FFF8, dp);
+            logLeading(obstacleLabel, startPacket, endPacket, "Unknown");
+            new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                if (holder[0] != null) holder[0].dismiss();
+            }, 50);
+        });
+
+        dialog.show();
+
+        // Countdown ticker
+        android.os.Handler handler = new android.os.Handler(android.os.Looper.getMainLooper());
+        int[] secondsLeft = {5};
+        Runnable[] ticker = new Runnable[1];
+        ticker[0] = () -> {
+            if (!dialog.isShowing()) return;
+            secondsLeft[0]--;
+            if (secondsLeft[0] <= 0) {
+                logLeading(obstacleLabel, startPacket, endPacket, "Unknown");
+                dialog.dismiss();
+            } else {
+                countdown.setText("Auto-closing in " + secondsLeft[0] + "s");
+                handler.postDelayed(ticker[0], 1000);
+            }
+        };
+        countdown.setText("Auto-closing in 5s");
+        handler.postDelayed(ticker[0], 1000);
+    }
+
+    private void logLeading(String obstacleLabel, int startPacket, int endPacket, String choice) {
+        int cleanStart = imuManager.removeLabelOffset(startPacket);
+        int cleanEnd   = imuManager.removeLabelOffset(endPacket);
+        if (logManager != null) logManager.logLeadingLeg(obstacleLabel, cleanStart, cleanEnd, choice);
+    }
+
+    private void setLeadingButtonColor(Button btn, int color, int dp) {
+        android.graphics.drawable.GradientDrawable bg = new android.graphics.drawable.GradientDrawable();
+        bg.setColor(color);
+        bg.setCornerRadius(10 * dp);
+        btn.setBackground(bg);
+    }
+
+    private Button makeLeadingButton(android.content.Context ctx, String text, int color, int dp) {
+        Button btn = new Button(ctx);
+        btn.setText(text);
+        btn.setTextColor(android.graphics.Color.WHITE);
+        btn.setTextSize(22);
+        btn.setTypeface(null, android.graphics.Typeface.BOLD);
+        btn.setAllCaps(false);
+        android.graphics.drawable.GradientDrawable bg = new android.graphics.drawable.GradientDrawable();
+        bg.setColor(color);
+        bg.setCornerRadius(10 * dp);
+        btn.setBackground(bg);
+        return btn;
+    }
 
 
 

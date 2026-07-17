@@ -199,6 +199,10 @@ public class LogManager {
         isFeatureLoggingActive = false;
         log("All feature logs closed successfully");
     }
+    public void logLeadingLeg(String obstacleLabel, int startPacket, int endPacket, String leadingLeg) {
+        log(">>> Leading leg is " + leadingLeg + " for " + obstacleLabel
+                + " crossing (Start pkt: " + startPacket + ", End pkt: " + endPacket + ")");
+    }
     public String getLogDirectory() {
         return context.getApplicationContext().getExternalFilesDir("logs").getPath();
     }

@@ -81,6 +81,7 @@ public class MainActivity extends AppCompatActivity implements ImuManagerListene
         uiManager = new UiManager(root, imuManager);
         uiManager.bindLabelingDataViews(getWindow().getDecorView().getRootView());
         uiManager.setupImuSpinners(this);
+        uiManager.setLogManager(logManager);
 
         imuManager.setUiManager(uiManager);
 
