@@ -53,152 +53,242 @@
             android:textColor="#333333"
             android:layout_marginBottom="10dp"/>
 
-        <TextView
-            android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:text="Subject Height (cm)" android:textSize="13sp" android:textColor="#555555"/>
-        <EditText
-            android:id="@+id/demoHeight"
-            android:layout_width="match_parent"
-            android:layout_height="44dp"
-            android:inputType="numberDecimal"
-            android:background="@android:drawable/edit_text"
-            android:textSize="14sp"
-            android:textColor="#212121"
-            android:layout_marginBottom="8dp"/>
-
-        <TextView
-            android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:text="Subject Weight (kg)" android:textSize="13sp" android:textColor="#555555"/>
-        <EditText
-            android:id="@+id/demoWeight"
-            android:layout_width="match_parent"
-            android:layout_height="44dp"
-            android:inputType="numberDecimal"
-            android:background="@android:drawable/edit_text"
-            android:textSize="14sp"
-            android:textColor="#212121"
-            android:layout_marginBottom="8dp"/>
-
-        <TextView
-            android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:text="Hip to Knee Length (cm)" android:textSize="13sp" android:textColor="#555555"/>
-        <EditText
-            android:id="@+id/demoHipKnee"
-            android:layout_width="match_parent"
-            android:layout_height="44dp"
-            android:inputType="numberDecimal"
-            android:background="@android:drawable/edit_text"
-            android:textSize="14sp"
-            android:textColor="#212121"
-            android:layout_marginBottom="8dp"/>
-
-        <TextView
-            android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:text="Knee to Ankle Length (cm)" android:textSize="13sp" android:textColor="#555555"/>
-        <EditText
-            android:id="@+id/demoKneeAnkle"
-            android:layout_width="match_parent"
-            android:layout_height="44dp"
-            android:inputType="numberDecimal"
-            android:background="@android:drawable/edit_text"
-            android:textSize="14sp"
-            android:textColor="#212121"
-            android:layout_marginBottom="8dp"/>
-
-        <TextView
-            android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:text="Hip to Ankle Length (cm) — measured" android:textSize="13sp" android:textColor="#555555"/>
-        <EditText
-            android:id="@+id/demoHipAnkle"
-            android:layout_width="match_parent"
-            android:layout_height="44dp"
-            android:inputType="numberDecimal"
-            android:background="@android:drawable/edit_text"
-            android:textSize="14sp"
-            android:textColor="#212121"
-            android:layout_marginBottom="8dp"/>
-
-        <TextView
-            android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:text="Flat Foot Length (cm)" android:textSize="13sp" android:textColor="#555555"/>
-        <EditText
-            android:id="@+id/demoFlatFoot"
-            android:layout_width="match_parent"
-            android:layout_height="44dp"
-            android:inputType="numberDecimal"
-            android:background="@android:drawable/edit_text"
-            android:textSize="14sp"
-            android:textColor="#212121"
-            android:layout_marginBottom="8dp"/>
-
-        <TextView
-            android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:text="Elevated Foot Length (cm)" android:textSize="13sp" android:textColor="#555555"/>
-        <EditText
-            android:id="@+id/demoElevatedFoot"
-            android:layout_width="match_parent"
-            android:layout_height="44dp"
-            android:inputType="numberDecimal"
-            android:background="@android:drawable/edit_text"
-            android:textSize="14sp"
-            android:textColor="#212121"
-            android:layout_marginBottom="12dp"/>
-
-        <TextView
-            android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:text="Dominant Leg" android:textSize="13sp" android:textColor="#555555"/>
-        <RadioGroup
-            android:id="@+id/demoLegGroup"
+        <!-- Row 1: Height | Weight -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginBottom="8dp">
-            <RadioButton
-                android:id="@+id/demoLegRight"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Right"
-                android:textSize="14sp"
-                android:textColor="#212121"
-                android:buttonTint="#3F51B5"/>
-            <RadioButton
-                android:id="@+id/demoLegLeft"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="24dp"
-                android:text="Left"
-                android:textSize="14sp"
-                android:textColor="#212121"
-                android:buttonTint="#3F51B5"/>
-        </RadioGroup>
 
-        <TextView
-            android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:text="Dominant Hand" android:textSize="13sp" android:textColor="#555555"/>
-        <RadioGroup
-            android:id="@+id/demoHandGroup"
+            <LinearLayout
+                android:layout_width="0dp" android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginEnd="8dp">
+                <TextView
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="Subject Height (cm)" android:textSize="13sp" android:textColor="#555555"/>
+                <EditText
+                    android:id="@+id/demoHeight"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:inputType="numberDecimal"
+                    android:background="@android:drawable/edit_text"
+                    android:textSize="14sp"
+                    android:textColor="#212121"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp" android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="8dp">
+                <TextView
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="Subject Weight (kg)" android:textSize="13sp" android:textColor="#555555"/>
+                <EditText
+                    android:id="@+id/demoWeight"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:inputType="numberDecimal"
+                    android:background="@android:drawable/edit_text"
+                    android:textSize="14sp"
+                    android:textColor="#212121"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Row 2: Hip to Knee | Knee to Ankle -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+
+            <LinearLayout
+                android:layout_width="0dp" android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginEnd="8dp">
+                <TextView
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="Hip to Knee (cm)" android:textSize="13sp" android:textColor="#555555"/>
+                <EditText
+                    android:id="@+id/demoHipKnee"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:inputType="numberDecimal"
+                    android:background="@android:drawable/edit_text"
+                    android:textSize="14sp"
+                    android:textColor="#212121"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp" android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="8dp">
+                <TextView
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="Knee to Ankle (cm)" android:textSize="13sp" android:textColor="#555555"/>
+                <EditText
+                    android:id="@+id/demoKneeAnkle"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:inputType="numberDecimal"
+                    android:background="@android:drawable/edit_text"
+                    android:textSize="14sp"
+                    android:textColor="#212121"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Row 3: Hip to Ankle (measured) | Flat Foot -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+
+            <LinearLayout
+                android:layout_width="0dp" android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginEnd="8dp">
+                <TextView
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="Hip to Ankle (cm)" android:textSize="13sp" android:textColor="#555555"/>
+                <EditText
+                    android:id="@+id/demoHipAnkle"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:inputType="numberDecimal"
+                    android:background="@android:drawable/edit_text"
+                    android:textSize="14sp"
+                    android:textColor="#212121"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp" android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="8dp">
+                <TextView
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="Flat Foot Length (cm)" android:textSize="13sp" android:textColor="#555555"/>
+                <EditText
+                    android:id="@+id/demoFlatFoot"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:inputType="numberDecimal"
+                    android:background="@android:drawable/edit_text"
+                    android:textSize="14sp"
+                    android:textColor="#212121"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Row 4: Elevated Foot | (empty) -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginBottom="12dp">
-            <RadioButton
-                android:id="@+id/demoHandRight"
-                android:layout_width="wrap_content"
+
+            <LinearLayout
+                android:layout_width="0dp" android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="Right"
-                android:textSize="14sp"
-                android:textColor="#212121"
-                android:buttonTint="#3F51B5"/>
-            <RadioButton
-                android:id="@+id/demoHandLeft"
-                android:layout_width="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginEnd="8dp">
+                <TextView
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="Elevated Foot Length (cm)" android:textSize="13sp" android:textColor="#555555"/>
+                <EditText
+                    android:id="@+id/demoElevatedFoot"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:inputType="numberDecimal"
+                    android:background="@android:drawable/edit_text"
+                    android:textSize="14sp"
+                    android:textColor="#212121"/>
+            </LinearLayout>
+
+            <android.widget.Space
+                android:layout_width="0dp" android:layout_weight="1"
+                android:layout_height="1dp"
+                android:layout_marginStart="8dp"/>
+        </LinearLayout>
+
+        <!-- Dominant Leg | Dominant Hand side by side -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="12dp">
+
+            <LinearLayout
+                android:layout_width="0dp" android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="24dp"
-                android:text="Left"
-                android:textSize="14sp"
-                android:textColor="#212121"
-                android:buttonTint="#3F51B5"/>
-        </RadioGroup>
+                android:orientation="vertical"
+                android:layout_marginEnd="8dp">
+                <TextView
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="Dominant Leg" android:textSize="13sp" android:textColor="#555555"/>
+                <RadioGroup
+                    android:id="@+id/demoLegGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <RadioButton
+                        android:id="@+id/demoLegRight"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Right"
+                        android:textSize="14sp"
+                        android:textColor="#212121"
+                        android:buttonTint="#3F51B5"/>
+                    <RadioButton
+                        android:id="@+id/demoLegLeft"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:text="Left"
+                        android:textSize="14sp"
+                        android:textColor="#212121"
+                        android:buttonTint="#3F51B5"/>
+                </RadioGroup>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp" android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="8dp">
+                <TextView
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="Dominant Hand" android:textSize="13sp" android:textColor="#555555"/>
+                <RadioGroup
+                    android:id="@+id/demoHandGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <RadioButton
+                        android:id="@+id/demoHandRight"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Right"
+                        android:textSize="14sp"
+                        android:textColor="#212121"
+                        android:buttonTint="#3F51B5"/>
+                    <RadioButton
+                        android:id="@+id/demoHandLeft"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:text="Left"
+                        android:textSize="14sp"
+                        android:textColor="#212121"
+                        android:buttonTint="#3F51B5"/>
+                </RadioGroup>
+            </LinearLayout>
+        </LinearLayout>
 
         <Button
             android:id="@+id/demoSaveButton"
