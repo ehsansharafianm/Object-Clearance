@@ -63,6 +63,7 @@
             android:inputType="numberDecimal"
             android:background="@android:drawable/edit_text"
             android:textSize="14sp"
+            android:textColor="#212121"
             android:layout_marginBottom="8dp"/>
 
         <TextView
@@ -75,6 +76,7 @@
             android:inputType="numberDecimal"
             android:background="@android:drawable/edit_text"
             android:textSize="14sp"
+            android:textColor="#212121"
             android:layout_marginBottom="8dp"/>
 
         <TextView
@@ -87,6 +89,7 @@
             android:inputType="numberDecimal"
             android:background="@android:drawable/edit_text"
             android:textSize="14sp"
+            android:textColor="#212121"
             android:layout_marginBottom="8dp"/>
 
         <TextView
@@ -99,6 +102,7 @@
             android:inputType="numberDecimal"
             android:background="@android:drawable/edit_text"
             android:textSize="14sp"
+            android:textColor="#212121"
             android:layout_marginBottom="8dp"/>
 
         <TextView
@@ -111,6 +115,7 @@
             android:inputType="numberDecimal"
             android:background="@android:drawable/edit_text"
             android:textSize="14sp"
+            android:textColor="#212121"
             android:layout_marginBottom="8dp"/>
 
         <TextView
@@ -123,6 +128,7 @@
             android:inputType="numberDecimal"
             android:background="@android:drawable/edit_text"
             android:textSize="14sp"
+            android:textColor="#212121"
             android:layout_marginBottom="8dp"/>
 
         <TextView
@@ -135,6 +141,7 @@
             android:inputType="numberDecimal"
             android:background="@android:drawable/edit_text"
             android:textSize="14sp"
+            android:textColor="#212121"
             android:layout_marginBottom="12dp"/>
 
         <TextView
@@ -151,14 +158,18 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Right"
-                android:textSize="14sp"/>
+                android:textSize="14sp"
+                android:textColor="#212121"
+                android:buttonTint="#3F51B5"/>
             <RadioButton
                 android:id="@+id/demoLegLeft"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="24dp"
                 android:text="Left"
-                android:textSize="14sp"/>
+                android:textSize="14sp"
+                android:textColor="#212121"
+                android:buttonTint="#3F51B5"/>
         </RadioGroup>
 
         <TextView
@@ -175,14 +186,18 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Right"
-                android:textSize="14sp"/>
+                android:textSize="14sp"
+                android:textColor="#212121"
+                android:buttonTint="#3F51B5"/>
             <RadioButton
                 android:id="@+id/demoHandLeft"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="24dp"
                 android:text="Left"
-                android:textSize="14sp"/>
+                android:textSize="14sp"
+                android:textColor="#212121"
+                android:buttonTint="#3F51B5"/>
         </RadioGroup>
 
         <Button
