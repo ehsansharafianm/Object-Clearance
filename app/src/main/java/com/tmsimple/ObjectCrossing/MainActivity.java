@@ -119,6 +119,7 @@ public class MainActivity extends AppCompatActivity implements ImuManagerListene
         uiManager.setupLogDialog(this, logManager);
         uiManager.setupFeatureDialog(this);
         uiManager.setupImuDataDialog(this);
+        uiManager.setupDemographicsDialog(this);
 
 
     }
