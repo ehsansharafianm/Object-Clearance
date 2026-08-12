@@ -3,86 +3,123 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:gravity="center"
     android:background="@drawable/log_border"
-    android:layout_margin="12dp"
-    android:padding="10dp">
+    android:layout_marginLeft="18dp"
+    android:layout_marginRight="18dp"
+    android:layout_marginTop="12dp"
+    android:layout_marginBottom="12dp"
+    android:padding="14dp">
 
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:orientation="horizontal" android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp" android:layout_marginBottom="6dp"
-        android:layout_marginTop="13dp" android:gravity="center_vertical">
-        <Button android:id="@+id/labelButton1" android:layout_width="0dp"
-            android:layout_weight="1" android:layout_height="52dp"
-            android:backgroundTint="#903F51B5" android:text="Stand"
-            android:textSize="16sp"/>
-        <ImageView android:layout_width="52dp" android:layout_height="52dp"
-            android:layout_marginLeft="10dp" android:src="@drawable/stand_logo"
-            android:scaleType="centerInside" android:padding="8dp"/>
+    <!-- Row 1: Stand | Level Walk -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp">
+
+        <Button
+            android:id="@+id/labelButton1"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="70dp"
+            android:layout_marginEnd="8dp"
+            android:backgroundTint="#903F51B5"
+            android:text="Stand"
+            android:textSize="14sp"/>
+
+        <Button
+            android:id="@+id/labelButton2"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="70dp"
+            android:layout_marginStart="8dp"
+            android:backgroundTint="#903F51B5"
+            android:text="Level Walk"
+            android:textSize="14sp"/>
     </LinearLayout>
 
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:orientation="horizontal" android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp" android:layout_marginBottom="6dp"
-        android:gravity="center_vertical">
-        <Button android:id="@+id/labelButton2" android:layout_width="0dp"
-            android:layout_weight="1" android:layout_height="52dp"
-            android:backgroundTint="#903F51B5" android:text="Level Walk"
-            android:textSize="16sp"/>
-        <ImageView android:layout_width="52dp" android:layout_height="52dp"
-            android:layout_marginLeft="10dp" android:src="@drawable/level_walk_logo"
-            android:scaleType="centerInside" android:padding="8dp"/>
+    <!-- Row 2: H1 obstacles -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp">
+
+        <Button
+            android:id="@+id/labelButton7"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="80dp"
+            android:layout_marginEnd="8dp"
+            android:backgroundTint="#E65100"
+            android:text="Height 1 Depth 1"
+            android:textSize="14sp"/>
+
+        <Button
+            android:id="@+id/labelButton8"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="80dp"
+            android:layout_marginStart="8dp"
+            android:backgroundTint="#E65100"
+            android:text="Height 1 Depth 2"
+            android:textSize="14sp"/>
     </LinearLayout>
 
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:orientation="horizontal" android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp" android:layout_marginBottom="6dp"
-        android:gravity="center_vertical">
-        <Button android:id="@+id/labelButton3" android:layout_width="0dp"
-            android:layout_weight="1" android:layout_height="52dp"
-            android:backgroundTint="#903F51B5" android:text="Ramp Ascend"
-            android:textSize="16sp"/>
-        <ImageView android:layout_width="52dp" android:layout_height="52dp"
-            android:layout_marginLeft="10dp" android:src="@drawable/ramp_ascend_logo"
-            android:scaleType="centerInside" android:padding="8dp"/>
+    <!-- Row 3: H2 obstacles -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp">
+
+        <Button
+            android:id="@+id/labelButton9"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="80dp"
+            android:layout_marginEnd="8dp"
+            android:backgroundTint="#F57C00"
+            android:text="Height 2 Depth 1"
+            android:textSize="14sp"/>
+
+        <Button
+            android:id="@+id/labelButton10"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="80dp"
+            android:layout_marginStart="8dp"
+            android:backgroundTint="#F57C00"
+            android:text="Height 2 Depth 2"
+            android:textSize="14sp"/>
     </LinearLayout>
 
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:orientation="horizontal" android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp" android:layout_marginBottom="6dp"
-        android:gravity="center_vertical">
-        <Button android:id="@+id/labelButton4" android:layout_width="0dp"
-            android:layout_weight="1" android:layout_height="52dp"
-            android:backgroundTint="#903F51B5" android:text="Ramp Descend"
-            android:textSize="16sp"/>
-        <ImageView android:layout_width="52dp" android:layout_height="52dp"
-            android:layout_marginLeft="10dp" android:src="@drawable/ramp_descend_logo"
-            android:scaleType="centerInside" android:padding="8dp"/>
-    </LinearLayout>
+    <!-- Row 4: H3 obstacles -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
 
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:orientation="horizontal" android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp" android:layout_marginBottom="6dp"
-        android:gravity="center_vertical">
-        <Button android:id="@+id/labelButton5" android:layout_width="0dp"
-            android:layout_weight="1" android:layout_height="52dp"
-            android:backgroundTint="#903F51B5" android:text="Stair Ascend"
-            android:textSize="16sp"/>
-        <ImageView android:layout_width="52dp" android:layout_height="52dp"
-            android:layout_marginLeft="10dp" android:src="@drawable/stair_ascend_logo"
-            android:scaleType="centerInside" android:padding="8dp"/>
-    </LinearLayout>
+        <Button
+            android:id="@+id/labelButton11"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="80dp"
+            android:layout_marginEnd="8dp"
+            android:backgroundTint="#FB8C00"
+            android:text="Height 3 Depth 1"
+            android:textSize="14sp"/>
 
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:orientation="horizontal" android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp" android:layout_marginBottom="6dp"
-        android:gravity="center_vertical">
-        <Button android:id="@+id/labelButton6" android:layout_width="0dp"
-            android:layout_weight="1" android:layout_height="52dp"
-            android:backgroundTint="#903F51B5" android:text="Stair Descend"
-            android:textSize="16sp"/>
-        <ImageView android:layout_width="52dp" android:layout_height="52dp"
-            android:layout_marginLeft="10dp" android:src="@drawable/stair_descend_logo"
-            android:scaleType="centerInside" android:padding="8dp"/>
+        <Button
+            android:id="@+id/labelButton12"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="80dp"
+            android:layout_marginStart="8dp"
+            android:backgroundTint="#FB8C00"
+            android:text="Height 3 Depth 2"
+            android:textSize="14sp"/>
     </LinearLayout>
 
 </LinearLayout>

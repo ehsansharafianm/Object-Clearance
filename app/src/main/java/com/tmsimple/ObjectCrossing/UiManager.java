@@ -796,22 +796,8 @@ public class UiManager {
         // Bind label buttons for page 1 (offsets 1M-6M)
         bindLabelButtonsInDialog(page1);
 
-        // Bind label buttons for page 2 (offsets 7M-12M)
-        PacketOffsetItem[] page2Configs = new PacketOffsetItem[] {
-                new PacketOffsetItem(R.id.labelButton7,  7000000,  Color.parseColor("#05fff8"), Color.parseColor("#E65100")),
-                new PacketOffsetItem(R.id.labelButton8,  8000000,  Color.parseColor("#05fff8"), Color.parseColor("#E65100")),
-                new PacketOffsetItem(R.id.labelButton9,  9000000,  Color.parseColor("#05fff8"), Color.parseColor("#F57C00")),
-                new PacketOffsetItem(R.id.labelButton10, 10000000, Color.parseColor("#05fff8"), Color.parseColor("#F57C00")),
-                new PacketOffsetItem(R.id.labelButton11, 11000000, Color.parseColor("#05fff8"), Color.parseColor("#FB8C00")),
-                new PacketOffsetItem(R.id.labelButton12, 12000000, Color.parseColor("#05fff8"), Color.parseColor("#FB8C00")),
-        };
-        for (PacketOffsetItem cfg : page2Configs) {
-            Button btn = page2.findViewById(cfg.buttonId);
-            if (btn != null) {
-                btn.setTag(cfg);
-                btn.setOnTouchListener(labelTouchListener);
-            }
-        }
+        // Bind label buttons for page 2 (binder covers all 12 IDs and skips the ones not on this page)
+        bindLabelButtonsInDialog(page2);
 
         // Setup ViewPager
         androidx.viewpager2.widget.ViewPager2 viewPager = dialogView.findViewById(R.id.labelViewPager);
