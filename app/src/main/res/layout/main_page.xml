@@ -58,7 +58,8 @@
 
                 <EditText
                     android:id="@+id/enterSubjectNumber"
-                    android:layout_width="150dp"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
                     android:layout_height="40dp"
                     android:background="@android:drawable/edit_text"
                     android:hint="Subject ID"
@@ -67,6 +68,16 @@
                     android:textColor="@color/black"
                     android:textColorHint="#959595"
                     android:textSize="14sp"/>
+
+                <Button
+                    android:id="@+id/demographicsButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="10dp"
+                    android:backgroundTint="#3F51B5"
+                    android:text="Demographics"
+                    android:textSize="12sp"
+                    android:textColor="#FFFFFF"/>
             </LinearLayout>
 
             <!-- ============================================ -->

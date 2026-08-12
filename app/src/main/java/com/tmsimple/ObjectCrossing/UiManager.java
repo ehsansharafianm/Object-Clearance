@@ -40,6 +40,9 @@ public class UiManager {
     public Button showImuDataButton;
     private android.app.Dialog imuDataDialog;
 
+    public Button demographicsButton;
+    private android.app.Dialog demographicsDialog;
+
     // Dialog TextViews for IMU data
     public TextView dialogImu1Status, dialogImu2Status;
     public TextView dialogImu1Roll, dialogImu2Roll;
@@ -187,6 +190,7 @@ public class UiManager {
         spinnerIMU5 = root.findViewById(R.id.spinnerIMU5);
         spinnerIMU6 = root.findViewById(R.id.spinnerIMU6);
 
+        demographicsButton = root.findViewById(R.id.demographicsButton);
         openLabelDialogButton = root.findViewById(R.id.openLabelDialogButton);
         showFeaturesButton = root.findViewById(R.id.showFeaturesButton);
         showImuDataButton = root.findViewById(R.id.showImuDataButton);
@@ -1102,6 +1106,100 @@ public class UiManager {
         }
     }
 
+
+    // ---------- DEMOGRAPHICS DIALOG ----------
+
+    public void setupDemographicsDialog(android.content.Context context) {
+        demographicsDialog = new android.app.Dialog(context, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+        demographicsDialog.setContentView(R.layout.dialog_demographics);
+
+        if (demographicsDialog.getWindow() != null) {
+            demographicsDialog.getWindow().setLayout(
+                    android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                    (int) (context.getResources().getDisplayMetrics().heightPixels * 0.9));
+            android.view.WindowManager.LayoutParams params = demographicsDialog.getWindow().getAttributes();
+            params.gravity = android.view.Gravity.BOTTOM;
+            demographicsDialog.getWindow().setAttributes(params);
+        }
+
+        EditText etHeight       = demographicsDialog.findViewById(R.id.demoHeight);
+        EditText etWeight       = demographicsDialog.findViewById(R.id.demoWeight);
+        EditText etHipKnee      = demographicsDialog.findViewById(R.id.demoHipKnee);
+        EditText etKneeAnkle    = demographicsDialog.findViewById(R.id.demoKneeAnkle);
+        EditText etHipAnkle     = demographicsDialog.findViewById(R.id.demoHipAnkle);
+        EditText etFlatFoot     = demographicsDialog.findViewById(R.id.demoFlatFoot);
+        EditText etElevatedFoot = demographicsDialog.findViewById(R.id.demoElevatedFoot);
+        android.widget.RadioGroup legGroup  = demographicsDialog.findViewById(R.id.demoLegGroup);
+        android.widget.RadioGroup handGroup = demographicsDialog.findViewById(R.id.demoHandGroup);
+        TextView resultText  = demographicsDialog.findViewById(R.id.demoResultText);
+        Button saveButton    = demographicsDialog.findViewById(R.id.demoSaveButton);
+        Button closeButton   = demographicsDialog.findViewById(R.id.demoCloseButton);
+
+        saveButton.setOnClickListener(v -> {
+            double height       = parseDoubleOrZero(etHeight.getText().toString());
+            double weight       = parseDoubleOrZero(etWeight.getText().toString());
+            double hipKnee      = parseDoubleOrZero(etHipKnee.getText().toString());
+            double kneeAnkle    = parseDoubleOrZero(etKneeAnkle.getText().toString());
+            double hipAnkle     = parseDoubleOrZero(etHipAnkle.getText().toString());
+            double flatFoot     = parseDoubleOrZero(etFlatFoot.getText().toString());
+            double elevatedFoot = parseDoubleOrZero(etElevatedFoot.getText().toString());
+
+            String dominantLeg = legGroup.getCheckedRadioButtonId() == R.id.demoLegRight ? "Right"
+                    : legGroup.getCheckedRadioButtonId() == R.id.demoLegLeft ? "Left" : "Not selected";
+            String dominantHand = handGroup.getCheckedRadioButtonId() == R.id.demoHandRight ? "Right"
+                    : handGroup.getCheckedRadioButtonId() == R.id.demoHandLeft ? "Left" : "Not selected";
+
+            // Computed leg length = hip-to-knee + knee-to-ankle
+            double computedHipAnkle = hipKnee + kneeAnkle;
+            double h10 = computedHipAnkle * 0.10;
+            double h20 = computedHipAnkle * 0.20;
+            double h30 = computedHipAnkle * 0.30;
+
+            String result = String.format(Locale.US,
+                    "Computed Hip-to-Ankle: %.1f cm\n(measured: %.1f cm)\n\n"
+                            + "Obstacle heights:\n"
+                            + "10%%  =  %.1f cm\n"
+                            + "20%%  =  %.1f cm\n"
+                            + "30%%  =  %.1f cm",
+                    computedHipAnkle, hipAnkle, h10, h20, h30);
+
+            resultText.setText(result);
+            resultText.setVisibility(View.VISIBLE);
+
+            if (logManager != null) {
+                logManager.log("===== DEMOGRAPHICS =====");
+                logManager.log(String.format(Locale.US, "Subject Height (cm): %.1f", height));
+                logManager.log(String.format(Locale.US, "Subject Weight (kg): %.1f", weight));
+                logManager.log(String.format(Locale.US, "Hip to Knee Length (cm): %.1f", hipKnee));
+                logManager.log(String.format(Locale.US, "Knee to Ankle Length (cm): %.1f", kneeAnkle));
+                logManager.log(String.format(Locale.US, "Hip to Ankle Length measured (cm): %.1f", hipAnkle));
+                logManager.log(String.format(Locale.US, "Hip to Ankle Length computed (cm): %.1f", computedHipAnkle));
+                logManager.log(String.format(Locale.US, "Flat Foot Length (cm): %.1f", flatFoot));
+                logManager.log(String.format(Locale.US, "Elevated Foot Length (cm): %.1f", elevatedFoot));
+                logManager.log("Dominant Leg: " + dominantLeg);
+                logManager.log("Dominant Hand: " + dominantHand);
+                logManager.log(String.format(Locale.US,
+                        "Obstacle heights: 10%% = %.1f cm | 20%% = %.1f cm | 30%% = %.1f cm", h10, h20, h30));
+                logManager.log("========================");
+            }
+        });
+
+        closeButton.setOnClickListener(v -> demographicsDialog.dismiss());
+
+        if (demographicsButton != null) {
+            demographicsButton.setOnClickListener(v -> {
+                if (demographicsDialog != null) demographicsDialog.show();
+            });
+        }
+    }
+
+    private double parseDoubleOrZero(String text) {
+        try {
+            return Double.parseDouble(text.trim());
+        } catch (NumberFormatException e) {
+            return 0.0;
+        }
+    }
 
     // Phone vibration method
     public void vibratePhone(int durationMs) {
