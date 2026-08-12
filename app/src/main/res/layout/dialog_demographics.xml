@@ -28,16 +28,6 @@
             android:gravity="center"
             android:layout_marginBottom="4dp"/>
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="This form should be completed by the experimenter(s) in charge of the study. Make sure to fill out the form in its entirety."
-            android:textSize="12sp"
-            android:textStyle="italic"
-            android:textColor="#757575"
-            android:gravity="center"
-            android:layout_marginBottom="14dp"/>
-
         <View
             android:layout_width="match_parent"
             android:layout_height="2dp"
