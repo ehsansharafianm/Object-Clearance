@@ -624,12 +624,42 @@ public class MainActivity extends AppCompatActivity implements ImuManagerListene
     }
 
     public void uploadButton_onClick(View view) {
-        for (int i = 0; i < logManager.loggerFileNames.size(); i++) {
-            logManager.log("Uploading data to cloud : " + logManager.loggerFileNames.get(i));
-            uploadLogFileToCloud(Uri.fromFile(logManager.loggerFilePaths.get(i)), logManager.loggerFileNames.get(i));
+        if (!isInternetConnected()) {
+            logManager.log("Upload cancelled: no internet connection");
+            new android.app.AlertDialog.Builder(this)
+                    .setTitle("No Internet Connection")
+                    .setMessage("Internet is not connected for uploading. Make sure about the connection and try again.")
+                    .setPositiveButton("OK", null)
+                    .show();
+            return;
         }
 
-        uploadLogFileToCloud(Uri.fromFile(logFile), logFileName);
+        for (int i = 0; i < logManager.loggerFileNames.size(); i++) {
+            java.io.File f = logManager.loggerFilePaths.get(i);
+            if (f == null || !f.exists()) {
+                logManager.log("Skipping missing file: " + logManager.loggerFileNames.get(i));
+                continue;
+            }
+            logManager.log("Uploading data to cloud : " + logManager.loggerFileNames.get(i));
+            uploadLogFileToCloud(Uri.fromFile(f), logManager.loggerFileNames.get(i));
+        }
+
+        if (logFile != null && logFile.exists()) {
+            uploadLogFileToCloud(Uri.fromFile(logFile), logFileName);
+        } else {
+            logManager.log("Skipping main log file: not created yet");
+        }
+    }
+
+    private boolean isInternetConnected() {
+        android.net.ConnectivityManager cm =
+                (android.net.ConnectivityManager) getSystemService(android.content.Context.CONNECTIVITY_SERVICE);
+        if (cm == null) return false;
+        android.net.Network network = cm.getActiveNetwork();
+        if (network == null) return false;
+        android.net.NetworkCapabilities capabilities = cm.getNetworkCapabilities(network);
+        return capabilities != null
+                && capabilities.hasCapability(android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET);
     }
 
     private void uploadLogFileToCloud(Uri file, String fileName) {
