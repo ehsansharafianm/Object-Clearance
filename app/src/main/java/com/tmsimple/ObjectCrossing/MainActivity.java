@@ -775,7 +775,9 @@ public class MainActivity extends AppCompatActivity implements ImuManagerListene
         runOnUiThread(() -> {
             uiManager.setButton(uiManager.exportButton, "Exported", "#008080", null, false);
             uiManager.setButton(uiManager.uploadButton, null, null, null, true);
-            logManager.log("Export complete — files ready for upload");
+            logManager.log("Export complete — starting automatic upload");
+            // Automatically upload once export is finished, same as pressing Upload.
+            uploadButton_onClick(null);
         });
     }
 
