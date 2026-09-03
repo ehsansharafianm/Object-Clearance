@@ -85,16 +85,18 @@ public class LogManager {
             }
         }
     }
-    // Filesystem-safe timestamp (no colons, commas, or slashes) — some Android
-    // devices reject those characters in file names and silently fail to create the file.
+    // Human-readable date/time (e.g. "Jun 26, 2026 9-50-47 AM"), with colons
+    // replaced by dashes so it is a valid file name. Colons are illegal in file
+    // names on some Android devices and cause the file to silently fail to create.
     public static String safeTimestamp() {
-        return new java.text.SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", java.util.Locale.US).format(new Date());
+        return java.text.DateFormat.getDateTimeInstance().format(new Date()).replace(":", "-");
     }
 
-    // Replace any character that is not allowed in an Android file name.
+    // Replace only the characters that are actually illegal in an Android file name.
+    // Commas and spaces are allowed, so they are kept.
     public static String sanitizeFileName(String name) {
         if (name == null) return "unknown";
-        return name.replaceAll("[\\\\/:*?\"<>|,]", "-").trim();
+        return name.replaceAll("[\\\\/:*?\"<>|]", "-").trim();
     }
 
     public DotLogger createDataLog(String ImuID, DotDevice device, String subjectTitle, int subjectNumber,  ImuManager imuManager) {
@@ -105,7 +107,7 @@ public class LogManager {
             String safeTag = sanitizeFileName(device.getTag());
             loggerFileFolder = context.getApplicationContext().getExternalFilesDir(subjectTitle + "/" + safeTag);
             currentLogDirectory = loggerFileFolder.getPath();
-            loggerFileName = ImuID + "_" + safeTag + "_" + safeTimestamp() + "_Subject" + subjectNumber + ".csv";
+            loggerFileName = ImuID + "_" + safeTag + "_" + safeTimestamp() + ", Subject " + subjectNumber + ".csv";
             String path = loggerFileFolder.getPath() + "/" + loggerFileName;
             File loggerFile = new File(path);
 

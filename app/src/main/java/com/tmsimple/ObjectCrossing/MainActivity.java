@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements ImuManagerListene
 
                 subjectTitle = "Subject " + subjcetNu;
                 subjectDateAndTime = LogManager.safeTimestamp();
-                logFileName = "Logger_" + subjectTitle.replace(" ", "") + "_" + subjectDateAndTime + ".txt";
+                logFileName = "Logger " + subjectTitle + " " + subjectDateAndTime + ".txt";
                 logFile = new File(logFilePath, logFileName);
                 logManager.setLogFile(logFile, subjcetNu);
                 subjectNumber = subjcetNu;
@@ -609,7 +609,7 @@ public class MainActivity extends AppCompatActivity implements ImuManagerListene
             int num = Integer.parseInt(text);
             subjectTitle = "Subject " + num;
             subjectDateAndTime = LogManager.safeTimestamp();
-            logFileName = "Logger_" + subjectTitle.replace(" ", "") + "_" + subjectDateAndTime + ".txt";
+            logFileName = "Logger " + subjectTitle + " " + subjectDateAndTime + ".txt";
             logFile = new File(logFilePath, logFileName);
             logManager.setLogFile(logFile, num);
             subjectNumber = num;

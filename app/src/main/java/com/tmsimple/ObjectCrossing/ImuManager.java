@@ -444,8 +444,8 @@ public class ImuManager implements
         imu5Folder.mkdirs();
         imu6Folder.mkdirs();
 
-        imu5ExportFilePath = imu5Folder.getPath() + "/IMU5_" + safeTag5 + "_" + timestamp + "_Subject" + subjectNumber + ".csv";
-        imu6ExportFilePath = imu6Folder.getPath() + "/IMU6_" + safeTag6 + "_" + timestamp + "_Subject" + subjectNumber + ".csv";
+        imu5ExportFilePath = imu5Folder.getPath() + "/IMU5_" + safeTag5 + "_" + timestamp + ", Subject " + subjectNumber + ".csv";
+        imu6ExportFilePath = imu6Folder.getPath() + "/IMU6_" + safeTag6 + "_" + timestamp + ", Subject " + subjectNumber + ".csv";
 
         imu5ExportLogger = DotLogger.createRecordingsLogger(
                 context.getApplicationContext(), recordingExportDataIds,
