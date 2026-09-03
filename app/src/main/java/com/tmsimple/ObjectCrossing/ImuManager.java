@@ -435,15 +435,17 @@ public class ImuManager implements
         imu5ExportedPackets = 0;
         imu6ExportedPackets = 0;
 
-        String timestamp = java.text.DateFormat.getDateTimeInstance().format(new Date());
+        String timestamp = LogManager.safeTimestamp();
+        String safeTag5 = LogManager.sanitizeFileName(IMU5.xsDevice.getTag());
+        String safeTag6 = LogManager.sanitizeFileName(IMU6.xsDevice.getTag());
 
-        java.io.File imu5Folder = context.getApplicationContext().getExternalFilesDir("Subject " + subjectNumber + "/" + IMU5.xsDevice.getTag());
-        java.io.File imu6Folder = context.getApplicationContext().getExternalFilesDir("Subject " + subjectNumber + "/" + IMU6.xsDevice.getTag());
+        java.io.File imu5Folder = context.getApplicationContext().getExternalFilesDir("Subject " + subjectNumber + "/" + safeTag5);
+        java.io.File imu6Folder = context.getApplicationContext().getExternalFilesDir("Subject " + subjectNumber + "/" + safeTag6);
         imu5Folder.mkdirs();
         imu6Folder.mkdirs();
 
-        imu5ExportFilePath = imu5Folder.getPath() + "/IMU5_" + IMU5.xsDevice.getTag() + "_" + timestamp + ", Subject " + subjectNumber + ".csv";
-        imu6ExportFilePath = imu6Folder.getPath() + "/IMU6_" + IMU6.xsDevice.getTag() + "_" + timestamp + ", Subject " + subjectNumber + ".csv";
+        imu5ExportFilePath = imu5Folder.getPath() + "/IMU5_" + safeTag5 + "_" + timestamp + "_Subject" + subjectNumber + ".csv";
+        imu6ExportFilePath = imu6Folder.getPath() + "/IMU6_" + safeTag6 + "_" + timestamp + "_Subject" + subjectNumber + ".csv";
 
         imu5ExportLogger = DotLogger.createRecordingsLogger(
                 context.getApplicationContext(), recordingExportDataIds,

@@ -85,14 +85,27 @@ public class LogManager {
             }
         }
     }
+    // Filesystem-safe timestamp (no colons, commas, or slashes) — some Android
+    // devices reject those characters in file names and silently fail to create the file.
+    public static String safeTimestamp() {
+        return new java.text.SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", java.util.Locale.US).format(new Date());
+    }
+
+    // Replace any character that is not allowed in an Android file name.
+    public static String sanitizeFileName(String name) {
+        if (name == null) return "unknown";
+        return name.replaceAll("[\\\\/:*?\"<>|,]", "-").trim();
+    }
+
     public DotLogger createDataLog(String ImuID, DotDevice device, String subjectTitle, int subjectNumber,  ImuManager imuManager) {
 
         try {
             File loggerFileFolder;
             String loggerFileName;
-            loggerFileFolder = context.getApplicationContext().getExternalFilesDir(subjectTitle + "/" + device.getTag());
+            String safeTag = sanitizeFileName(device.getTag());
+            loggerFileFolder = context.getApplicationContext().getExternalFilesDir(subjectTitle + "/" + safeTag);
             currentLogDirectory = loggerFileFolder.getPath();
-            loggerFileName = ImuID + "_" + device.getTag() + "_" + java.text.DateFormat.getDateTimeInstance().format(new Date()) + ", Subject " + subjectNumber + ".csv";
+            loggerFileName = ImuID + "_" + safeTag + "_" + safeTimestamp() + "_Subject" + subjectNumber + ".csv";
             String path = loggerFileFolder.getPath() + "/" + loggerFileName;
             File loggerFile = new File(path);
 
@@ -118,7 +131,7 @@ public class LogManager {
         try {
             File featureLogFolder = context.getApplicationContext().getExternalFilesDir(subjectTitle);
             String featureLogFileName = "FeatureLog_" + imuId + "_Subject" + subjectNumber + "_" +
-                    java.text.DateFormat.getDateTimeInstance().format(new Date()) + ".csv";
+                    safeTimestamp() + ".csv";
             String path = featureLogFolder.getPath() + "/" + featureLogFileName;
             File featureLogFile = new File(path);
 

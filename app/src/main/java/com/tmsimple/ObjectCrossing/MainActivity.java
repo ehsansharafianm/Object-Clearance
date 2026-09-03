@@ -102,8 +102,8 @@ public class MainActivity extends AppCompatActivity implements ImuManagerListene
             public void onSubjectNumberEntered(int subjcetNu) {
 
                 subjectTitle = "Subject " + subjcetNu;
-                subjectDateAndTime = java.text.DateFormat.getDateTimeInstance().format(new Date());
-                logFileName = "Logger " + subjectTitle + " " + subjectDateAndTime + ".txt";
+                subjectDateAndTime = LogManager.safeTimestamp();
+                logFileName = "Logger_" + subjectTitle.replace(" ", "") + "_" + subjectDateAndTime + ".txt";
                 logFile = new File(logFilePath, logFileName);
                 logManager.setLogFile(logFile, subjcetNu);
                 subjectNumber = subjcetNu;
@@ -459,6 +459,10 @@ public class MainActivity extends AppCompatActivity implements ImuManagerListene
 
     public void measureButton_onClick(View view) {
 
+        // Safety net: make sure subject info is captured before any logger is created,
+        // even if the subject number was typed but Enter/Done was not pressed.
+        ensureSubjectInfo();
+
         // Play sound
         MediaPlayer mediaPlayer = MediaPlayer.create(this, R.raw.measuring_audio);
         mediaPlayer.setOnCompletionListener(mp -> mp.release());
@@ -594,6 +598,26 @@ public class MainActivity extends AppCompatActivity implements ImuManagerListene
         });
         imuManager.disconnectAll();
     }
+    // Ensures subjectTitle / subjectNumber / logFile are set from the entered value.
+    // Runs the same setup the Enter/Done handler would, in case it never fired.
+    private void ensureSubjectInfo() {
+        if (subjectNumber > 0 && subjectTitle != null && logFile != null) return;
+        if (uiManager == null || uiManager.enterSubjectNumber == null) return;
+        String text = uiManager.enterSubjectNumber.getText().toString().trim();
+        if (text.isEmpty()) return;
+        try {
+            int num = Integer.parseInt(text);
+            subjectTitle = "Subject " + num;
+            subjectDateAndTime = LogManager.safeTimestamp();
+            logFileName = "Logger_" + subjectTitle.replace(" ", "") + "_" + subjectDateAndTime + ".txt";
+            logFile = new File(logFilePath, logFileName);
+            logManager.setLogFile(logFile, num);
+            subjectNumber = num;
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void stopButton_onClick(View view) { // After measuring, the dots should be stopped to for data logging
 
         uiManager.setButton(uiManager.stopButton, null, null, null, false);
