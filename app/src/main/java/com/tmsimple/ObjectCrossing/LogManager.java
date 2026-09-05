@@ -31,6 +31,10 @@ public class LogManager {
     private HashMap<String, BufferedWriter> featureLogWriters = new HashMap<>();
     private boolean isFeatureLoggingActive = false;
     private String currentLogDirectory;
+    // Demographics entered from the Info form. Kept so it can be written to the
+    // subject's log file regardless of whether the form is filled before or after
+    // the subject number (and therefore the log file) is set.
+    private String demographicsBlock;
 
     public LogManager(Context context, TextView logContents, File logFile) {
         this.context = context;
@@ -49,6 +53,21 @@ public class LogManager {
         this.logFile = logFile;
         log("Subject number set: " + subjectNumber);
         log("Log File Created");
+        // If demographics were entered before the log file existed (or a new log
+        // file was just created), make sure they are written into it.
+        if (demographicsBlock != null) {
+            log(demographicsBlock);
+        }
+    }
+
+    // Store demographics from the Info form and write them to the log file if it
+    // already exists. If the log file does not exist yet, they are kept and
+    // written automatically when setLogFile() creates it.
+    public void logDemographics(String block) {
+        this.demographicsBlock = block;
+        if (logFile != null) {
+            log(block);
+        }
     }
     public void setLogVisible(boolean visible) {
         if (logContents != null) {

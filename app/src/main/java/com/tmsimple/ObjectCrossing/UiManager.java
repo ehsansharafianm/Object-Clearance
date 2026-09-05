@@ -1167,20 +1167,25 @@ public class UiManager {
             resultText.setVisibility(View.VISIBLE);
 
             if (logManager != null) {
-                logManager.log("===== DEMOGRAPHICS =====");
-                logManager.log(String.format(Locale.US, "Subject Height (cm): %.1f", height));
-                logManager.log(String.format(Locale.US, "Subject Weight (kg): %.1f", weight));
-                logManager.log(String.format(Locale.US, "Hip to Knee Length (cm): %.1f", hipKnee));
-                logManager.log(String.format(Locale.US, "Knee to Ankle Length (cm): %.1f", kneeAnkle));
-                logManager.log(String.format(Locale.US, "Hip to Ankle Length measured (cm): %.1f", hipAnkle));
-                logManager.log(String.format(Locale.US, "Hip to Ankle Length computed (cm): %.1f", computedHipAnkle));
-                logManager.log(String.format(Locale.US, "Flat Foot Length (cm): %.1f", flatFoot));
-                logManager.log(String.format(Locale.US, "Elevated Foot Length (cm): %.1f", elevatedFoot));
-                logManager.log("Dominant Leg: " + dominantLeg);
-                logManager.log("Dominant Hand: " + dominantHand);
-                logManager.log(String.format(Locale.US,
-                        "Obstacle heights: 10%% = %.1f cm | 20%% = %.1f cm | 30%% = %.1f cm", h10, h20, h30));
-                logManager.log("========================");
+                StringBuilder block = new StringBuilder();
+                block.append("===== DEMOGRAPHICS =====\n");
+                block.append(String.format(Locale.US, "Subject Height (cm): %.1f\n", height));
+                block.append(String.format(Locale.US, "Subject Weight (kg): %.1f\n", weight));
+                block.append(String.format(Locale.US, "Hip to Knee Length (cm): %.1f\n", hipKnee));
+                block.append(String.format(Locale.US, "Knee to Ankle Length (cm): %.1f\n", kneeAnkle));
+                block.append(String.format(Locale.US, "Hip to Ankle Length measured (cm): %.1f\n", hipAnkle));
+                block.append(String.format(Locale.US, "Hip to Ankle Length computed (cm): %.1f\n", computedHipAnkle));
+                block.append(String.format(Locale.US, "Flat Foot Length (cm): %.1f\n", flatFoot));
+                block.append(String.format(Locale.US, "Elevated Foot Length (cm): %.1f\n", elevatedFoot));
+                block.append("Dominant Leg: ").append(dominantLeg).append("\n");
+                block.append("Dominant Hand: ").append(dominantHand).append("\n");
+                block.append(String.format(Locale.US,
+                        "Obstacle heights: 10%% = %.1f cm | 20%% = %.1f cm | 30%% = %.1f cm\n", h10, h20, h30));
+                block.append("========================");
+
+                // Store + write now if the log file already exists, and remember it so
+                // it is (re)written whenever the subject's log file is created.
+                logManager.logDemographics(block.toString());
             }
         });
 
